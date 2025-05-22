@@ -67,6 +67,8 @@
         <!-- [ Main Content ] start -->
         @yield('content')
     <!-- [ Main Content ] end -->
+      </div>
+      </div>
     <x-admin.main-footer />
  <!-- Required Js -->
 

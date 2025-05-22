@@ -85,7 +85,7 @@
    
     <script src="{{ asset('js/plugins/feather.min.js') }}"></script>
 
-       
+    <script src="{{ asset('js/theme.js')}}"></script>
     <script>
       layout_change('light');
     </script>
