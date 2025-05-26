@@ -3,7 +3,7 @@
       <div class="row">
         <div class="col-sm-6 my-1">
           <p class="m-0">
-            Berry &#9829; crafted by Team
+            Designed and developed by C-DIT. Copyrights
           
           </p>
         </div>

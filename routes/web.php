@@ -10,5 +10,6 @@ Route::get('/dashboard', function () {
 });
 
 Auth::routes();
-
+Route::middleware(['auth', 'NoCache'])->group(function () {
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+});

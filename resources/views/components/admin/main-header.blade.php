@@ -65,7 +65,7 @@
               
               <span class="small text-muted"> {{ Auth::user()->name }}</span>
             </h4>
-            <p class="text-muted">Project Admin</p>
+            <p class="text-muted"><span class="sub-text">{{ Auth::user()->email }}</span></p>
             <hr />
             <div class="profile-notification-scroll position-relative" style="max-height: calc(100vh - 280px)">
             
@@ -77,10 +77,18 @@
                 <i class="ti ti-user"></i>
                 <span>Social Profile</span>
               </a>
-              <a href="#" class="dropdown-item">
-                <i class="ti ti-logout"></i>
-                <span>Logout</span>
-              </a>
+             
+                <a class="dropdown-item" href="{{ route('logout') }}"
+                   onclick="event.preventDefault();
+                                 document.getElementById('logout-form').submit();">
+                                  <i class="ti ti-logout"></i>
+                    <span>Logout</span>
+                </a>
+
+                <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                    @csrf
+                </form>
+            
             </div>
           </div>
         </div>
