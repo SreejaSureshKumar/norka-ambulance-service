@@ -9,13 +9,13 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta
       name="description"
-      content="Berry is trending dashboard template made using Bootstrap 5 design framework. Berry is available in Bootstrap, React, CodeIgniter, Angular,  and .net Technologies."
+      content=""
     />
     <meta
       name="keywords"
-      content="Bootstrap admin template, Dashboard UI Kit, Dashboard Template, Backend Panel, react dashboard, angular dashboard"
+      content=""
     />
-    <meta name="author" content="codedthemes" />
+    <meta name="author" content="C-DIT" />
 
 
 
@@ -41,7 +41,7 @@
         <div class="auth-form">
           <div class="card my-5">
             <div class="card-body">
-              
+   
               <div class="row">
                 <div class="d-flex justify-content-center">
                   <div class="auth-header">
@@ -52,24 +52,38 @@
               </div>
             
               <h5 class="my-4 d-flex justify-content-center">Sign in with Email address</h5>
+              <form method="POST" action="{{ route('login') }}">
+                @csrf
               <div class="form-floating mb-3">
-                <input type="email" class="form-control" id="floatingInput" placeholder="Email address / Username" />
-                <label for="floatingInput">Email address / Username</label>
+                <input type="email" class="form-control" id="user_login" name="user_login" placeholder="Email address / Username" />
+                <label for="user_login">Email address / Username</label>
+                @error('user_login')
+                <span class="text-danger" role="alert">
+                    <strong>{{ $message }}</strong>
+                </span>
+            @enderror
               </div>
               <div class="form-floating mb-3">
-                <input type="email" class="form-control" id="floatingInput1" placeholder="Password" />
-                <label for="floatingInput1">Password</label>
+                <input type="password" class="form-control" id="password" name="password" placeholder="Password" />
+                <label for="password">Password</label>
+                @error('password')
+                <span class="text-danger" role="alert">
+                    <strong>{{ $message }}</strong>
+                </span>
+            @enderror
+             
               </div>
-              <div class="d-flex mt-1 justify-content-between">
+              {{-- <div class="d-flex mt-1 justify-content-between">
                 <div class="form-check">
                   <input class="form-check-input input-primary" type="checkbox" id="customCheckc1" checked="" />
                   <label class="form-check-label text-muted" for="customCheckc1">Remember me</label>
                 </div>
                 <h5 class="text-secondary">Forgot Password?</h5>
-              </div>
+              </div> --}}
               <div class="d-grid mt-4">
-                <button type="button" class="btn btn-secondary">Sign In</button>
+                <button type="submit" class="btn btn-secondary">Sign In</button>
               </div>
+            </form>
               <hr />
               <h5 class="d-flex justify-content-center">Don't have an account?</h5>
             </div>

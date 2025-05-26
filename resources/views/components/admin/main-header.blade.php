@@ -54,7 +54,7 @@
           aria-haspopup="false"
           aria-expanded="false"
         >
-          <img src="#" alt="user-image" class="user-avtar" />
+          <img src="{{asset('images/avatar-1.jpg')}}" alt="user-image" class="user-avtar" />
           <span>
             <i class="ti ti-settings"></i>
           </span>
@@ -62,18 +62,13 @@
         <div class="dropdown-menu dropdown-user-profile dropdown-menu-end pc-h-dropdown">
           <div class="dropdown-header">
             <h4>
-              Good Morning,
-              <span class="small text-muted">John Doe</span>
+              
+              <span class="small text-muted"> {{ Auth::user()->name }}</span>
             </h4>
             <p class="text-muted">Project Admin</p>
             <hr />
             <div class="profile-notification-scroll position-relative" style="max-height: calc(100vh - 280px)">
-              <div class="upgradeplan-block bg-light-warning rounded">
-                <h4>Explore full code</h4>
-                <p class="text-muted">Buy now to get full access of code files</p>
-                <a href="#" target="_blank" class="btn btn-warning">Buy Now</a>
-              </div>
-              <hr />
+            
               <a href="#" class="dropdown-item">
                 <i class="ti ti-settings"></i>
                 <span>Account Settings</span>

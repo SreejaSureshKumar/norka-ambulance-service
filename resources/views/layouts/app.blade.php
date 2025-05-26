@@ -1,108 +1,80 @@
 <!doctype html>
-<html lang="en">
-  <!-- [Head] start -->
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <head>
-    <title>@yield('title', 'Dashboard') | {{ config('app.name', 'Norka Ambulance Service') }}</title>
-    <!-- [Meta] -->
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimal-ui" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta
-      name="description"
-      content="Berry is trending dashboard template made using Bootstrap 5 design framework. Berry is available in Bootstrap, React, CodeIgniter, Angular,  and .net Technologies."
-    />
-    <meta
-      name="keywords"
-      content="Bootstrap admin template, Dashboard UI Kit, Dashboard Template, Backend Panel, react dashboard, angular dashboard"
-    />
-    <meta name="author" content="codedthemes" />
+    <!-- CSRF Token -->
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <!-- [Favicon] icon -->
-    <link rel="icon" href="{{asset('images/favicon.svg')}}" type="image/x-icon" />
+    <title>{{ config('app.name', 'Laravel') }}</title>
 
-<!-- [phosphor Icons] https://phosphoricons.com/ -->
-<link rel="stylesheet" href="{{asset('fonts/phosphor/duotone/style.css')}}" />
-<!-- [Tabler Icons] https://tablericons.com -->
-<link rel="stylesheet" href="{{asset('fonts/tabler-icons.min.css')}}" />
-<!-- [Feather Icons] https://feathericons.com -->
-<link rel="stylesheet" href="{{asset('fonts/feather.css')}}" />
-<!-- [Font Awesome Icons] https://fontawesome.com/icons -->
-<link rel="stylesheet" href="{{asset('fonts/fontawesome.css')}}" />
-<!-- [Material Icons] https://fonts.google.com/icons -->
-<link rel="stylesheet" href="{{asset('fonts/material.css')}}" />
-<!-- [Template CSS Files] -->
-<link rel="stylesheet" href="{{asset('css/style.css')}}" id="main-style-link" />
-<link rel="stylesheet" href="{{asset('css/style-preset.css')}}" />
+    <!-- Fonts -->
+    <link rel="dns-prefetch" href="//fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css?family=Nunito" rel="stylesheet">
 
-  </head>
-  <!-- [Head] end -->
-  <!-- [Body] Start -->
+    <!-- Scripts -->
+    @vite(['resources/sass/app.scss', 'resources/js/app.js'])
+</head>
+<body>
+    <div id="app">
+        <nav class="navbar navbar-expand-md navbar-light bg-white shadow-sm">
+            <div class="container">
+                <a class="navbar-brand" href="{{ url('/') }}">
+                    {{ config('app.name', 'Laravel') }}
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="{{ __('Toggle navigation') }}">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
 
-  <body data-pc-preset="preset-1" data-pc-sidebar-theme="light" data-pc-sidebar-caption="true" data-pc-direction="ltr" data-pc-theme="light">
-    <!-- [ Pre-loader ] start -->
-<div class="loader-bg">
-  <div class="loader-track">
-    <div class="loader-fill"></div>
-  </div>
-</div>
-<!-- [ Pre-loader ] End -->
- <!-- [ Sidebar Menu ] start -->
- <x-admin.side-bar />
-<!-- [ Sidebar Menu ] end -->
- <!-- [ Header Topbar ] start -->
- <x-admin.main-header />
-<!-- [ Header ] end -->
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <!-- Left Side Of Navbar -->
+                    <ul class="navbar-nav me-auto">
 
+                    </ul>
 
+                    <!-- Right Side Of Navbar -->
+                    <ul class="navbar-nav ms-auto">
+                        <!-- Authentication Links -->
+                        @guest
+                            @if (Route::has('login'))
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ route('login') }}">{{ __('Login') }}</a>
+                                </li>
+                            @endif
 
-    <!-- [ Main Content ] start -->
-    <div class="pc-container">
-      <div class="pc-content">
-        <!-- [ breadcrumb ] start -->
-        <x-admin.main-bread-crumbs />
-        <!-- [ breadcrumb ] end -->
+                            @if (Route::has('register'))
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ route('register') }}">{{ __('Register') }}</a>
+                                </li>
+                            @endif
+                        @else
+                            <li class="nav-item dropdown">
+                                <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+                                    {{ Auth::user()->name }}
+                                </a>
 
+                                <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                                    <a class="dropdown-item" href="{{ route('logout') }}"
+                                       onclick="event.preventDefault();
+                                                     document.getElementById('logout-form').submit();">
+                                        {{ __('Logout') }}
+                                    </a>
 
-        <!-- [ Main Content ] start -->
-        @yield('content')
-    <!-- [ Main Content ] end -->
-      </div>
-      </div>
-    <x-admin.main-footer />
- <!-- Required Js -->
+                                    <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                                        @csrf
+                                    </form>
+                                </div>
+                            </li>
+                        @endguest
+                    </ul>
+                </div>
+            </div>
+        </nav>
 
- <script src="{{ asset('js/plugins/simplebar.min.js')}}"></script>
-<script src="{{ asset('js/script.js')}}"></script>
-<script src="{{ asset('js/plugins/bootstrap.min.js')}}"></script>
-<script src="{{ asset('js/plugins/feather.min.js') }}"></script>
-<script src="{{ asset('js/fonts/custom-font.js')}}"></script>
-   
-<script>
-  layout_change('light');
-</script>
-   
-<script>
-  font_change('Roboto');
-</script>
- 
-<script>
-  change_box_container('false');
-</script>
- 
-<script>
-  layout_caption_change('true');
-</script>
-   
-<script>
-  layout_rtl_change('false');
-</script>
- 
-<script>
-  preset_change('preset-1');
-</script>
-
-@stack('custom-scripts')
-  </body>
-  <!-- [Body] end -->
+        <main class="py-4">
+            @yield('content')
+        </main>
+    </div>
+</body>
 </html>
