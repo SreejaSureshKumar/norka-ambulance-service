@@ -45,8 +45,13 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+    public function userType()
+    {
+        return $this->belongsTo(UserType::class, 'user_type');
+    }
+
     public function userMapping() {
-        return $this->hasOne(WebPortalMapping::class);
+        return $this->hasOne(UserTypeMapping::class);
     }
     public function getCurrentUserPermissions()
     {

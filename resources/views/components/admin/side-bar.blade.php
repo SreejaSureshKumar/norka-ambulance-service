@@ -8,55 +8,7 @@
       </div>
       <div class="navbar-content">
         <ul class="pc-navbar">
-          <li class="pc-item pc-caption">
-            <label>Dashboard</label>
-            <i class="ti ti-dashboard"></i>
-          </li>
-          <li class="pc-item">
-            <a href="#" class="pc-link"
-              ><span class="pc-micon"><i class="ti ti-dashboard"></i></span><span class="pc-mtext">Default</span></a
-            >
-          </li>
-  
-          <li class="pc-item pc-caption">
-            <label>Elements</label>
-            <i class="ti ti-apps"></i>
-          </li>
-          <li class="pc-item">
-            <a href="#" class="pc-link">
-              <span class="pc-micon"><i class="ti ti-typography"></i></span>
-              <span class="pc-mtext">Typography</span>
-            </a>
-          </li>
-          <li class="pc-item">
-            <a href="#" class="pc-link">
-              <span class="pc-micon"><i class="ti ti-color-swatch"></i></span>
-              <span class="pc-mtext">Color</span>
-            </a>
-          </li>
-          <li class="pc-item">
-            <a href="#" class="pc-link">
-              <span class="pc-micon"><i class="ti ti-plant-2"></i></span>
-              <span class="pc-mtext">Icons</span>
-            </a>
-          </li>
-  
-          <li class="pc-item pc-caption">
-            <label>Pages</label>
-            <i class="ti ti-news"></i>
-          </li>
-          <li class="pc-item">
-            <a class="pc-link" target="_blank" href="#">
-              <span class="pc-micon"><i class="ti ti-lock"></i></span>
-              <span class="pc-mtext">Login</span>
-            </a>
-          </li>
-          <li class="pc-item">
-            <a href="#" target="_blank" class="pc-link">
-              <span class="pc-micon"><i class="ti ti-user-plus"></i></span>
-              <span class="pc-mtext">Register</span>
-            </a>
-          </li>
+       
   
           <li class="pc-item pc-caption">
             <label>Other</label>
