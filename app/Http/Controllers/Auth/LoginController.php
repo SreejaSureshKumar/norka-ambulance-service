@@ -59,7 +59,7 @@ class LoginController extends Controller
      */
     protected function validateLogin(Request $request)
     {
-        info("validateLogin");
+       
         $request->validate([
             $this->username() => 'required|string',
             'password' => 'required|string',
@@ -69,7 +69,7 @@ class LoginController extends Controller
 
     protected function credentials(Request $request)
     {
-        info("creadentisls");
+     
         $user_login = $request->input($this->username());
         $validator = Validator::make(['email' => $user_login], [
             'email' => 'email',
@@ -88,7 +88,7 @@ class LoginController extends Controller
      */
     public function username()
     {
-        info("usernaem");
+      
         return 'user_login';
     }
      /**

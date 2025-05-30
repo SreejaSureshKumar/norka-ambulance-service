@@ -10,18 +10,20 @@ use Illuminate\Support\Facades\Route;
 class SideBar extends Component
 {
     public $current_route = '';
+    public $user;
     /**
      * Create a new component instance.
      */
     public function __construct()
     {
-        $this->user = Auth::user();
+       
+        
     }
     public function buildAttrs($module)
     {
-        $usertype = $this->user->user_type;
+
        
-        $module_path = trim($module->module_path);
+        $module_path = trim($module->component_path);
         $routes_params=[];
         if(strpos($module_path,'|{') != false)
         {
@@ -37,8 +39,8 @@ class SideBar extends Component
 
       
         return [
-            'name' => $module->module_name,
-            'icon' => $module->module_icon,
+            'name' => $module->component_name,
+            'icon' => $module->component_icon,
             'route_name' => $module_path,
             'url' => Route::has($module_path) ? (!empty($routes_params) ? route($module_path, $routes_params) : route($module_path)) : '#',
             'active' => $this->current_route === $module_path
@@ -46,25 +48,27 @@ class SideBar extends Component
     }
     public function menuBuilder()
     {
-        $modules = $this->user->getCurrentUserPermissions();
+        $components = Auth::user()->getCurrentUserPermissions();
+      
+      
         $main_menu = array();
         $this->current_route = request()->route()->getName();
 
         // Group the main menu.
-        foreach ($modules as $module) {
-            $module_id = $module->module_id;
-            if ($module->module_parentid === 0) {
-                $main_menu[$module_id] = array_merge($this->buildAttrs($module), [
+        foreach ($components as $component) {
+            $component_id = $component->component_id;
+            if ($component->component_parent === 0) {
+                $main_menu[$component_id] = array_merge($this->buildAttrs($component), [
                     'submenu' => [],
                 ]);
             }
         }
 
         // Assign submenu.
-        foreach ($modules as $module) {
-            if ($module->module_parentid !== 0) {
-                $main_menu_id = $module->module_parentid;
-                $main_menu[$main_menu_id]['submenu'][] = $this->buildAttrs($module);
+        foreach ($components as $component) {
+            if ($component->component_parent !== 0) {
+                $main_menu_id = $component->component_parent;
+                $main_menu[$main_menu_id]['submenu'][] = $this->buildAttrs($component);
             }
         }
 
@@ -87,6 +91,7 @@ class SideBar extends Component
     public function render(): View|Closure|string
     {
         $menu_items = $this->menuBuilder();
-        return view('components.admin.side-bar');
+ 
+        return view('components.admin.side-bar', ['menu_items' => $menu_items]);
     }
 }

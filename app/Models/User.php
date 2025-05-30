@@ -21,6 +21,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'user_type', // Assuming this is the foreign key for UserType
     ];
 
     /**
@@ -50,13 +51,19 @@ class User extends Authenticatable
         return $this->belongsTo(UserType::class, 'user_type');
     }
 
-    public function userMapping() {
-        return $this->hasOne(UserTypeMapping::class);
-    }
+   
     public function getCurrentUserPermissions()
     {
-        $user_type = UserType::find($this->user_type);
-        return $user_type->activeModules()->get();
+        $user_type = UserType::find($this->user_type);// Assuming userType is a relationship or property
+
+        if ($user_type && method_exists($user_type, 'activeModules')) {
+            $permissions = $user_type->activeModules()->get();
+        } else {
+            $permissions = []; // Fallback to an empty array or default permissions
+        }
+        return $permissions;
+        // $user_type = UserType::find($this->user_type);
+        // return $user_type->activeModules()->get();
     }
 
 }

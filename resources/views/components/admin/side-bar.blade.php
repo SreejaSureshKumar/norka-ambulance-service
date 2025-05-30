@@ -8,69 +8,42 @@
       </div>
       <div class="navbar-content">
         <ul class="pc-navbar">
-       
-  
-          <li class="pc-item pc-caption">
-            <label>Other</label>
-            <i class="ti ti-brand-chrome"></i>
-          </li>
-          <li class="pc-item pc-hasmenu">
-            <a href="#!" class="pc-link"
-              ><span class="pc-micon"><i class="ti ti-menu"></i></span><span class="pc-mtext">Menu levels</span
-              ><span class="pc-arrow"><i data-feather="chevron-right"></i></span
-            ></a>
-            <ul class="pc-submenu">
-              <li class="pc-item"><a class="pc-link" href="#!">Level 2.1</a></li>
-              <li class="pc-item pc-hasmenu">
-                <a href="#!" class="pc-link"
-                  >Level 2.2<span class="pc-arrow"><i data-feather="chevron-right"></i></span
-                ></a>
-                <ul class="pc-submenu">
-                  <li class="pc-item"><a class="pc-link" href="#!">Level 3.1</a></li>
-                  <li class="pc-item"><a class="pc-link" href="#!">Level 3.2</a></li>
-                  <li class="pc-item pc-hasmenu">
-                    <a href="#!" class="pc-link"
-                      >Level 3.3<span class="pc-arrow"><i data-feather="chevron-right"></i></span
-                    ></a>
-                    <ul class="pc-submenu">
-                      <li class="pc-item"><a class="pc-link" href="#!">Level 4.1</a></li>
-                      <li class="pc-item"><a class="pc-link" href="#!">Level 4.2</a></li>
-                    </ul>
-                  </li>
-                </ul>
+          @foreach ($menu_items as $menu_item)
+            @isset ($menu_item['name'])
+              @php
+                $has_submenu = count($menu_item['submenu']);
+                $is_menu_active = $menu_item['active'];
+              @endphp
+              <li class="pc-item{{ $has_submenu ? ' pc-hasmenu' : '' }}{{ $is_menu_active ? ' active' : '' }}">
+                <a href="{{ $menu_item['url'] }}" @class([
+                        'pc-link',
+                        'nk-menu-link',
+                        'nk-menu-toggle' => $has_submenu
+                    ])>
+                  <span class="nk-menu-icon"><em class="{{ $menu_item['icon'] }}"></em></span>
+                  <span class="nk-menu-text">{{ $menu_item['name'] }}</span>
+                  @if ($has_submenu)
+                    <span class="pc-arrow"><i data-feather="chevron-right"></i></span>
+                  @endif
+                </a>
+                @if ($has_submenu)
+                  <ul class="pc-submenu nk-menu-sub">
+                    @foreach ($menu_item['submenu'] as $submenu)
+                      <li class="pc-item nk-menu-item">
+                        <a href="{{ $submenu['url'] }}" class="pc-link nk-menu-link">
+                          <span class="nk-menu-text">{{ $submenu['name'] }}</span>
+                        </a>
+                      </li>
+                    @endforeach
+                  </ul>
+                @endif
               </li>
-              <li class="pc-item pc-hasmenu">
-                <a href="#!" class="pc-link"
-                  >Level 2.3<span class="pc-arrow"><i data-feather="chevron-right"></i></span
-                ></a>
-                <ul class="pc-submenu">
-                  <li class="pc-item"><a class="pc-link" href="#!">Level 3.1</a></li>
-                  <li class="pc-item"><a class="pc-link" href="#!">Level 3.2</a></li>
-                  <li class="pc-item pc-hasmenu">
-                    <a href="#!" class="pc-link"
-                      >Level 3.3<span class="pc-arrow"><i data-feather="chevron-right"></i></span
-                    ></a>
-                    <ul class="pc-submenu">
-                      <li class="pc-item"><a class="pc-link" href="#!">Level 4.1</a></li>
-                      <li class="pc-item"><a class="pc-link" href="#!">Level 4.2</a></li>
-                    </ul>
-                  </li>
-                </ul>
-              </li>
-            </ul>
-          </li>
-          <li class="pc-item">
-            <a href="#" class="pc-link">
-              <span class="pc-micon"><i class="ti ti-brand-chrome"></i></span>
-              <span class="pc-mtext">Sample page</span>
-            </a>
-          </li>
-  
+            @endisset
+          @endforeach
         </ul>
-     
         <div class="w-100 text-center">
           <div class="badge theme-version badge rounded-pill bg-light text-dark f-12"></div>
         </div>
       </div>
     </div>
-  </nav>
+</nav>

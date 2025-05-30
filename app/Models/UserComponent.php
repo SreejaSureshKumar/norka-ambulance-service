@@ -22,6 +22,12 @@ class UserComponent extends Model
         'component_parent',
         'component_order',
         'component_status',
+        'component_icon'
 
     ];
+
+    public function parentComponent()
+    {
+        return $this->belongsTo(UserComponent::class, 'component_parent', 'component_id');
+    }
 }

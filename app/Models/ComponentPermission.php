@@ -16,13 +16,26 @@ class ComponentPermission extends Model
      */
     protected $fillable = [
         'component_id',
-        'role_id',
+        'usertype_id',
         'permission_status',
       
 
     ];
-    public function roles()
+      /**
+     * Define the relationship with the UserType model.
+     * A ComponentPermission belongs to a UserType.
+     */
+    public function usertype()
     {
-        return $this->belongsToMany(Role::class, 'menu_permissions');
+        return $this->belongsTo(UserType::class, 'usertype_id');
+    }
+
+    /**
+     * Define the relationship with the Component model.
+     * A ComponentPermission belongs to a Component.
+     */
+    public function component()
+    {
+        return $this->belongsTo(UserComponent::class, 'component_id');
     }
 }

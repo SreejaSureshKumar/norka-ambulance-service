@@ -85,7 +85,14 @@
               </div>
             </form>
               <hr />
-              <h5 class="d-flex justify-content-center">Don't have an account?</h5>
+              <div class="d-flex mt-1 justify-content-between">
+
+                
+                  <h5 class="d-flex justify-content-center">Don't have an account?</h5> 
+                  <a href="{{ route('register') }}">Sign up</a>
+              </div>
+              
+              
             </div>
           </div>
         </div>

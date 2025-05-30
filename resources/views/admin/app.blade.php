@@ -31,10 +31,11 @@
 <link rel="stylesheet" href="{{asset('fonts/fontawesome.css')}}" />
 <!-- [Material Icons] https://fonts.google.com/icons -->
 <link rel="stylesheet" href="{{asset('fonts/material.css')}}" />
+<link rel="stylesheet" href="{{asset('css/plugins/bootstrap.min.css')}}" />
 <!-- [Template CSS Files] -->
 <link rel="stylesheet" href="{{asset('css/style.css')}}" id="main-style-link" />
 <link rel="stylesheet" href="{{asset('css/style-preset.css')}}" />
-
+<link rel="stylesheet" href="{{ asset('css/datatables.min.css') }}">
   </head>
   <!-- [Head] end -->
   <!-- [Body] Start -->
@@ -78,8 +79,10 @@
  <script src="{{ asset('js/script.js')}}"></script>
  <script src="{{asset('js/theme.js')}}"></script>
 <script src="{{ asset('js/plugins/feather.min.js') }}"></script>
+<script src="{{asset('js/jquery.js')}}"></script>
 
-
+<!-- DataTables JS -->
+<script src="{{ asset('js/datatables.min.js') }}"></script>
    
 <script>
   layout_change('light');
