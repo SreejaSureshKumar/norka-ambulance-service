@@ -1,137 +1,184 @@
 <!doctype html>
 <html lang="en">
-  <!-- [Head] start -->
-  <head>
+<!-- [Head] start -->
+
+<head>
     <title>Login </title>
     <!-- [Meta] -->
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimal-ui" />
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta
-      name="description"
-      content=""
-    />
-    <meta
-      name="keywords"
-      content=""
-    />
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
     <meta name="author" content="C-DIT" />
 
 
+    <!-- [Favicon] icon -->
+    <link rel="icon" href="{{ asset('images/favicon.png') }}" type="image/x-icon" />
+    <!-- [Font Awesome Icons] https://fontawesome.com/icons -->
+    <link rel="stylesheet" href="{{ asset('fonts/fontawesome.css') }}" />
 
-<!-- [Font Awesome Icons] https://fontawesome.com/icons -->
-<link rel="stylesheet" href="{{asset('fonts/fontawesome.css')}}" />
+    <link rel="stylesheet" href="{{ asset('css/style.css') }}" id="main-style-link" />
+    <style>
+        .wrapx {
+            background: #f2f9ff;
+            padding: 8px;
+            border: 1px solid #e0edf9;
+            border-radius: 6px;
+        }
+    </style>
+</head>
+<!-- [Head] end -->
+<!-- [Body] Start -->
 
-<link rel="stylesheet" href="{{asset('css/style.css')}}" id="main-style-link" />
-
-  </head>
-  <!-- [Head] end -->
-  <!-- [Body] Start -->
-  <body>
+<body>
     <!-- [ Pre-loader ] start -->
     <div class="loader-bg">
-      <div class="loader-track">
-        <div class="loader-fill"></div>
-      </div>
+        <div class="loader-track">
+            <div class="loader-fill"></div>
+        </div>
     </div>
     <!-- [ Pre-loader ] End -->
 
     <div class="auth-main">
-      <div class="auth-wrapper v3">
-        <div class="auth-form">
-          <div class="card my-5">
-            <div class="card-body">
-   
-              <div class="row">
-                <div class="d-flex justify-content-center">
-                  <div class="auth-header">
-                   
-                    <p class="f-16 mt-2">Enter your credentials to continue</p>
-                  </div>
-                </div>
-              </div>
-            
-              <h5 class="my-4 d-flex justify-content-center">Sign in with Email address</h5>
-              <form method="POST" action="{{ route('login') }}">
-                @csrf
-              <div class="form-floating mb-3">
-                <input type="email" class="form-control" id="user_login" name="user_login" placeholder="Email address / Username" />
-                <label for="user_login">Email address / Username</label>
-                @error('user_login')
-                <span class="text-danger" role="alert">
-                    <strong>{{ $message }}</strong>
-                </span>
-            @enderror
-              </div>
-              <div class="form-floating mb-3">
-                <input type="password" class="form-control" id="password" name="password" placeholder="Password" />
-                <label for="password">Password</label>
-                @error('password')
-                <span class="text-danger" role="alert">
-                    <strong>{{ $message }}</strong>
-                </span>
-            @enderror
-             
-              </div>
-              {{-- <div class="d-flex mt-1 justify-content-between">
-                <div class="form-check">
-                  <input class="form-check-input input-primary" type="checkbox" id="customCheckc1" checked="" />
-                  <label class="form-check-label text-muted" for="customCheckc1">Remember me</label>
-                </div>
-                <h5 class="text-secondary">Forgot Password?</h5>
-              </div> --}}
-              <div class="d-grid mt-4">
-                <button type="submit" class="btn btn-secondary">Sign In</button>
-              </div>
-            </form>
-              <hr />
-              <div class="d-flex mt-1 justify-content-between">
+        <div class="auth-wrapper v3">
+            <div class="auth-form">
+                <div class="card my-5">
+                    <div class="card-body">
+                        @if (session('status'))
+                            <div class="alert alert-fill alert-primary alert-icon mb-4">
+                                <em class="icon ni ni-check-circle"></em> <strong>{{ session('status') }}</strong>
+                            </div>
+                        @endif
+                        <div class="row">
+                            <div class="d-flex justify-content-center">
+                                <div class="auth-header">
 
-                
-                  <h5 class="d-flex justify-content-center">Don't have an account?</h5> 
-                  <a href="{{ route('register') }}">Sign up</a>
-              </div>
-              
-              
+                                    <h2 class="text-secondary mt-5"><b>Sign In</b></h2>
+                                </div>
+                            </div>
+                        </div>
+
+                        <form method="POST" action="{{ route('login') }}">
+                            @csrf
+                            <div class="form-floating mb-3">
+                                <input type="email" class="form-control" id="user_login" name="user_login"
+                                    placeholder="Email address / Username" />
+                                <label for="user_login">Email address / Username</label>
+                                @error('user_login')
+                                    <span class="text-danger" role="alert">
+                                        <strong>{{ $message }}</strong>
+                                    </span>
+                                @enderror
+                            </div>
+                            <div class="form-floating mb-3">
+                                <input type="password" class="form-control" id="password" name="password"
+                                    placeholder="Password" />
+                                <label for="password">Password</label>
+                                @error('password')
+                                    <span class="text-danger" role="alert">
+                                        <strong>{{ $message }}</strong>
+                                    </span>
+                                @enderror
+
+                            </div>
+                            <div class="form-group mb-3">
+                                <div class="captcha-control-wrap wrapx form-control-wrap">
+                                    <img src="data:image/png;base64,{{ app(App\Services\CaptchaService::class)->generate() }}"
+                                        alt="captcha" id="captcha-img"
+                                        style="height:48px; border-radius:4px; border:1px solid #e3e3e3;">
+                                    <button type="button" class="refresh-captcha btn btn-sm btn-outline-secondary ms-1"
+                                        data-action="{{ route('refresh-captcha') }}">Refresh</button>
+                                    <input type="text"
+                                        class="form-control mt-1 form-control-lg @error('captcha') is-invalid @enderror"
+                                        id="captcha" name="captcha" placeholder="Enter CAPTCHA" minlength="6"
+                                        maxlength="6" required>
+
+                                    @error('captcha')
+                                        <span class="invalid-feedback" role="alert">
+                                            <strong>{{ $message }}</strong>
+                                        </span>
+                                    @enderror
+                                </div>
+                            </div>
+                            <div class="d-grid mt-4">
+                                <button type="submit" class="btn btn-secondary">Sign In</button>
+                            </div>
+                        </form>
+                        <hr />
+                        <div class="d-flex mt-1 justify-content-between">
+
+
+                            <h5 class="d-flex justify-content-center">Don't have an account?</h5>
+                            <a href="{{ route('register') }}">Sign up</a>
+                        </div>
+
+
+                    </div>
+                </div>
             </div>
-          </div>
         </div>
-      </div>
     </div>
     <!-- [ Main Content ] end -->
     <!-- Required Js -->
-   
 
-    <script src="{{ asset('js/script.js')}}"></script>
-   
+    <script src="{{ asset('js/jquery.js') }}"></script>
+
+    <script src="{{ asset('js/script.js') }}"></script>
+
     <script src="{{ asset('js/plugins/feather.min.js') }}"></script>
 
-    <script src="{{ asset('js/theme.js')}}"></script>
+    <script src="{{ asset('js/theme.js') }}"></script>
     <script>
-      layout_change('light');
-    </script>
-       
-    <script>
-      font_change('Roboto');
-    </script>
-     
-    <script>
-      change_box_container('false');
-    </script>
-     
-    <script>
-      layout_caption_change('true');
-    </script>
-       
-    <script>
-      layout_rtl_change('false');
-    </script>
-     
-    <script>
-      preset_change('preset-1');
-    </script>
-    
+        jQuery(function($) {
+            var csrf_token = $('meta[name="csrf-token"]').attr('content');
 
-  </body>
-  <!-- [Body] end -->
+            function refreshCaptcha() {
+                var $elem = $(this);
+                $elem.prop('disabled', true);
+
+                var action = $elem.data('action');
+                $.ajax({
+                    url: action,
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': csrf_token
+                    }
+                }).done(function(data) {
+                    $elem.parent('.captcha-control-wrap').find('img').attr('src', data);
+                }).always(function() {
+                    $elem.prop('disabled', false);
+                });
+            }
+
+            $(document).on('click', '.refresh-captcha', refreshCaptcha);
+        });
+        layout_change('light');
+        font_change('Roboto');
+        change_box_container('false');
+        layout_caption_change('true');
+        layout_rtl_change('false');
+        preset_change('preset-1');
+    </script>
+
+    <div class="nk-footer nk-auth-footer-full">
+        <div class="container wide-lg">
+            <div class="row g-3">
+                <div class="col-lg-12">
+                    <div class="nk-block-content text-center text-lg-left">
+                        <p class="text-soft">
+                            &copy; {{ now()->year }} NORKA Roots, Kerala'.
+                            All Rights Reserved.
+                            Developed by
+                            <a href="https://cdit.org/" target="_blank"> {{ __('C-DIT') }}</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+<!-- [Body] end -->
+
 </html>

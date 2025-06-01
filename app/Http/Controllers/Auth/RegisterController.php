@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
-use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\JsonResponse;
@@ -23,12 +22,9 @@ class RegisterController extends Controller
     |--------------------------------------------------------------------------
     |
     | This controller handles the registration of new users as well as their
-    | validation and creation. By default this controller uses a trait to
-    | provide this functionality without requiring any additional code.
+    | validation and creation.
     |
     */
-
-    use RegistersUsers;
 
     /**
      * Where to redirect users after registration.
@@ -46,6 +42,7 @@ class RegisterController extends Controller
     {
         $this->middleware('guest');
     }
+
     /**
      * Show the application registration form.
      *
@@ -55,7 +52,8 @@ class RegisterController extends Controller
     {
         return view('register');
     }
-  /**
+
+    /**
      * Handle a registration request for the application.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -63,21 +61,16 @@ class RegisterController extends Controller
      */
     public function register(Request $request)
     {
-        dd($request->all());
         $this->validator($request->all())->validate();
 
         event(new Registered($user = $this->create($request->all())));
 
-        $this->guard()->login($user);
-
-        if ($response = $this->registered($request, $user)) {
-            return $response;
-        }
-
+        // Always redirect to login with success message
         return $request->wantsJson()
-                    ? new JsonResponse([], 201)
-                    : redirect($this->redirectPath());
+            ? new JsonResponse([], 201)
+            : redirect()->route('login')->with('status', 'Successfully Registered!');
     }
+
     /**
      * Get a validator for an incoming registration request.
      *
@@ -96,23 +89,18 @@ class RegisterController extends Controller
             'middle_name' => ['nullable', 'regex:/^[a-zA-Z\s]+$/', 'min:1', 'max:100'],
             'last_name' => ['required', 'regex:/^[a-zA-Z\s]+$/', 'min:1', 'max:100'],
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],
-            'mobile' => ['required', new PhoneNumber($iso_code), 'max:25', 'unique:users,user_mobile'],
+            'user_mobile' => ['required', new PhoneNumber($iso_code), 'max:25', 'unique:users,user_mobile'],
             'password' => ['required', new Password, 'min:8', 'confirmed'],
         ], [
             'email.unique' => 'The email has already been registered.',
-            'mobile.unique' => 'The mobile has already been registered.',
+            'user_mobile.unique' => 'The mobile has already been registered.',
             'first_name.regex' => 'The first name field must only contain letters and spaces.',
             'middle_name.regex' => 'The middle name field must only contain letters and spaces.',
             'last_name.regex' => 'The last name field must only contain letters and spaces.',
         ]);
     }
+
     /**
-     * Create a new user instance after a valid registration.
-     *
-     * @param  array  $data
-     * @return \App\Models\User
-     */
-  /**
      * Create a new user instance after a valid registration.
      *
      * @param  array  $data
@@ -125,10 +113,10 @@ class RegisterController extends Controller
             'middle_name' => $data['middle_name'] ?? '',
             'last_name' => $data['last_name'],
             'email' => $data['email'],
-            'mobile' => $data['mobile'],
+            'user_mobile' => $data['user_mobile'],
             'password' => Hash::make($data['password']),
             'user_status' => 1,
-            
+            'user_type' => 2
         ]);
     }
 }

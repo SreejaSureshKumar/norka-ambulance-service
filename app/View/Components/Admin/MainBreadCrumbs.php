@@ -49,41 +49,33 @@ class MainBreadCrumbs extends Component
     public function menuBuilder()
     {
         $components = Auth::user()->getCurrentUserPermissions();
-      
-      
-        $main_menu = array();
         $this->current_route = request()->route()->getName();
 
-        // Group the main menu.
+        // Find the current component
+        $current = null;
         foreach ($components as $component) {
-            $component_id = $component->component_id;
-            if ($component->component_parent === 0) {
-                $main_menu[$component_id] = array_merge($this->buildAttrs($component), [
-                    'submenu' => [],
-                ]);
+            if (trim($component->component_path) === $this->current_route) {
+                $current = $component;
+                break;
             }
         }
 
-        // Assign submenu.
-        foreach ($components as $component) {
-            if ($component->component_parent !== 0) {
-                $main_menu_id = $component->component_parent;
-                $main_menu[$main_menu_id]['submenu'][] = $this->buildAttrs($component);
-            }
-        }
-
-        // Handle the parent menu active status.
-        foreach ($main_menu as $menu_id => $menu_details) {
-            if (isset($menu_details['submenu'])) {
-                foreach ($menu_details['submenu'] as $submenu) {
-                    if ($submenu['active']) {
-                        $main_menu[$menu_id]['active'] = true;
-                        break;
-                    }
+        // Build breadcrumb path from current up to root
+        $breadcrumbs = [];
+        while ($current) {
+            $breadcrumbs[] = $this->buildAttrs($current);
+            // Find parent
+            $parent = null;
+            foreach ($components as $comp) {
+                if ($comp->component_id === $current->component_parent && $comp->component_parent === 0) {
+                    $parent = $comp;
+                    break;
                 }
             }
+            $current = $parent;
         }
-        return $main_menu;
+        // Reverse to get root -> current order
+        return array_reverse($breadcrumbs);
     }
     /**
      * Get the view / contents that represent the component.

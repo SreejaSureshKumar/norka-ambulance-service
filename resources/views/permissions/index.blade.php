@@ -43,9 +43,9 @@
                 @endif
             </td>
             <td>
-                <a class="btn btn-info btn-sm" href="{{ route('userpermission.show', $permission->id) }}"><i class="ti ti-eye"></i> Show</a>
-                <a class="btn btn-primary btn-sm" href="{{ route('userpermission.edit', $permission->id) }}"><i class="ti ti-pencil"></i> Edit</a>
-                <form method="POST" action="{{ route('userpermission.destroy', $permission->id) }}" style="display:inline">
+               
+                <a class="btn btn-primary btn-sm" href="{{ route('userpermission.edit', encrypt($permission->id) )}}"><i class="ti ti-pencil"></i> Edit</a>
+                <form method="POST" action="{{ route('userpermission.destroy', encrypt($permission->id) ) }}" style="display:inline">
                     @csrf
                     @method('DELETE')
                     <button type="submit" class="btn btn-danger btn-sm"><i class="ti ti-trash"></i> Delete</button>

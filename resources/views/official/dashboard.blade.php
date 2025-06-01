@@ -2,6 +2,6 @@
 
 @section('content')
 <div>
-    DASHBOARD
+   Offcial DASHBOARD
     </div>
 @endsection

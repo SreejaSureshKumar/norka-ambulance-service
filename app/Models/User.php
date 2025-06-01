@@ -18,10 +18,14 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
-        'name',
+        'first_name',
+        'middle_name',
+        'last_name',
         'email',
         'password',
+        'user_mobile',
         'user_type', // Assuming this is the foreign key for UserType
+        'user_status'
     ];
 
     /**

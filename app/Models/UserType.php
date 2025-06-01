@@ -26,7 +26,7 @@ class UserType extends Model
     }
 
     public function activeModules() {
-       return $this->permissions()->join('component', 'component_permissions.component_id', '=', 'component.component_id')->where('component_permissions.permission_status', 1)->orderBy('component.component_order');
+       return $this->permissions()->join('component', 'component_permissions.component_id', '=', 'component.component_id')->where('component_permissions.permission_status', 1)->where('component.component_status',1)->orderBy('component.component_order');
    
    
     }

@@ -65,7 +65,7 @@
                 </form>
             </div>
         </div>
-        <p class="text-center text-primary mt-3"><small>Tutorial by ItSolutionStuff.com</small></p>
+       
     </div>
 </div>
 @endsection

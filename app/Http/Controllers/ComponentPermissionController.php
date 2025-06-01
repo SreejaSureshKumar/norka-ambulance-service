@@ -74,4 +74,70 @@ class ComponentPermissionController extends Controller
         return redirect()->route('userpermission.index')
             ->with('success', 'Permissions assigned successfully');
     }
+
+    public function edit($id): View
+    {
+        $id = decrypt($id);
+        $permission = \App\Models\ComponentPermission::findOrFail($id);
+
+        $usertype = $permission->usertype;
+        $mappedComponent = $permission->component;
+        $parentComponent = $mappedComponent && $mappedComponent->component_parent
+            ? \App\Models\UserComponent::find($mappedComponent->component_parent)
+            : null;
+
+        // Get all children of the parent component for the select box
+        $childComponents = $parentComponent
+            ? \App\Models\UserComponent::where('component_parent', $parentComponent->component_id)->pluck('component_name', 'component_id')->all()
+            : [];
+
+        return view('permissions.edit', compact(
+            'permission',
+            'usertype',
+            'mappedComponent',
+            'parentComponent',
+            'childComponents'
+        ));
+    }
+
+     /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, $id): RedirectResponse
+    {
+        $id = decrypt($id);
+        $permission = ComponentPermission::findOrFail($id);
+
+        $rules = [
+            'component_id' => 'required|exists:component,component_id',
+            'permission_status' => 'required|in:0,1',
+        ];
+
+        $validated = $request->validate($rules);
+
+        $permission->component_id = $validated['component_id'];
+        $permission->permission_status = $validated['permission_status'];
+        $permission->save();
+
+        return redirect()->route('userpermission.index')
+            ->with('success', 'Permission updated successfully');
+    }
+
+     /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy($id): RedirectResponse
+    {
+        $id=decrypt($id);
+        ComponentPermission::find($id)->delete();
+        return redirect()->route('permissions.index')
+                        ->with('success','Permission revoked successfully');
+    }
 }

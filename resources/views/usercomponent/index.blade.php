@@ -1,14 +1,15 @@
 @extends('admin.app')
 
 @section('content')
-
+<div class="card">
+    <div class="card-body">
 <div class="row">
     <div class="col-lg-12 margin-tb">
         <div class="pull-left">
-            <h2>UserType</h2>
+            <h2>Components</h2>
         </div>
         <div class="pull-right">
-         <a class="btn btn-success mb-2" href="{{ route('usercomponent.create') }}"><i class="fa fa-plus"></i> Create New Usertype</a>
+         <a class="btn btn-success mb-2" href="{{ route('usercomponent.create') }}"><i class="fa fa-plus"></i> Create New Component</a>
      </div>
     </div>
 </div>
@@ -26,6 +27,7 @@
          <th>Component Path</th>
          <th>Component Parent</th>
          <th>Icon</th>
+         <th>Status</th>
          <th width="280px">Action</th>
      </tr>
    </thead>
@@ -47,6 +49,13 @@
             {{ $component->component_icon }}
             @else
             <span class="text">--</span>
+            @endif
+        </td>
+        <td>
+            @if($component->component_status == 1)
+                <span class="badge bg-success">Active</span>
+            @else
+                <span class="badge bg-danger">Inactive</span>
             @endif
         </td>
         <td>

@@ -25,4 +25,19 @@ class HomeController extends Controller
     {
         return view('home');
     }
+    public function admindashboard()
+    {
+        return view('adminuser.dashboard');
+
+    }
+    public function userdashboard()
+    {
+        return view('beneficiary.dashboard');
+
+    }
+    public function officialdashboard()
+    {
+        return view('official.dashboard');
+
+    }
 }
