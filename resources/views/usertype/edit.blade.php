@@ -4,7 +4,7 @@
 <div class="row mb-4">
     <div class="col-lg-12 d-flex justify-content-between align-items-center">
         <h2 class="mb-0">Edit User</h2>
-        <a class="btn btn-primary btn-sm" href="{{ route('users.index') }}"><i class="fa fa-arrow-left"></i> Back</a>
+        <a class="btn btn-primary btn-sm" href="{{ route('usertypes.index') }}"><i class="fa fa-arrow-left"></i> Back</a>
     </div>
 </div>
 

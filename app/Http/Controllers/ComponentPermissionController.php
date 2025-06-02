@@ -16,28 +16,29 @@ use Illuminate\Http\RedirectResponse;
 
 class ComponentPermissionController extends Controller
 {
-     /**
+    /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
     public function index(Request $request): View
     {
-       
+
         $permissions = ComponentPermission::latest()->get();
-      
+
 
         return view('permissions.index', compact('permissions'));
     }
-     /**
+    /**
      * Show the form for creating a new resource.
      *
      * @return \Illuminate\Http\Response
      */
     public function create(): View
     {
-        $usertypes = UserType::pluck('usertype_name', 'id')->all();
-        $usercomponents = UserComponent::pluck('component_name', 'component_id')->all();
+        $usertypes = UserType::where('usertype_status', 1)->pluck('usertype_name', 'id')->all();
+
+        $usercomponents = UserComponent::where('component_status', 1)->pluck('component_name', 'component_id')->all();
 
         return view('permissions.create', compact('usercomponents', 'usertypes'));
     }
@@ -59,8 +60,7 @@ class ComponentPermissionController extends Controller
         $usertypeId = $request->input('user_type');
         $componentIds = $request->input('permissions');
 
-        // Remove existing permissions for this usertype (optional, for "replace" behavior)
-        \App\Models\ComponentPermission::where('usertype_id', $usertypeId)->delete();
+        
 
         // Assign each selected component to the usertype
         foreach ($componentIds as $componentId) {
@@ -100,7 +100,7 @@ class ComponentPermissionController extends Controller
         ));
     }
 
-     /**
+    /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -127,7 +127,7 @@ class ComponentPermissionController extends Controller
             ->with('success', 'Permission updated successfully');
     }
 
-     /**
+    /**
      * Remove the specified resource from storage.
      *
      * @param  int  $id
@@ -135,9 +135,9 @@ class ComponentPermissionController extends Controller
      */
     public function destroy($id): RedirectResponse
     {
-        $id=decrypt($id);
+        $id = decrypt($id);
         ComponentPermission::find($id)->delete();
-        return redirect()->route('permissions.index')
-                        ->with('success','Permission revoked successfully');
+        return redirect()->route('userpermission.index')
+            ->with('success', 'Permission revoked successfully');
     }
 }

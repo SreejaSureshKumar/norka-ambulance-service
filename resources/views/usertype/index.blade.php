@@ -33,7 +33,7 @@
         <td>{{ ++$i }}</td>
         <td>{{ $usertype->usertype_name }}</td>
         <td>
-            @if($usertype->status == 1)
+            @if($usertype->usertype_status == 1)
                 <span class="badge bg-success">Active</span>
             @else
                 <span class="badge bg-danger">Inactive</span>

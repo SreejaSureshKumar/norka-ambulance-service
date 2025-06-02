@@ -65,7 +65,8 @@ class UserController extends Controller
             'name' => 'required|string|max:255|regex:/^[a-zA-Z0-9\s]+$/',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|same:confirm-password',
-            'user_type' => 'required|numeric'
+            'user_type' => 'required|numeric',
+            'user_status' => 'required|numeric'
         ]);
     
         $input = $request->all();

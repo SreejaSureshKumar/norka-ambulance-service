@@ -38,7 +38,7 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label"><strong>Main component</strong><span class="text-danger">*</span></label>
-                        <select name="component_parent" class="form-control" required>
+                        <select name="component_parent" class="form-control" >
                             <option value="" disabled selected>Select</option>
                             @foreach ($usercomponents as $value => $label)
                                 <option value="{{ $value }}">
@@ -55,12 +55,16 @@
                         <label class="form-label"><strong>Component Order</strong><span class="text-danger">*</span></label>
                         <input type="text" name="component_order" placeholder="component order" class="form-control">
                     </div>
+                   
+                   
                     <div class="mb-3">
                         <label class="form-label"><strong>Status</strong><span class="text-danger">*</span></label>
-                        <input type="text" name="component_status" placeholder="status" class="form-control">
+                        <select name="component_status" class="form-control">
+                            <option value="" disabled selected>Select Status</option>
+                            <option value="1">Active</option>
+                            <option value="0">Inactive</option>
+                        </select>
                     </div>
-                   
-                   
                     <div class="text-center">
                         <button type="submit" class="btn btn-primary btn-sm mt-2 mb-3"><i class="fa-solid fa-floppy-disk"></i> Submit</button>
                     </div>

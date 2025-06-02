@@ -4,7 +4,7 @@
 <div class="row mb-4">
     <div class="col-lg-12 d-flex justify-content-between align-items-center">
         <h2 class="mb-0"></h2>
-        <a class="btn btn-primary" href="{{ route('users.index') }}"><i class="ti ti-arrow-left"></i> Back</a>
+        <a class="btn btn-primary" href="{{ route('usertypes.index') }}"><i class="ti ti-arrow-left"></i> Back</a>
     </div>
 </div>
 
@@ -22,12 +22,12 @@
                 </div>
                
                 <div class="mb-3">
-                    <label class="form-label"><strong>Active:</strong></label>
+                    <label class="form-label"><strong>Status:</strong></label>
                     @if ($usertype->usertype_status == 1)
                         <span class="badge bg-success">Active</span>
                         
                     @else
-                    <span class="badge bg-success">Inactive</span>
+                    <span class="badge bg-danger">Inactive</span>
                     @endif
                  
                 </div>

@@ -55,6 +55,14 @@
                             @endforeach
                         </select>
                     </div>
+                    <div class="mb-3">
+                        <label class="form-label"><strong>Status</strong><span class="text-danger">*</span></label>
+                        <select name="usertype_status" class="form-control">
+                            <option value="" disabled selected>Select Status</option>
+                            <option value="1" selected>Active</option>
+                            <option value="0">Inactive</option>
+                        </select>
+                    </div>
                     <div class="text-center">
                         <button type="submit" class="btn btn-primary btn-sm mt-2 mb-3"><i class="fa-solid fa-floppy-disk"></i> Submit</button>
                     </div>
