@@ -42,6 +42,21 @@
         .iti input[type="tel"] {
             width: 100%;
         }
+
+        /* Custom style for password toggle icon */
+        .password-toggle-icon {
+            position: absolute;
+            top: 50%;
+            right: 12px;
+            transform: translateY(-50%);
+            cursor: pointer;
+            z-index: 2;
+            padding: 0 8px;
+            background: transparent;
+            display: flex;
+            align-items: center;
+            height: 100%;
+        }
     </style>
 
 </head>
@@ -139,22 +154,24 @@
                                     class="@error('user_mobile') is-invalid @enderror"
                                     value="{{ old('mobile_country_iso_code') ?? 'in' }}" />
                             </div>
-                            <div class="mb-3">
-                                <label for="password" class="form-label"><strong>Password</strong><span
-                                        class="text-danger">*</span></label>
-                                <input type="password" class="form-control" id="password" name="password"
-                                    placeholder="Password" required />
+                            <div class="mb-3 position-relative">
+                                <label for="password" class="form-label"><strong>Password</strong><span class="text-danger">*</span></label>
+                                <input type="password" class="form-control" id="password" name="password" placeholder="Password" required />
+                                <span class="password-toggle-icon" id="togglePasswordIcon">
+                                    <i class="fa fa-eye text-secondary"></i>
+                                </span>
                                 @error('password')
                                     <span class="text-danger" role="alert">
                                         <strong>{{ $message }}</strong>
                                     </span>
                                 @enderror
                             </div>
-                            <div class="mb-3">
-                                <label for="password_confirmation" class="form-label"><strong>Confirm
-                                        Password</strong><span class="text-danger">*</span></label>
-                                <input type="password" class="form-control" id="password_confirmation"
-                                    name="password_confirmation" placeholder="Confirm Password" required />
+                            <div class="mb-3 position-relative">
+                                <label for="password_confirmation" class="form-label"><strong>Confirm Password</strong><span class="text-danger">*</span></label>
+                                <input type="password" class="form-control" id="password_confirmation" name="password_confirmation" placeholder="Confirm Password" required />
+                                <span class="password-toggle-icon" id="toggleConfirmPasswordIcon">
+                                    <i class="fa fa-eye text-secondary"></i>
+                                </span>
                             </div>
                             <div class="d-grid mt-4">
                                 <button type="submit" class="btn btn-secondary p-2">Sign Up</button>
@@ -224,6 +241,43 @@
                 $('#mobile-country-iso-code').val(countryCode.iso2);
             });
         });
+
+        // Password visibility toggle (run after DOM is ready)
+        document.addEventListener('DOMContentLoaded', function () {
+            const passwordInput = document.getElementById('password');
+            const confirmPasswordInput = document.getElementById('password_confirmation');
+            const togglePasswordIcon = document.getElementById('togglePasswordIcon');
+            const toggleConfirmPasswordIcon = document.getElementById('toggleConfirmPasswordIcon');
+
+            if (togglePasswordIcon && passwordInput) {
+                togglePasswordIcon.addEventListener('click', function () {
+                    if (passwordInput.type === 'password') {
+                        passwordInput.type = 'text';
+                        togglePasswordIcon.querySelector('i').classList.remove('fa-eye');
+                        togglePasswordIcon.querySelector('i').classList.add('fa-eye-slash');
+                    } else {
+                        passwordInput.type = 'password';
+                        togglePasswordIcon.querySelector('i').classList.remove('fa-eye-slash');
+                        togglePasswordIcon.querySelector('i').classList.add('fa-eye');
+                    }
+                });
+            }
+
+            if (toggleConfirmPasswordIcon && confirmPasswordInput) {
+                toggleConfirmPasswordIcon.addEventListener('click', function () {
+                    if (confirmPasswordInput.type === 'password') {
+                        confirmPasswordInput.type = 'text';
+                        toggleConfirmPasswordIcon.querySelector('i').classList.remove('fa-eye');
+                        toggleConfirmPasswordIcon.querySelector('i').classList.add('fa-eye-slash');
+                    } else {
+                        confirmPasswordInput.type = 'password';
+                        toggleConfirmPasswordIcon.querySelector('i').classList.remove('fa-eye-slash');
+                        toggleConfirmPasswordIcon.querySelector('i').classList.add('fa-eye');
+                    }
+                });
+            }
+        });
+
         layout_change('light');
         font_change('Roboto');
         change_box_container('false');

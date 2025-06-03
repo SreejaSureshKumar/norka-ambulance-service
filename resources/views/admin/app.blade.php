@@ -37,6 +37,19 @@
 <link rel="stylesheet" href="{{asset('css/style.css')}}" id="main-style-link" />
 <link rel="stylesheet" href="{{asset('css/style-preset.css')}}" />
 <link rel="stylesheet" href="{{ asset('css/datatables.min.css') }}">
+<link rel="stylesheet" href="{{ asset('css/intlTelInput.min.css') }}" />
+<style>
+    .iti {
+        --iti-path-flags-1x: url('{{ asset('images/flags.webp') }}');
+        --iti-path-flags-2x: url('{{ asset('images/flags@2x.webp') }}');
+        --iti-path-globe-1x: url('{{ asset('images/globe.webp') }}');
+        --iti-path-globe-2x: url('{{ asset('images/globe@2x.webp') }}');
+        width: 100%;
+    }
+    .iti input[type="tel"] {
+        width: 100%;
+    }
+</style>
   </head>
   <!-- [Head] end -->
   <!-- [Body] Start -->
@@ -81,6 +94,8 @@
  <script src="{{asset('js/theme.js')}}"></script>
 <script src="{{ asset('js/plugins/feather.min.js') }}"></script>
 <script src="{{asset('js/jquery.js')}}"></script>
+<script src="{{ asset('js/libs/intlTelInput.min.js') }}"></script>
+<script src="{{ asset('js/libs/intlTelInputWithUtils.js') }}"></script>
 
 <!-- DataTables JS -->
 <script src="{{ asset('js/datatables.min.js') }}"></script>

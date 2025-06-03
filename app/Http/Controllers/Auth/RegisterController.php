@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Contracts\Encryption\DecryptException;
 use App\Rules\PhoneNumber;
 use App\Rules\Password;
+use App\Rules\AlphaSpace;
 
 class RegisterController extends Controller
 {
@@ -85,18 +86,18 @@ class RegisterController extends Controller
         }
         $iso_code = strtoupper($data['mobile_country_iso_code']);
         return Validator::make($data, [
-            'first_name' => ['required', 'regex:/^[a-zA-Z\s]+$/', 'min:2', 'max:100'],
-            'middle_name' => ['nullable', 'regex:/^[a-zA-Z\s]+$/', 'min:1', 'max:100'],
-            'last_name' => ['required', 'regex:/^[a-zA-Z\s]+$/', 'min:1', 'max:100'],
+            'first_name' => ['required', new AlphaSpace, 'min:2', 'max:100'],
+            'middle_name' => ['nullable', new AlphaSpace, 'min:1', 'max:100'],
+            'last_name' => ['required', new AlphaSpace, 'min:1', 'max:100'],
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],
-            'user_mobile' => ['required', new PhoneNumber($iso_code), 'max:25', 'unique:users,user_mobile'],
+            'user_mobile' => ['required', new PhoneNumber($iso_code), 'max:25'],
             'password' => ['required', new Password, 'min:8', 'confirmed'],
         ], [
             'email.unique' => 'The email has already been registered.',
-            'user_mobile.unique' => 'The mobile has already been registered.',
-            'first_name.regex' => 'The first name field must only contain letters and spaces.',
-            'middle_name.regex' => 'The middle name field must only contain letters and spaces.',
-            'last_name.regex' => 'The last name field must only contain letters and spaces.',
+            
+            'first_name.regex' => 'The first name field must only contain allowed characters.',
+            'middle_name.regex' => 'The middle name field must only contain allowed characters.',
+            'last_name.regex' => 'The last name field must only contain allowed characters.',
         ]);
     }
 

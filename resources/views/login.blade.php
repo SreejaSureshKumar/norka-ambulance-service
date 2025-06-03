@@ -72,16 +72,17 @@
                                     </span>
                                 @enderror
                             </div>
-                            <div class="form-floating mb-3">
-                                <input type="password" class="form-control" id="password" name="password"
-                                    placeholder="Password" />
+                            <div class="form-floating mb-3 position-relative">
+                                <input type="password" class="form-control" id="password" name="password" placeholder="Password" />
                                 <label for="password">Password</label>
+                                <span class="position-absolute" style="top: 50%; right: 16px; transform: translateY(-50%); cursor:pointer; z-index:2;" id="togglePasswordIcon">
+                                    <i class="fa fa-eye text-secondary"></i>
+                                </span>
                                 @error('password')
                                     <span class="text-danger" role="alert">
                                         <strong>{{ $message }}</strong>
                                     </span>
                                 @enderror
-
                             </div>
                             <div class="form-group mb-3">
                                 <div class="captcha-control-wrap wrapx form-control-wrap">
@@ -153,6 +154,22 @@
             }
 
             $(document).on('click', '.refresh-captcha', refreshCaptcha);
+        });
+        document.addEventListener('DOMContentLoaded', function() {
+            const passwordInput = document.getElementById('password');
+            const togglePasswordIcon = document.getElementById('togglePasswordIcon');
+
+            togglePasswordIcon.addEventListener('click', function() {
+                if (passwordInput.type === 'password') {
+                    passwordInput.type = 'text';
+                    togglePasswordIcon.querySelector('i').classList.remove('fa-eye');
+                    togglePasswordIcon.querySelector('i').classList.add('fa-eye-slash');
+                } else {
+                    passwordInput.type = 'password';
+                    togglePasswordIcon.querySelector('i').classList.remove('fa-eye-slash');
+                    togglePasswordIcon.querySelector('i').classList.add('fa-eye');
+                }
+            });
         });
         layout_change('light');
         font_change('Roboto');

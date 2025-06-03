@@ -1,47 +1,54 @@
 @extends('admin.app')
 
 @section('content')
-
-    <div class="card">
+<style>
+  .clickable-card {
+    transition: box-shadow 0.2s, transform 0.2s;
+    cursor: pointer;
+    text-decoration: none;
+    display: block;
+  }
+  .clickable-card:hover, .clickable-card:focus {
+    box-shadow: 0 0 0 4px #6c757d33, 0 4px 24px rgba(0,0,0,0.18);
+    transform: translateY(-4px) scale(1.03);
+    color: #fff;
+    text-decoration: none;
+  }
+  .dashboard-outer-card {
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    min-height: 65vh; 
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+  }
+</style>
+<div class="container-fluid py-4">
+  <div class="dashboard-outer-card">
+    <div class="card border-0 shadow-sm flex-grow-1">
       <div class="card-body">
         <div class="row">
-          <!-- Card 1 -->
           <div class="col-xl-4 col-md-6">
-            <div class="card bg-secondary-dark dashnum-card text-white overflow-hidden mb-4">
-              <span class="round small"></span>
-              <span class="round big"></span>
-              <div class="card-body">
-                <div class="row">
-                  <div class="col">
-                    <div class="avtar avtar-lg">
-                      <i class="text-white ti ti-credit-card"></i>
-                    </div>
+            <a href="{{ route('beneficiary.application-form') }}" class="clickable-card">
+              <div class="card bg-secondary-dark dashnum-card text-white overflow-hidden mb-4 h-100">
+                <span class="round small"></span>
+                <span class="round big"></span>
+                <div class="card-body d-flex flex-column justify-content-between" style="min-height: 180px;">
+                  <div>
+                    <h5 class="text-white mb-1">Death Repatriation</h5>
+                    <small class="text-white-50 d-block mb-3">Apply for embassy assistance in case of death repatriation.</small>
+                    <div class="mb-4"></div>
                   </div>
-                  <div class="col-auto">
-                    <div class="btn-group">
-                      <a href="#" class="avtar avtar-s bg-secondary text-white dropdown-toggle arrow-none"
-                        data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="ti ti-dots"></i>
-                      </a>
-                      <ul class="dropdown-menu dropdown-menu-end">
-                        <li><button class="dropdown-item">Import Card</button></li>
-                        <li><button class="dropdown-item">Export</button></li>
-                      </ul>
-                    </div>
-                  </div>
+                  <p class="mb-0 opacity-50 fs-5 fw-bold">New Application</p>
                 </div>
-                <span class="text-white d-block f-34 f-w-500 my-2">
-                  1350
-                  <i class="ti ti-arrow-up-right-circle opacity-50"></i>
-                </span>
-                <p class="mb-0 opacity-50">Total Pending Orders</p>
               </div>
-            </div>
+            </a>
           </div>
-       
-   
+          <!-- You can add more cards here if needed -->
         </div>
       </div>
     </div>
- 
+  </div>
+</div>
 @endsection
