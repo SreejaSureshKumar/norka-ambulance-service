@@ -26,5 +26,13 @@ class Application extends Model
         'airport_to',
         'native_address',
         'cargo_norka_status',
+        'application_status',
+        'application_number',
+        'created_by'
     ];
+
+    public function countryRelation()
+    {
+        return $this->belongsTo(\App\Models\Country::class, 'country', 'country_id');
+    }
 }

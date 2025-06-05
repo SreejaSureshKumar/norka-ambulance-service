@@ -55,7 +55,19 @@ class User extends Authenticatable
         return $this->belongsTo(UserType::class, 'user_type');
     }
 
-   
+    public function getNameAttribute()
+    {
+        return trim($this->first_name . ' ' . ($this->middle_name ?? '') . ' ' . ($this->last_name ?? ''));
+    }
+    public function getUserAvatarName()
+    {
+        $full_name = ucwords($this->name);
+        $splitted = explode(' ', $full_name, 2);
+        $init_char = substr($splitted[0], 0, 1);
+        $final_char = isset($splitted[1]) ? substr($splitted[1], 0, 1) : '';
+        return $init_char . $final_char;
+       
+    }
     public function getCurrentUserPermissions()
     {
         $user_type = UserType::find($this->user_type);// Assuming userType is a relationship or property
@@ -63,11 +75,10 @@ class User extends Authenticatable
         if ($user_type && method_exists($user_type, 'activeModules')) {
             $permissions = $user_type->activeModules()->get();
         } else {
-            $permissions = []; // Fallback to an empty array or default permissions
+            $permissions = []; 
         }
         return $permissions;
-        // $user_type = UserType::find($this->user_type);
-        // return $user_type->activeModules()->get();
+        
     }
 
 }
