@@ -1,18 +1,11 @@
 @extends('admin.app')
+
 @section('content')
     <div class="card">
-
-        @if (session('success'))
-      
-            <div class="alert alert-success alert-dismissible fade show my-3" role="alert">
-                {{ session('success') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-   
-        @endif
         <div class="card-header">
             <div class="d-flex justify-content-between align-items-center">
-                <h3 class="card-title mb-0">New Applications </h3>
+                <h3 class="card-title mb-0">Applications List</h3>
+
             </div>
         </div>
         <div class="card-body">
@@ -21,19 +14,20 @@
                     <thead>
                         <tr>
                             <th>Sl No.</th>
-                            <th>Decease Name</th>
+                            <th>Deceased Name</th>
                             <th>Passport No</th>
-                            <th> Death Date</th>
                             <th>Country</th>
                             <th>Submitted On</th>
-                            <th>Action</th>
+                            <th>Status</th>
+                            <th>Processed On</th>
+                            <th class="no-export">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
+                        <!-- Data loaded via AJAX -->
                     </tbody>
                 </table>
             </div>
-
         </div>
     </div>
 @endsection
@@ -44,7 +38,7 @@
                 processing: true,
                 serverSide: true,
                 ajax: {
-                    url: "{{ route('application.index') }}",
+                    url: "{{ route('application.processed-list') }}",
                     type: "GET",
                     dataType: "json",
                 },
@@ -60,34 +54,40 @@
                         data: 'passport_no',
                         name: 'passport_no'
                     },
-                    {
-                        data: 'death_date',
-                        name: 'death_date'
-                    },
+                    
                     {
                         data: 'country',
                         name: 'country'
                     },
                     {
                         data: 'created_at',
-                        name: 'created_at' // Fixed key name and added quotes
+                        name: 'created_at'
+                    },
+                    {
+                        data: 'status',
+                        name: 'status'
+                    },
+                   
+                    {
+                        data: 'processed_date',
+                        name: 'processed_date'
                     },
                     {
                         data: 'actions',
                         name: 'actions',
                         orderable: false,
-                        searchable: false // Fixed syntax
+                        searchable: false
                     }
                 ],
                 columnDefs: [{
-                    targets: 6, // Corrected the index for the actions column
+                    targets: 7, // index of the actions column
                     orderable: false,
                     searchable: false,
-                    render: function(data, type, row) { // Fixed parameter names
+                    render: function(data, type, row, meta) {
                         return type === 'display' ? data : '';
                     }
                 }],
-                fnRowCallback: function(nRow, aData, iDisplayIndex) { // Fixed function name
+                "fnRowCallback": function(nRow, aData, iDisplayIndex) {
                     var row = $(nRow);
                     row.attr("id", 'row' + aData['id']);
                     $("td:first", nRow).html(iDisplayIndex + 1);

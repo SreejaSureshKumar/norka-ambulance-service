@@ -12,6 +12,7 @@ class Application extends Model
 
     protected $primaryKey = 'id';
     protected $fillable = [
+        'application_no',
         'deceased_person_name',
         'passport_no',
         'country',
@@ -28,11 +29,18 @@ class Application extends Model
         'cargo_norka_status',
         'application_status',
         'application_number',
-        'created_by'
+        'created_by',
+        'processed_by',
+        'processed_date',
+        'remarks'
     ];
 
     public function countryRelation()
     {
-        return $this->belongsTo(\App\Models\Country::class, 'country', 'country_id');
+        return $this->belongsTo(Country::class, 'country', 'country_id');
+    }
+    public function processedUser()
+    {
+        return $this->belongsTo(User::class, 'processed_by', 'id');
     }
 }

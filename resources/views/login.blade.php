@@ -73,9 +73,12 @@
                                 @enderror
                             </div>
                             <div class="form-floating mb-3 position-relative">
-                                <input type="password" class="form-control" id="password" name="password" placeholder="Password" />
+                                <input type="password" class="form-control" id="password" name="password"
+                                    placeholder="Password" />
                                 <label for="password">Password</label>
-                                <span class="position-absolute" style="top: 50%; right: 16px; transform: translateY(-50%); cursor:pointer; z-index:2;" id="togglePasswordIcon">
+                                <span class="position-absolute"
+                                    style="top: 50%; right: 16px; transform: translateY(-50%); cursor:pointer; z-index:2;"
+                                    id="togglePasswordIcon">
                                     <i class="fa fa-eye text-secondary"></i>
                                 </span>
                                 @error('password')

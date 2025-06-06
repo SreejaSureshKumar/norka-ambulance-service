@@ -72,7 +72,7 @@ class BeneficiaryController extends Controller
                     'passport_no' => $app->passport_no,
                     'death_date' => \Carbon\Carbon::parse($app->death_date)->format('d-m-Y'),
                     'country' => $app->countryRelation->country_name ?? '',
-                    'status' => $app->status ?? 'Pending',
+                    'status' => $app->application_status == 2 ? 'Approved' : ($app->application_status == 3 ? 'Rejected' : 'Pending'),
                     'created_at' => $app->created_at ? $app->created_at->format('d-m-Y') : '',
                     'actions' => '<a class="btn btn-primary view_but" href="' . route('beneficiary.application.show', encrypt($app->id) ). '" target="_blank">
                                     <div class="preview-icon-wrap"><em class="icon ni ni-eye"></em> View</div>
@@ -105,6 +105,8 @@ class BeneficiaryController extends Controller
      */
     public function submitApplication(Request $request): RedirectResponse
     {
+        $user = Auth::user();
+
         $iso_code = strtoupper($request->mobile_country_iso_code);
         $validated = $request->validate([
             'deceased_person_name' => ['required', 'string', 'max:255', new AlphaSpaceNumChar],
@@ -140,11 +142,16 @@ class BeneficiaryController extends Controller
             'cargo_norka_status' => 'NORKA cargo status',
         ]);
 
+        // Generate application_no: NRK/D/{random_number}/{current_year}
+        $randomNumber = mt_rand(100000, 999999);
+        $currentYear = date('Y');
+        $application_no = "NRK/D/{$randomNumber}/{$currentYear}";
+
         // Merge validated input with extra columns
         $data = array_merge($validated, [
             'application_status' => 1,
-        
-            'created_by' => Auth::id(),
+            'created_by' => $user->id(),
+            'application_no' => $application_no,
         ]);
 
         Application::create($data);
@@ -154,6 +161,10 @@ class BeneficiaryController extends Controller
    
    public function show($id): View
     {
+
+        $previousMenuUrl = url()->previous();
+        $previousMenuLabel = 'Application List';
+
         $beneficiary = config('customredirects.user_types.beneficiary');
         $offcial = config('customredirects.user_types.official_user');
 
@@ -163,7 +174,7 @@ class BeneficiaryController extends Controller
         $edit_enable=0;
         $id= Crypt::decrypt($id);
         $application = Application::with('countryRelation')->findOrFail($id);
-        return view('beneficiary.application-details', compact('application', 'edit_enable'))
+        return view('beneficiary.application-details', compact('application', 'edit_enable', 'previousMenuLabel', 'previousMenuUrl'))
         ->with('user', $user)
         ->with('beneficiary', $beneficiary)
         ->with('offcial', $offcial);

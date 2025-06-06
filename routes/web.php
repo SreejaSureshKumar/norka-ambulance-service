@@ -16,10 +16,12 @@ Route::middleware(['auth', 'NoCache'])->group(function () {
     Route::get('/home/beneficiary', [App\Http\Controllers\HomeController::class, 'userdashboard'])->name('home.beneficiary');
     Route::get('/home/official', [App\Http\Controllers\HomeController::class, 'officialdashboard'])->name('home.official');
     Route::get('/beneficiary/application-form', [App\Http\Controllers\BeneficiaryController::class, 'applicationForm'])->name('beneficiary.application-form');
-    Route::post('/beneficiary/submit-application', [App\Http\Controllers\BeneficiaryController::class, 'submitApplication'])->name('beneficiary.submit-application'); 
+    Route::post('/beneficiary/submit-application', [App\Http\Controllers\BeneficiaryController::class, 'submitApplication'])->name('beneficiary.submit-application');
     Route::get('/beneficiary/application-list', [App\Http\Controllers\BeneficiaryController::class, 'listApplication'])->name('beneficiary.application-list');
     Route::get('/beneficiary/application/{id}', [App\Http\Controllers\BeneficiaryController::class, 'show'])->name('beneficiary.application.show');
-
+    Route::post('/application/process/{id}', [App\Http\Controllers\ApplicationController::class, 'applicationProcess'])->name('application.process');
+    Route::get('/application/processed-list', [App\Http\Controllers\ApplicationController::class, 'processedApplications'])->name('application.processed-list');
+    
     Route::resource('home', App\Http\Controllers\HomeController::class);
     Route::resource('users', App\Http\Controllers\UserController::class);
     Route::resource('usertypes', App\Http\Controllers\UserTypeController::class);

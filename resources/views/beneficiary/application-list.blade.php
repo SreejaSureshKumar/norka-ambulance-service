@@ -2,6 +2,12 @@
 
 @section('content')
     <div class="card">
+        @if (session('success'))
+            <div class="alert alert-success alert-dismissible fade show my-3" role="alert">
+                {{ session('success') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
         <div class="card-header">
             <div class="d-flex justify-content-between align-items-center">
                 <h3 class="card-title mb-0">Applications List</h3>
@@ -42,26 +48,49 @@
                     type: "GET",
                     dataType: "json",
                 },
-                columns: [
-                    { data: 'id', name: 'id' },
-                    { data: 'deceased_person_name', name: 'deceased_person_name' },
-                    { data: 'passport_no', name: 'passport_no' },
-                    { data: 'death_date', name: 'death_date' },
-                    { data: 'country', name: 'country' },
-                    { data: 'status', name: 'status' },
-                    { data: 'created_at', name: 'created_at' },
-                    { data: 'actions', name: 'actions', orderable: false, searchable: false }
-                ],
-                columnDefs: [
+                columns: [{
+                        data: 'id',
+                        name: 'id'
+                    },
                     {
-                        targets: 7, // index of the actions column
+                        data: 'deceased_person_name',
+                        name: 'deceased_person_name'
+                    },
+                    {
+                        data: 'passport_no',
+                        name: 'passport_no'
+                    },
+                    {
+                        data: 'death_date',
+                        name: 'death_date'
+                    },
+                    {
+                        data: 'country',
+                        name: 'country'
+                    },
+                    {
+                        data: 'status',
+                        name: 'status'
+                    },
+                    {
+                        data: 'created_at',
+                        name: 'created_at'
+                    },
+                    {
+                        data: 'actions',
+                        name: 'actions',
                         orderable: false,
-                        searchable: false,
-                        render: function(data, type, row, meta) {
-                            return type === 'display' ? data : '';
-                        }
+                        searchable: false
                     }
                 ],
+                columnDefs: [{
+                    targets: 7, // index of the actions column
+                    orderable: false,
+                    searchable: false,
+                    render: function(data, type, row, meta) {
+                        return type === 'display' ? data : '';
+                    }
+                }],
                 "fnRowCallback": function(nRow, aData, iDisplayIndex) {
                     var row = $(nRow);
                     row.attr("id", 'row' + aData['id']);
