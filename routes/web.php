@@ -27,6 +27,7 @@ Route::middleware(['auth', 'NoCache'])->group(function () {
     Route::resource('usertypes', App\Http\Controllers\UserTypeController::class);
     Route::resource('usercomponent', App\Http\Controllers\ComponentController::class);
     Route::resource('userpermission', App\Http\Controllers\ComponentPermissionController::class);
+    Route::get('/permissions/components-for-usertype', [\App\Http\Controllers\ComponentPermissionController::class, 'componentsForUsertype'])->name('userpermission.components-for-usertype');
     Route::resource('beneficiary', App\Http\Controllers\BeneficiaryController::class);
     Route::resource('application', App\Http\Controllers\ApplicationController::class);
 });

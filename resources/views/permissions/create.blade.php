@@ -31,7 +31,7 @@
                     
                     <div class="mb-3">
                         <label class="form-label"><strong>Usertype</strong><span class="text-danger">*</span></label>
-                        <select name="user_type" class="form-control" required>
+                        <select name="user_type" id="user_type_select" class="form-control" required>
                             <option value="" disabled selected>Select Usertype</option>
                             @foreach ($usertypes as $value => $label)
                                 <option value="{{ $value }}">
@@ -41,18 +41,13 @@
                         </select>
                     </div>
 
-                    <div class="col-xs-12 col-sm-12 col-md-12">
-                        <div class="form-group">
-                            <strong>Components</strong>
-                            <select name="permissions[]" class="form-control" multiple="multiple">
-                                @foreach ($usercomponents as $value => $label)
-                                    <option value="{{ $value }}">
-                                        {{ $label }}
-                                    </option>
-                                 @endforeach
-                            </select>
+                    <div id="component-tree-container" class="mb-3" style="display:none;">
+                        <label class="form-label"><strong>Components</strong></label>
+                        <div style="max-height: 350px; overflow-y: auto; border: 1px solid #e9ecef; border-radius: 7px; background: #fff; min-width: 350px; padding: 0;">
+                            <div id="component-tree" style="padding: 0.5em 0 0.5em 0;"></div>
                         </div>
                     </div>
+
                     <div class="text-center">
                         <button type="submit" class="btn btn-primary btn-sm mt-2 mb-3"><i class="fa-solid fa-floppy-disk"></i> Submit</button>
                     </div>
@@ -62,3 +57,64 @@
     </div>
 </div>
 @endsection
+
+@push('custom-scripts')
+<script>
+$(document).ready(function() {
+    $('#user_type_select').on('change', function() {
+        var usertypeId = $(this).val();
+        var treeContainer = $('#component-tree-container');
+        var treeDiv = $('#component-tree');
+        if (!usertypeId) {
+            treeContainer.hide();
+            treeDiv.html('');
+            return;
+        }
+        $.ajax({
+            url: "{{ route('userpermission.components-for-usertype') }}",
+            type: "GET",
+            dataType: "json",
+            data: { usertype_id: usertypeId },
+            success: function(data) {
+                treeDiv.html('');
+                $.each(data, function(_, mainMenu) {
+                    var mainMenuId = 'mainmenu_' + mainMenu.id;
+                    // Always allow selecting parent menu
+                    var mainMenuChecked = mainMenu.assigned ? 'checked' : '';
+                    // No left margin or padding for parent menu
+                    var mainMenuBox = `<div class="form-check mb-2" style="background:#e9f3ff;border-radius:7px;padding:0.65em 1em 0.65em 0;">
+                        <input class="form-check-input me-2" style="margin-left:0;" type="checkbox" name="permissions[]" value="${mainMenu.id}" id="${mainMenuId}" ${mainMenuChecked}>
+                        <label class="form-check-label fw-bold" for="${mainMenuId}" style="font-weight:600;">
+                            ${mainMenu.name}
+                            ${mainMenu.path ? `<span class="text-muted ms-3" style="font-size:0.97em;font-style:italic;">
+                                <i class="bi bi-link-45deg"></i> ${mainMenu.path}
+                            </span>` : ''}
+                        </label>
+                    </div>`;
+                    treeDiv.append(mainMenuBox);
+
+                    if (mainMenu.children.length > 0) {
+                        $.each(mainMenu.children, function(_, child) {
+                            var childId = 'submenu_' + child.id;
+                            var childChecked = child.assigned ? 'checked disabled' : '';
+                            // Only submenus get left margin
+                            var childBox = `<div class="form-check mb-1" style="background:#f8f9fa;border-radius:6px;padding:0.5em 0.75em; margin-left:2rem;">
+                                <input class="form-check-input me-2" type="checkbox" name="permissions[]" value="${child.id}" id="${childId}" ${childChecked}>
+                                <label class="form-check-label" for="${childId}" style="font-weight:500;">
+                                    ${child.name}
+                                    ${child.path ? `<span class="text-muted ms-3" style="font-size:0.93em;font-style:italic;">
+                                        <i class="bi bi-link-45deg"></i> ${child.path}
+                                    </span>` : ''}
+                                </label>
+                            </div>`;
+                            treeDiv.append(childBox);
+                        });
+                    }
+                });
+                treeContainer.show();
+            }
+        });
+    });
+});
+</script>
+@endpush
