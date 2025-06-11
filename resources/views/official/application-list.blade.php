@@ -21,6 +21,7 @@
                     <thead>
                         <tr>
                             <th>Sl No.</th>
+                            <th>Application No</th>
                             <th>Decease Name</th>
                             <th>Passport No</th>
                             <th> Death Date</th>
@@ -51,6 +52,10 @@
                 columns: [{
                         data: 'id',
                         name: 'id'
+                    },
+                    {
+                        data: 'application_no',
+                        name: 'application_no'
                     },
                     {
                         data: 'deceased_person_name',

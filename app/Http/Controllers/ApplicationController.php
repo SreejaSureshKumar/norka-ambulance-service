@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Crypt;
 use App\Rules\AlphaSpaceNumChar;
 use App\Models\UserComponent;
+use Illuminate\Contracts\Encryption\DecryptException;
+
 
 
 
@@ -41,12 +43,13 @@ class ApplicationController extends Controller
         if ($request->ajax()) {
             $columns = [
                 0 => 'id',
-                1 => 'deceased_person_name',
-                2 => 'passport_no',
-                3 => 'death_date',
-                4 => 'country',
-                5 => 'status',
-                6 => 'created_at',
+                1 => 'application_no',
+                2 => 'deceased_person_name',
+                3 => 'passport_no',
+                4 => 'death_date',
+                5 => 'country',
+                6 => 'status',
+                7 => 'created_at',
             ];
 
             //fetch applications whic are submittedand pending for approval
@@ -83,6 +86,7 @@ class ApplicationController extends Controller
 
                 $data[] = [
                     'id' => $app->id,
+                    'application_no' => $app->application_no,
                     'deceased_person_name' => $app->deceased_person_name,
                     'passport_no' => $app->passport_no,
                     'death_date' => \Carbon\Carbon::parse($app->death_date)->format('d-m-Y'),
@@ -165,14 +169,14 @@ class ApplicationController extends Controller
             'remarks.string' => 'The remarks must be a valid string.',
             'remarks.max' => 'The remarks may not be greater than 1000 characters.',
         ]);
-     
+
         // Handle the action (approve or reject)
         if ($request->input('action') === 'approve') {
-            $status =2;
+            $status = 2;
         } elseif ($request->input('action') === 'reject') {
             $status = 3;
         }
-  
+
         // Fetch the application
         $application = Application::findOrFail($id);
 
@@ -180,9 +184,9 @@ class ApplicationController extends Controller
         $application->remarks = $validatedData['remarks'];
         $application->processed_by = $user->id;
         $application->processed_date = date('Y-m-d H:i:s');
-        $application->application_status =$status;
+        $application->application_status = $status;
         $application->save();
-        
+
         $message = $application->application_status === 2
             ? 'Application approved successfully.'
             : 'Application rejected successfully.';
@@ -191,6 +195,7 @@ class ApplicationController extends Controller
 
     public function processedApplications()
     {
+        
         $user = Auth::user();
         $beneficiary = config('customredirects.user_types.beneficiary');
         $offcial = config('customredirects.user_types.official_user');
@@ -199,12 +204,13 @@ class ApplicationController extends Controller
         if (request()->ajax()) {
             $columns = [
                 0 => 'id',
-                1 => 'deceased_person_name',
-                2 => 'passport_no',
-                3 => 'death_date',
-                4 => 'country',
-                5 => 'status',
-                6 => 'created_at',
+                1 => 'application_no',
+                2 => 'deceased_person_name',
+                3 => 'passport_no',
+                4 => 'death_date',
+                5 => 'country',
+                6 => 'status',
+                7 => 'created_at',
             ];
 
             //fetch applications which are processed
@@ -233,23 +239,43 @@ class ApplicationController extends Controller
                 ->orderBy($order, $dir)
                 ->get();
 
+
+
             $routeName = 'application.show';
             $data = [];
             foreach ($applications as $app) {
                 $id = encrypt($app->id);
                 $url = URL::signedRoute('application.show', ['application' => $id]);
+                $download_url = route('application.generate-application-pdf', ['id' =>  $id]);
 
+                // Prepare actions
+                $actions = '<div class="d-flex gap-2">'; // Flex container with small gap between buttons
+                $actions .= '<a class="btn btn-primary view_but" href="' . $url . '" target="_blank">
+                <div class="preview-icon-wrap"> View</div>
+             </a>';
+
+                // Add download button with modal trigger only for approved applications
+                if ($app->application_status == 2) {
+                    $actions .= '<a href="' . $download_url . '" class="btn btn-success document-modal-control popup" data-download="">
+                        <div class="preview-icon-wrap"><i class="ti ti-file-download"></i></div>
+                     </a>';
+                }
+
+                $actions .= '</div>';
                 $data[] = [
                     'id' => $app->id,
+                    'application_no' => $app->application_no,
                     'deceased_person_name' => $app->deceased_person_name,
                     'passport_no' => $app->passport_no,
                     'processed_date' => \Carbon\Carbon::parse($app->processed_date)->format('d-m-Y'),
                     'country' => $app->countryRelation->country_name ?? '',
-                    'status' => $app->application_status == 2 ? 'Approved' : ($app->application_status == 3 ? 'Rejected' : 'Pending'),
+                    'status' => $app->application_status == 2
+                        ? '<span class="badge bg-success">Approved</span>'
+                        : ($app->application_status == 3
+                            ? '<span class="badge bg-danger">Rejected</span>'
+                            : '<span class="badge bg-warning text-dark">Pending</span>'),
                     'created_at' => $app->created_at ? $app->created_at->format('d-m-Y') : '',
-                    'actions' => '<a class="btn btn-primary view_but" href="' . $url . '" target="_blank" >
-                    <div class="preview-icon-wrap"><em class="icon ni ni-eye"></em> View</div>
-                  </a>',
+                    'actions' => $actions,
                 ];
             }
 
@@ -262,4 +288,14 @@ class ApplicationController extends Controller
         }
         return view('official.processed-applications', compact('user', 'beneficiary', 'offcial'));
     }
+    public function generateApplicationPdf(Request $request, $id) {
+        try {
+            $application_id = decrypt($request->id);
+        } catch (DecryptException $e) {
+            abort(400, 'Invalid request.');
+        }
+
+        \App\Helpers\FileHelper::generateApplicationPDF($application_id);
+    }
+  
 }

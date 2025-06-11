@@ -119,6 +119,8 @@
     <script>
         preset_change('preset-1');
     </script>
+    <x-document-modal />
+
 
     @stack('custom-scripts')
 </body>

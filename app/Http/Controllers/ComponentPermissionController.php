@@ -60,7 +60,7 @@ class ComponentPermissionController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        
+
         $this->validate($request, [
             'user_type' => 'required|exists:usertype,id',
             'permissions' => 'required|array',
@@ -70,15 +70,26 @@ class ComponentPermissionController extends Controller
         $usertypeId = $request->input('user_type');
         $componentIds = $request->input('permissions');
 
-        
+
 
         // Assign each selected component to the usertype
         foreach ($componentIds as $componentId) {
-            ComponentPermission::create([
-                'usertype_id' => $usertypeId,
-                'component_id' => $componentId,
-                'permission_status' => 1, // or set based on your logic/UI
-            ]);
+            foreach ($componentIds as $componentId) {
+                // Check if permission already exists
+                $existingPermission = ComponentPermission::where([
+                    'usertype_id' => $usertypeId,
+                    'component_id' => $componentId
+                ])->first();
+            
+                // Only create if permission doesn't exist
+                if (!$existingPermission) {
+                    ComponentPermission::create([
+                        'usertype_id' => $usertypeId,
+                        'component_id' => $componentId,
+                        'permission_status' => 1, // Assuming 1 means granted
+                    ]);
+                }
+            }
         }
 
         return redirect()->route('userpermission.index')
@@ -151,7 +162,7 @@ class ComponentPermissionController extends Controller
             ->with('success', 'Permission revoked successfully');
     }
 
-    public function componentsForUsertype(Request $request)
+    public function componentsForUsertype1(Request $request)
     {
         $usertypeId = $request->input('usertype_id');
         $assigned = ComponentPermission::where('usertype_id', $usertypeId)
@@ -171,12 +182,52 @@ class ComponentPermissionController extends Controller
                 'name' => $mainMenu->component_name,
                 'path' => $mainMenu->component_path,
                 'assigned' => in_array($mainMenu->component_id, $assigned),
-                'children' => collect($children)->map(function($child) use ($assigned) {
+                'children' => collect($children)->map(function ($child) use ($assigned) {
                     return [
                         'id' => $child->component_id,
                         'name' => $child->component_name,
                         'path' => $child->component_path,
                         'assigned' => in_array($child->component_id, $assigned),
+                    ];
+                })->values(),
+            ];
+        }
+
+        return response()->json($tree);
+    }
+    public function componentsForUsertype(Request $request)
+    {
+        $usertypeId = $request->input('usertype_id');
+
+        // Get all permissions for this usertype
+        $permissions = ComponentPermission::where('usertype_id', $usertypeId)
+            ->pluck('permission_status', 'component_id')
+            ->toArray();
+
+        // Get all active components
+        $allComponents = UserComponent::where('component_status', 1) // Only active components
+            ->get()
+            ->groupBy('component_parent');
+
+        $tree = [];
+        foreach ($allComponents[0] ?? [] as $mainMenu) {
+            $children = $allComponents[$mainMenu->component_id] ?? [];
+
+            $tree[] = [
+                'id' => $mainMenu->component_id,
+                'name' => $mainMenu->component_name,
+                'path' => $mainMenu->component_path,
+                'icon' => $mainMenu->component_icon,
+                'component_status' => $mainMenu->component_status, // From UserComponent
+                'permission_status' => $permissions[$mainMenu->component_id] ?? null, // From ComponentPermission
+                'children' => collect($children)->map(function ($child) use ($permissions) {
+                    return [
+                        'id' => $child->component_id,
+                        'name' => $child->component_name,
+                        'path' => $child->component_path,
+                        'icon' => $child->component_icon,
+                        'component_status' => $child->component_status, // From UserComponent
+                        'permission_status' => $permissions[$child->component_id] ?? null, // From ComponentPermission
                     ];
                 })->values(),
             ];

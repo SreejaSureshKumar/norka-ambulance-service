@@ -126,7 +126,8 @@ class UserController extends Controller
             'name' => 'required',
             'email' => 'required|email|unique:users,email,'.$id,
             'password' => 'same:confirm-password',
-            'user_type' => 'required'
+            'user_type' => 'required',
+            'user_status' => 'required|numeric'
         ]);
     
         $input = $request->all();

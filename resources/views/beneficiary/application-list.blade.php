@@ -20,6 +20,7 @@
                     <thead>
                         <tr>
                             <th>Sl No.</th>
+                            <th>Application No</th>
                             <th>Deceased Name</th>
                             <th>Passport No</th>
                             <th>Death Date</th>
@@ -53,6 +54,10 @@
                         name: 'id'
                     },
                     {
+                        data: 'application_no',
+                        name: 'application_no'
+                    },
+                    {
                         data: 'deceased_person_name',
                         name: 'deceased_person_name'
                     },
@@ -84,7 +89,7 @@
                     }
                 ],
                 columnDefs: [{
-                    targets: 7, // index of the actions column
+                    targets: 8, // index of the actions column
                     orderable: false,
                     searchable: false,
                     render: function(data, type, row, meta) {

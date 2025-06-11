@@ -62,8 +62,13 @@
         <!-- [ sample-page ] start -->
         <div class="col-sm-12">
             <div class="card">
-                <div class="card-header">
-                    <h5>APPLICATION DETAILS</h5>
+                <div class="card-header ">
+                    <h5 class="m-0">APPLICATION DETAILS</h5>
+                    <p class="mb-0 mt-3">  <!-- mt-1 adds small top margin -->
+                        <span class="badge bg-light-primary fs-5 fw-semibold py-2 px-3">
+                            {{ $application->application_no ?? 'N/A' }}
+                        </span>
+                    </p>
                 </div>
                 <div class="card-body">
                     <!-- Deceased Information Section -->

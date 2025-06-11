@@ -10,6 +10,7 @@ use Illuminate\Http\RedirectResponse;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Crypt;
+use App\Models\UserComponent;
 
 class HomeController extends Controller
 {
@@ -34,8 +35,45 @@ class HomeController extends Controller
     }
     public function admindashboard()
     {
+        $user = Auth::user();
+        $userTypeId = $user->usertype_id;
 
-        return view('adminuser.dashboard');
+        $components = Auth::user()->getCurrentUserPermissions();
+
+
+        $mainMenus = array();
+
+
+        // Group the main menu.
+        foreach ($components as $component) {
+            $component_id = $component->component_id;
+            if ($component->component_parent === 0) {
+                // First try to use main menu's own route if it exists
+                if (!empty($component->component_path)) {
+                    $route_name = $component->component_path;
+                } else {
+                    $first_submenu = UserComponent::where('component_status', 1)
+                        ->where('component_parent', $component->component_id)
+                        ->whereNotNull('component_path')
+                        ->first();
+                    // Assign submenu route if exists, otherwise use '#'
+                    $route_name = $first_submenu ? $first_submenu->component_path : '#';
+                }
+
+
+                $mainMenus[$component_id] = [
+                    'name' => $component->component_name,
+                    'icon' => $component->component_icon,
+                    'route_name' => $route_name,
+
+
+                ];
+            }
+        }
+
+        
+
+        return view('adminuser.dashboard', compact('mainMenus'));
     }
     public function userdashboard()
     {

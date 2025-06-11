@@ -46,7 +46,7 @@
         /* Custom style for password toggle icon */
         .password-toggle-icon {
             position: absolute;
-            top: 50%;
+            top: 70%;
             right: 12px;
             transform: translateY(-50%);
             cursor: pointer;

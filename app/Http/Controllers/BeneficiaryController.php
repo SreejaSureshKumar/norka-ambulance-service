@@ -26,17 +26,18 @@ class BeneficiaryController extends Controller
     public function index(Request $request): \Illuminate\View\View|\Illuminate\Http\JsonResponse
     {
         $user = Auth::user();
-     
+
         // Check if the request is an AJAX request
         if ($request->ajax()) {
             $columns = [
                 0 => 'id',
-                1 => 'deceased_person_name',
-                2 => 'passport_no',
-                3 => 'death_date',
-                4 => 'country',
-                5 => 'status',
-                6 => 'created_at',
+                1 => 'application_no',
+                2 => 'deceased_person_name',
+                3 => 'passport_no',
+                4 => 'death_date',
+                5 => 'country',
+                6 => 'status',
+                7 => 'created_at',
             ];
 
             $totalData = Application::where('created_by', $user->id)->count();
@@ -52,9 +53,9 @@ class BeneficiaryController extends Controller
             // Search filter
             if (!empty($request->input('search.value'))) {
                 $search = $request->input('search.value');
-                $query->where(function($q) use ($search) {
+                $query->where(function ($q) use ($search) {
                     $q->where('deceased_person_name', 'LIKE', "%{$search}%")
-                      ->orWhere('passport_no', 'LIKE', "%{$search}%");
+                        ->orWhere('passport_no', 'LIKE', "%{$search}%");
                 });
                 $totalFiltered = $query->count();
             }
@@ -68,13 +69,14 @@ class BeneficiaryController extends Controller
             foreach ($applications as $app) {
                 $data[] = [
                     'id' => $app->id,
+                    'application_no' => $app->application_no,
                     'deceased_person_name' => $app->deceased_person_name,
                     'passport_no' => $app->passport_no,
                     'death_date' => \Carbon\Carbon::parse($app->death_date)->format('d-m-Y'),
                     'country' => $app->countryRelation->country_name ?? '',
                     'status' => $app->application_status == 2 ? 'Approved' : ($app->application_status == 3 ? 'Rejected' : 'Pending'),
                     'created_at' => $app->created_at ? $app->created_at->format('d-m-Y') : '',
-                    'actions' => '<a class="btn btn-primary view_but" href="' . route('beneficiary.application.show', encrypt($app->id) ). '" target="_blank">
+                    'actions' => '<a class="btn btn-primary view_but" href="' . route('beneficiary.application.show', encrypt($app->id)) . '" target="_blank">
                                     <div class="preview-icon-wrap"><em class="icon ni ni-eye"></em> View</div>
                                   </a>',
                 ];
@@ -93,7 +95,7 @@ class BeneficiaryController extends Controller
 
     public function applicationForm(Request $request): View
     {
-        $countries=Country::all()->where('active', 'Y');
+        $countries = Country::all()->where('active', 'Y');
         return view('beneficiary.submit-application', compact('countries'));
     }
 
@@ -123,8 +125,8 @@ class BeneficiaryController extends Controller
             'airport_to' => ['required', 'string', 'max:255', new AlphaSpaceNumChar],
             'native_address' => ['required', 'string', 'max:1000', new AlphaSpaceNumChar],
             'cargo_norka_status' => ['nullable', 'numeric', 'in:0,1'],
-        ], [//custom   messages
-            ], [
+        ], [ //custom   messages
+        ], [
 
             'deceased_person_name' => 'Deceased person name',
             'passport_no' => 'Passport number',
@@ -150,16 +152,16 @@ class BeneficiaryController extends Controller
         // Merge validated input with extra columns
         $data = array_merge($validated, [
             'application_status' => 1,
-            'created_by' => $user->id(),
+            'created_by' => $user->id,
             'application_no' => $application_no,
         ]);
 
         Application::create($data);
 
-        return redirect()->route('beneficiary.index')->with('status', 'Application submitted successfully!');
+        return redirect()->route('beneficiary.index')->with('success', 'Application submitted successfully!');
     }
-   
-   public function show($id): View
+
+    public function show($id): View
     {
 
         $previousMenuUrl = url()->previous();
@@ -171,13 +173,12 @@ class BeneficiaryController extends Controller
         $user = Auth::user();
 
         //enale user to verify /approve the application
-        $edit_enable=0;
-        $id= Crypt::decrypt($id);
+        $edit_enable = 0;
+        $id = Crypt::decrypt($id);
         $application = Application::with('countryRelation')->findOrFail($id);
         return view('beneficiary.application-details', compact('application', 'edit_enable', 'previousMenuLabel', 'previousMenuUrl'))
-        ->with('user', $user)
-        ->with('beneficiary', $beneficiary)
-        ->with('offcial', $offcial);
-        
+            ->with('user', $user)
+            ->with('beneficiary', $beneficiary)
+            ->with('offcial', $offcial);
     }
 }

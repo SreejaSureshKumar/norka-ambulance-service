@@ -61,7 +61,7 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label"><strong>Status</strong><span class="text-danger">*</span></label>
-                        <select name="usertype_status" class="form-control">
+                        <select name="user_status" class="form-control">
                             <option value="1" {{ $user->user_status == 1 ? 'selected' : '' }}>Active</option>
                             <option value="0" {{ $user->user_status == 0 ? 'selected' : '' }}>Inactive</option>
                         </select>

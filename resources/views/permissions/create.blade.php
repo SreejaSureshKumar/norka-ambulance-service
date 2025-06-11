@@ -76,43 +76,78 @@ $(document).ready(function() {
             dataType: "json",
             data: { usertype_id: usertypeId },
             success: function(data) {
-                treeDiv.html('');
-                $.each(data, function(_, mainMenu) {
-                    var mainMenuId = 'mainmenu_' + mainMenu.id;
-                    // Always allow selecting parent menu
-                    var mainMenuChecked = mainMenu.assigned ? 'checked' : '';
-                    // No left margin or padding for parent menu
-                    var mainMenuBox = `<div class="form-check mb-2" style="background:#e9f3ff;border-radius:7px;padding:0.65em 1em 0.65em 0;">
-                        <input class="form-check-input me-2" style="margin-left:0;" type="checkbox" name="permissions[]" value="${mainMenu.id}" id="${mainMenuId}" ${mainMenuChecked}>
-                        <label class="form-check-label fw-bold" for="${mainMenuId}" style="font-weight:600;">
-                            ${mainMenu.name}
-                            ${mainMenu.path ? `<span class="text-muted ms-3" style="font-size:0.97em;font-style:italic;">
-                                <i class="bi bi-link-45deg"></i> ${mainMenu.path}
-                            </span>` : ''}
-                        </label>
-                    </div>`;
-                    treeDiv.append(mainMenuBox);
+    treeDiv.html('');
+    $.each(data, function(_, mainMenu) {
+        var mainMenuId = 'mainmenu_' + mainMenu.id;
+        
+        // Determine states
+        var isAssigned = mainMenu.permission_status !== null;
+        var isEnabled = mainMenu.permission_status == 1;
+        var isActiveComponent = mainMenu.component_status == 1;
+        
+        // Permission status badge (only show if assigned)
+        var permissionBadge = isAssigned 
+            ? (isEnabled 
+                ? '<span class="badge bg-success ms-2">Enabled</span>' 
+                : '<span class="badge bg-danger ms-2">Disabled</span>')
+            : '';
+        
+        var mainMenuBox = `
+        <div class="form-check mb-2" style="background:#e9f3ff;border-radius:7px;padding:0.65em 1em 0.65em 0;">
+            <input class="form-check-input me-2" style="margin-left:0;" type="checkbox" 
+                   name="permissions[]" value="${mainMenu.id}" id="${mainMenuId}" 
+                   ${isAssigned ? 'checked disabled' : ''} 
+                   ${!isActiveComponent ? 'disabled' : ''}>
+            <label class="form-check-label fw-bold" for="${mainMenuId}" style="font-weight:600;">
+                ${mainMenu.name}
+               
+                ${mainMenu.path ? `
+                <span class="text-muted ms-3" style="font-size:0.97em;font-style:italic;">
+                    ${mainMenu.path}
+                </span>` : ''}
+                 ${permissionBadge}
+            </label>
+        </div>`;
+        treeDiv.append(mainMenuBox);
 
-                    if (mainMenu.children.length > 0) {
-                        $.each(mainMenu.children, function(_, child) {
-                            var childId = 'submenu_' + child.id;
-                            var childChecked = child.assigned ? 'checked disabled' : '';
-                            // Only submenus get left margin
-                            var childBox = `<div class="form-check mb-1" style="background:#f8f9fa;border-radius:6px;padding:0.5em 0.75em; margin-left:2rem;">
-                                <input class="form-check-input me-2" type="checkbox" name="permissions[]" value="${child.id}" id="${childId}" ${childChecked}>
-                                <label class="form-check-label" for="${childId}" style="font-weight:500;">
-                                    ${child.name}
-                                    ${child.path ? `<span class="text-muted ms-3" style="font-size:0.93em;font-style:italic;">
-                                        <i class="bi bi-link-45deg"></i> ${child.path}
-                                    </span>` : ''}
-                                </label>
-                            </div>`;
-                            treeDiv.append(childBox);
-                        });
-                    }
-                });
-                treeContainer.show();
-            }
+        if (mainMenu.children.length > 0) {
+            $.each(mainMenu.children, function(_, child) {
+                var childId = 'submenu_' + child.id;
+                
+                // Determine states for child
+                var isChildAssigned = child.permission_status !== null;
+                var isChildEnabled = child.permission_status == 1;
+                var isChildActive = child.component_status == 1;
+                
+                // Child permission status badge
+                var childPermissionBadge = isChildAssigned 
+                    ? (isChildEnabled 
+                        ? '<span class="badge bg-success ms-2">Enabled</span>' 
+                        : '<span class="badge bg-danger ms-2">Disabled</span>')
+                    : '';
+                
+                var childBox = `
+                <div class="form-check mb-1" style="background:#f8f9fa;border-radius:6px;padding:0.5em 0.75em; margin-left:2rem;">
+                    <input class="form-check-input me-2" type="checkbox" 
+                           name="permissions[]" value="${child.id}" id="${childId}" 
+                           ${isChildAssigned ? 'checked disabled' : ''} 
+                           ${!isChildActive ? 'disabled' : ''}>
+                    <label class="form-check-label" for="${childId}" style="font-weight:500;">
+                        ${child.name}
+                        
+                        ${child.path ? `
+                        <span class="text-muted ms-3" style="font-size:0.93em;font-style:italic;">
+                            ${child.path}
+                        </span>` : ''}
+                        ${childPermissionBadge}
+                    </label>
+                </div>`;
+                treeDiv.append(childBox);
+            });
+        }
+    });
+    treeContainer.show();
+}
         });
     });
 });
