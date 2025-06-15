@@ -17,6 +17,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
             'NoCache'=> \App\Http\Middleware\NoCache::class,
             'check.usertype' => \App\Http\Middleware\CheckUserTypeAccess::class,
+            'auth.usertype' => \App\Http\Middleware\UserTypeCheck::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

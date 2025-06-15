@@ -1,5 +1,5 @@
 <?php
-// config/user_redirects.php
+
 return [
     'user_types' => [
         'admin_user' => 1,

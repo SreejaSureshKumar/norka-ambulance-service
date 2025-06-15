@@ -19,6 +19,7 @@
                             <th>Passport No</th>
                             <th>Country</th>
                             <th>Submitted On</th>
+                          
                             <th>Processed On</th>
                             <th class="no-export">Actions</th>
                         </tr>
@@ -38,7 +39,7 @@
                 processing: true,
                 serverSide: true,
                 ajax: {
-                    url: "{{ route('application.processed-list') }}",
+                    url: "{{ route('application.rejected-list') }}",
                     type: "GET",
                     dataType: "json",
                 },
@@ -67,7 +68,7 @@
                         data: 'created_at',
                         name: 'created_at'
                     },
-                   
+                
                    
                     {
                         data: 'processed_date',

@@ -3,7 +3,7 @@
       <div class="m-header">
         <a href="#" class="b-brand text-primary">
           <!-- ========   Change your logo from here   ============ -->
-          <img src="{{asset('images/logo-dark.svg')}}" alt="" />
+          <img src="{{asset('images/norka-logo.png')}}" alt="" />
         </a>
       </div>
       <div class="navbar-content">

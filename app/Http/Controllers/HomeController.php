@@ -36,7 +36,7 @@ class HomeController extends Controller
     public function admindashboard()
     {
         $user = Auth::user();
-        $userTypeId = $user->usertype_id;
+        $userTypeId = $user->usertype;
 
         $components = Auth::user()->getCurrentUserPermissions();
 
@@ -82,7 +82,7 @@ class HomeController extends Controller
     public function officialdashboard()
     { // Fetch counts for new and processed applications
         $newApplications = Application::where('application_status', 1)->count();
-        $processedApplications = Application::where('application_status', 2)->count();
+        $processedApplications = Application::whereIn('application_status',[ 2,3])->count();
 
         // Pass the counts to the view
         return view('official.dashboard', compact('newApplications', 'processedApplications'));

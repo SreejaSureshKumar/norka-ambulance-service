@@ -82,7 +82,7 @@ class ApplicationController extends Controller
             $data = [];
             foreach ($applications as $app) {
                 $id = encrypt($app->id);
-                $url = URL::signedRoute('application.show', ['application' => $id]);
+                $url = URL::signedRoute('application.show', ['app_id' => $id]);
 
                 $data[] = [
                     'id' => $app->id,
@@ -195,7 +195,7 @@ class ApplicationController extends Controller
 
     public function processedApplications()
     {
-        
+
         $user = Auth::user();
         $beneficiary = config('customredirects.user_types.beneficiary');
         $offcial = config('customredirects.user_types.official_user');
@@ -209,12 +209,11 @@ class ApplicationController extends Controller
                 3 => 'passport_no',
                 4 => 'death_date',
                 5 => 'country',
-                6 => 'status',
-                7 => 'created_at',
+                6 => 'created_at',
             ];
 
             //fetch applications which are processed
-            $totalData = Application::where('application_status', '!=', 1)->count();
+            $totalData = Application::where('application_status', '=', 2)->count();
             $totalFiltered = $totalData;
 
             $limit = request()->input('length');
@@ -222,7 +221,7 @@ class ApplicationController extends Controller
             $order = $columns[request()->input('order.0.column') ?? 0] ?? 'id';
             $dir = request()->input('order.0.dir') ?? 'desc';
 
-            $query = Application::with('countryRelation')->where('application_status', '!=', 1);
+            $query = Application::with('countryRelation')->where('application_status', '=', 2);
 
             // Search filter
             if (!empty(request()->input('search.value'))) {
@@ -245,8 +244,113 @@ class ApplicationController extends Controller
             $data = [];
             foreach ($applications as $app) {
                 $id = encrypt($app->id);
-                $url = URL::signedRoute('application.show', ['application' => $id]);
-                $download_url = route('application.generate-application-pdf', ['id' =>  $id]);
+                $url = URL::signedRoute('application.show', ['app_id' => $id]);
+                $download_url = route('application.generate-application-pdf', ['app_id' =>  $id]);
+
+                // Prepare actions
+                $actions = '<div class="d-flex gap-2">'; // Flex container with small gap between buttons
+                $actions .= '<a class="btn btn-primary view_but" href="' . $url . '" target="_blank">
+                <div class="preview-icon-wrap"> View</div>
+             </a>';
+
+                // Add download button with modal trigger only for approved applications
+                if ($app->application_status == 2) {
+                    $actions .= '<a href="' . $download_url . '" class="btn btn-success document-modal-control popup" data-download="">
+                        <div class="preview-icon-wrap"><i class="ti ti-file-download"></i></div>
+                     </a>';
+                }
+
+                $actions .= '</div>';
+                $data[] = [
+                    'id' => $app->id,
+                    'application_no' => $app->application_no,
+                    'deceased_person_name' => $app->deceased_person_name,
+                    'passport_no' => $app->passport_no,
+                    'processed_date' => \Carbon\Carbon::parse($app->processed_date)->format('d-m-Y'),
+                    'country' => $app->countryRelation->country_name ?? '',
+                    // 'status' => $app->application_status == 2
+                    //     ? '<span class="badge bg-success">Approved</span>'
+                    //     : ($app->application_status == 3
+                    //         ? '<span class="badge bg-danger">Rejected</span>'
+                    //         : '<span class="badge bg-warning text-dark">Pending</span>'),
+                    'created_at' => $app->created_at ? $app->created_at->format('d-m-Y') : '',
+                    'actions' => $actions,
+                ];
+            }
+
+            return response()->json([
+                "draw" => intval(request()->input('draw')),
+                "recordsTotal" => $totalData,
+                "recordsFiltered" => $totalFiltered,
+                "data" => $data,
+            ]);
+        }
+        return view('official.processed-applications', compact('user', 'beneficiary', 'offcial'));
+    }
+    public function generateApplicationPdf(Request $request, $id)
+    {
+
+        try {
+            $application_id = decrypt($id);
+        } catch (DecryptException $e) {
+            abort(400, 'Invalid request.');
+        }
+
+        \App\Helpers\FileHelper::generateApplicationPDF($application_id);
+    }
+    public function rejectedApplications()
+    {
+        $user = Auth::user();
+        $beneficiary = config('customredirects.user_types.beneficiary');
+        $offcial = config('customredirects.user_types.official_user');
+
+        // Check if the request is an AJAX request
+        if (request()->ajax()) {
+            $columns = [
+                0 => 'id',
+                1 => 'application_no',
+                2 => 'deceased_person_name',
+                3 => 'passport_no',
+                4 => 'death_date',
+                5 => 'country',
+                6 => 'created_at',
+
+            ];
+
+            //fetch applications which are processed
+            $totalData = Application::where('application_status', '=', 3)->count();
+            $totalFiltered = $totalData;
+
+            $limit = request()->input('length');
+            $start = request()->input('start');
+            $order = $columns[request()->input('order.0.column') ?? 0] ?? 'id';
+            $dir = request()->input('order.0.dir') ?? 'desc';
+
+            $query = Application::with('countryRelation')->where('application_status', '=', 3);
+
+            // Search filter
+            if (!empty(request()->input('search.value'))) {
+                $search = request()->input('search.value');
+                $query->where(function ($q) use ($search) {
+                    $q->where('deceased_person_name', 'LIKE', "%{$search}%")
+                        ->orWhere('passport_no', 'LIKE', "%{$search}%");
+                });
+                $totalFiltered = $query->count();
+            }
+
+            $applications = $query->offset($start)
+                ->limit($limit)
+                ->orderBy($order, $dir)
+                ->get();
+
+
+
+            $routeName = 'application.show';
+            $data = [];
+            foreach ($applications as $app) {
+                $id = encrypt($app->id);
+                $url = URL::signedRoute('application.show', ['app_id' => $id]);
+                $download_url = route('application.generate-application-pdf', ['app_id' =>  $id]);
 
                 // Prepare actions
                 $actions = '<div class="d-flex gap-2">'; // Flex container with small gap between buttons
@@ -286,16 +390,6 @@ class ApplicationController extends Controller
                 "data" => $data,
             ]);
         }
-        return view('official.processed-applications', compact('user', 'beneficiary', 'offcial'));
+        return view('official.rejected-applications', compact('user', 'beneficiary', 'offcial'));
     }
-    public function generateApplicationPdf(Request $request, $id) {
-        try {
-            $application_id = decrypt($request->id);
-        } catch (DecryptException $e) {
-            abort(400, 'Invalid request.');
-        }
-
-        \App\Helpers\FileHelper::generateApplicationPDF($application_id);
-    }
-  
 }

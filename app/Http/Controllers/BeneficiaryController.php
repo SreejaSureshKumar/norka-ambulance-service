@@ -14,6 +14,8 @@ use App\Rules\PhoneNumber;
 use App\Models\Country;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
+
 
 
 class BeneficiaryController extends Controller
@@ -136,8 +138,8 @@ class BeneficiaryController extends Controller
             'sponsor_details' => 'Sponsor details',
             'contact_abroad_name' => 'Contact Person Abroad (name)',
             'contact_abroad_phone' => 'Contact Number',
-            'contact_kerala_name' => 'Contact in Kerala (name)',
-            'contact_kerala_phone' => 'Contact in Kerala (phone)',
+            'contact_kerala_name' => 'Local contact (name)',
+            'contact_kerala_phone' => 'Local Contact number',
             'airport_from' => 'Departure airport',
             'airport_to' => 'Arrival airport',
             'native_address' => 'Native address',
@@ -180,5 +182,60 @@ class BeneficiaryController extends Controller
             ->with('user', $user)
             ->with('beneficiary', $beneficiary)
             ->with('offcial', $offcial);
+    }
+      /**
+     * validate the application form fields.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function validateApplication(Request $request)
+    {
+       
+            $field_name = $request->field_name;
+           
+            $rules = [
+                'deceased_person_name' => ['required', 'string', 'max:255', new AlphaSpaceNumChar],
+            'passport_no' => ['required',  new Passport],
+            'death_date' => ['required', 'date'],
+            'cause_of_death' => ['required', 'string', 'max:255', new AlphaSpaceNumChar],
+            'country' => ['required', 'string', 'max:255', new AlphaSpaceNumChar],
+            'sponsor_details' => ['required', 'string', 'max:1000', new AlphaSpaceNumChar],
+            'contact_abroad_name' => ['required', 'string', 'max:255', new AlphaSpaceNumChar],
+          
+            'contact_kerala_name' => ['required', 'string', 'max:255', new AlphaSpaceNumChar],
+            'contact_kerala_phone' => ['required', new PhoneNumber('IN'), 'max:25'],
+            'airport_from' => ['required', 'string', 'max:255', new AlphaSpaceNumChar],
+            'airport_to' => ['required', 'string', 'max:255', new AlphaSpaceNumChar],
+            'native_address' => ['required', 'string', 'max:1000', new AlphaSpaceNumChar],
+            'cargo_norka_status' => ['nullable', 'numeric', 'in:0,1'],
+            ];
+            if (!in_array($request->field_name, array_keys($rules), true)) {
+                return response()->json(['message' => "Invalid field!"], 422);
+            }
+            $validator = Validator::make($request->all(), [
+                $field_name => $rules[$field_name],
+            ], [
+               
+            ],['deceased_person_name' => 'Deceased person name',
+            'passport_no' => 'Passport number',
+            'death_date' => 'Death date',
+            'cause_of_death' => 'Cause of death',
+            'country' => 'Country',
+            'sponsor_details' => 'Sponsor details',
+            'contact_abroad_name' => 'Contact Person Abroad ',
+            'contact_abroad_phone' => 'Contact Number',
+            'contact_kerala_name' => 'Local contact ',
+            'contact_kerala_phone' => 'Local contact number',
+            'airport_from' => 'Departure airport',
+            'airport_to' => 'Arrival airport',
+            'native_address' => 'Native address',
+            'cargo_norka_status' => 'NORKA cargo status',]);
+            if ($validator->fails()) {
+                return response()->json(['errors' => $validator->errors()], 422);
+            } else {
+                return response()->json(['message' => "Field validated successfully!"]);
+            }
+       
     }
 }

@@ -37,11 +37,11 @@
                 <div class="col-md-6">
                     <label for="deceased_person_name" class="form-label">Deceased Name <span
                             class="text-danger">*</span></label>
-                    <input type="text" class="form-control" id="deceased_person_name"
+                    <input type="text" class="form-control form-control-validate" id="deceased_person_name"
                         name="deceased_person_name" value="{{ old('deceased_person_name') }}"
-                        placeholder="Enter deceased person's name">
+                        placeholder="Enter deceased person's name" required>
                     @error('deceased_person_name')
-                        <span class="text-danger" role="alert">
+                        <span class="text-danger  invalid-message" role="alert">
                             <strong>{{ $message }}</strong>
                         </span>
                     @enderror
@@ -49,10 +49,10 @@
                 <div class="col-md-6">
                     <label for="passport_no" class="form-label">Passport Number <span
                             class="text-danger">*</span></label>
-                    <input type="text" class="form-control " id="passport_no" name="passport_no"
-                        value="{{ old('passport_no') }}" placeholder="Enter passport number">
+                    <input type="text" class="form-control form-control-validate" id="passport_no" name="passport_no"
+                        value="{{ old('passport_no') }}" placeholder="Enter passport number" maxlength="8" required>
                     @error('passport_no')
-                        <span class="text-danger" role="alert">
+                        <span class="text-danger invalid-message" role="alert">
                             <strong>{{ $message }}</strong>
                         </span>
                     @enderror
@@ -60,10 +60,10 @@
                 <div class="col-md-6">
                     <label for="death_date" class="form-label">Date of Death <span
                             class="text-danger">*</span></label>
-                    <input type="date" class="form-control " id="death_date" name="death_date"
-                        value="{{ old('death_date') }}" placeholder="Select date of death">
+                    <input type="date" class="form-control form-control-validate " id="death_date" name="death_date"
+                        value="{{ old('death_date') }}" placeholder="Select date of death" required>
                     @error('death_date')
-                        <span class="text-danger" role="alert">
+                        <span class="text-danger  " role="alert">
                             <strong>{{ $message }}</strong>
                         </span>
                     @enderror
@@ -71,7 +71,7 @@
                 <div class="col-md-6">
                     <label for="country" class="form-label">Country of Death <span
                             class="text-danger">*</span></label>
-                    <select class="form-control" id="country" name="country">
+                    <select class="form-control" id="country" name="country" required>
                         <option value="" disabled selected>Select country </option>
                         @foreach ($countries as $country)
                             <option value="{{ $country->country_id }}"
@@ -81,7 +81,7 @@
                         @endforeach
                     </select>
                     @error('country')
-                        <span class="text-danger" role="alert">
+                        <span class="text-danger  " role="alert">
                             <strong>{{ $message }}</strong>
                         </span>
                     @enderror
@@ -89,10 +89,10 @@
                 <div class="col-md-6">
                     <label for="cause_of_death" class="form-label">Cause of Death<span
                             class="text-danger">*</span></label>
-                    <textarea class="form-control " id="cause_of_death" name="cause_of_death" rows="2"
+                    <textarea class="form-control form-control-validate" id="cause_of_death" name="cause_of_death" rows="2"
                         placeholder="Enter cause of death"></textarea>
                     @error('cause_of_death')
-                        <span class="text-danger" role="alert">
+                        <span class="text-danger  " role="alert">
                             <strong>{{ $message }}</strong>
                         </span>
                     @enderror
@@ -100,10 +100,10 @@
                 <div class="col-md-6">
                     <label for="sponsor_details" class="form-label">Sponsor Details <span
                             class="text-danger">*</span></label>
-                    <textarea class="form-control " id="sponsor_details" name="sponsor_details" rows="2"
+                    <textarea class="form-control form-control-validate" id="sponsor_details" name="sponsor_details" rows="2"
                         placeholder="Enter sponsor details"></textarea>
                     @error('sponsor_details')
-                        <span class="text-danger" role="alert">
+                        <span class="text-danger  " role="alert">
                             <strong>{{ $message }}</strong>
                         </span>
                     @enderror
@@ -111,10 +111,10 @@
                 <div class="col-md-6">
                     <label for="contact_abroad_name" class="form-label">Overseas Emergency Contact <span
                             class="text-danger">*</span></label>
-                    <input type="text" class="form-control " id="contact_abroad_name"
+                    <input type="text" class="form-control form-control-validate" id="contact_abroad_name"
                         name="contact_abroad_name" placeholder="Enter overseas contact name" value={{ old('contact_abroad_name') }}>
                     @error('contact_abroad_name')
-                        <span class="text-danger" role="alert">
+                        <span class="text-danger  " role="alert">
                             <strong>{{ $message }}</strong>
                         </span>
                     @enderror
@@ -123,12 +123,12 @@
                     <label for="contact_abroad_phone" class="form-label">Overseas Contact Number <span
                             class="text-danger">*</span></label>
                     <input type="tel"
-                        class="form-control @error('contact_abroad_phone') is-invalid @enderror"
+                        class="form-control  @error('contact_abroad_phone') is-invalid @enderror"
                         id="contact_abroad_phone" name="contact_abroad_phone" placeholder="Phone Number"
                         maxlength="25" value="{{ old('contact_abroad_phone') }}" required>
 
                     @error('contact_abroad_phone')
-                        <span class="text-danger" role="alert">
+                        <span class="text-danger  " role="alert">
                             <strong>{{ $message }}</strong>
                         </span>
                     @enderror
@@ -142,21 +142,21 @@
                 <div class="col-md-6">
                     <label for="contact_kerala_name" class="form-label">Local Contact Name <span
                             class="text-danger">*</span></label>
-                    <input type="text" class="form-control " id="contact_kerala_name"
-                        name="contact_kerala_name" placeholder="Enter local contact name" value={{ old('contact_kerala_name')  }}>
+                    <input type="text" class="form-control form-control-validate" id="contact_kerala_name"
+                        name="contact_kerala_name" placeholder="Enter local contact name" value="{{ old('contact_kerala_name')  }}" required>
                     @error('contact_kerala_name')
-                        <span class="text-danger" role="alert">
+                        <span class="text-danger  " role="alert">
                             <strong>{{ $message }}</strong>
                         </span>
                     @enderror
                 </div>
                 <div class="col-md-6">
-                    <label for="contact_kerala_phone" class="form-label">Contact Number (in Kerala )<span
+                    <label for="contact_kerala_phone" class="form-label">Contact Number <span
                             class="text-danger">*</span></label>
-                    <input type="text" class="form-control " id="contact_kerala_phone"
-                        name="contact_kerala_phone" placeholder="Enter local contact number" value={{ old('contact_kerala_phone') }}>
+                    <input type="text" class="form-control form-control-validate" id="contact_kerala_phone"
+                        name="contact_kerala_phone" placeholder="Enter local contact number" value="{{ old('contact_kerala_phone') }}" required>
                     @error('contact_kerala_phone')
-                        <span class="text-danger" role="alert">
+                        <span class="text-danger  " role="alert">
                             <strong>{{ $message }}</strong>
                         </span>
                     @enderror
@@ -164,10 +164,10 @@
                 <div class="col-md-6">
                     <label for="airport_from" class="form-label">Departing Airport <span
                             class="text-danger">*</span></label>
-                    <input type="text" class="form-control " id="airport_from" name="airport_from"
-                        placeholder="Enter departing airport" value="{{ old('airport_from') }}">
+                    <input type="text" class="form-control form-control-validate" id="airport_from" name="airport_from"
+                        placeholder="Enter departing airport" value="{{ old('airport_from') }}" required>
                     @error('airport_from')
-                        <span class="text-danger" role="alert">
+                        <span class="text-danger  " role="alert">
                             <strong>{{ $message }}</strong>
                         </span>
                     @enderror
@@ -175,40 +175,40 @@
                 <div class="col-md-6">
                     <label for="airport_to" class="form-label">Arriving Airport <span
                             class="text-danger">*</span></label>
-                    <input type="text" class="form-control " id="airport_to" name="airport_to"
-                        placeholder="Enter arriving airport" value="{{ old('airport_to') }}">
+                    <input type="text" class="form-control form-control-validate" id="airport_to" name="airport_to"
+                        placeholder="Enter arriving airport" value="{{ old('airport_to') }}" required>
                     @error('airport_to')
-                        <span class="text-danger" role="alert">
+                        <span class="text-danger  " role="alert">
                             <strong>{{ $message }}</strong>
                         </span>
                     @enderror
                 </div>
                 <div class="col-md-6">
-                    <label for="native_address" class="form-label">Communication Address(in Kerala)</label>
-                    <textarea class="form-control " id="native_address" name="native_address" rows="2"
-                        placeholder="Enter communication address" ></textarea>
+                    <label for="native_address" class="form-label">Communication Address</label>
+                    <textarea class="form-control form-control-validate" id="native_address" name="native_address" rows="2"
+                        placeholder="Enter communication address" ></textarea >
                     @error('native_address')
-                        <span class="text-danger" role="alert">
+                        <span class="text-danger  " role="alert">
                             <strong>{{ $message }}</strong>
                         </span>
                     @enderror
                 </div>
-                <div class="col-md-6">
-                </div>
-                <div class="col-md-6">
-                    <div class="form-check">
-                        <input type="checkbox" class="form-check-input" id="cargo_norka_status"
-                            name="cargo_norka_status" value="1"
-                            {{ old('cargo_norka_status') == '1' ? 'checked' : '' }}>
-                        <label for="cargo_norka_status" class="form-check-label">Require cargo services
-                            from NORKA?</label>
+               
+                 <!-- Cargo Services Checkbox -->
+                 <div class="col-md-6">
+                    <div class="form-check mt-4 pt-2">
+                        <input type="checkbox" class="form-check-input form-control-validate" id="cargo_norka_status"
+                               name="cargo_norka_status" value="1"
+                               {{ old('cargo_norka_status') == '1' ? 'checked' : '' }}>
+                        <label for="cargo_norka_status" class="form-check-label">Require cargo services from NORKA?</label>
                     </div>
                     @error('cargo_norka_status')
-                        <span class="text-danger" role="alert">
+                        <span class="text-danger  " role="alert">
                             <strong>{{ $message }}</strong>
                         </span>
                     @enderror
                 </div>
+            </div>
             </div>
             <div class="mt-4 text-center">
                 <button type="submit" class="btn btn-secondary" id="submit-btn">
@@ -219,6 +219,7 @@
         </div>
     </div>
 @endsection
+<x-validate-application/>
 @push('custom-scripts')
 <script>
 var telInput = document.querySelector("#contact_abroad_phone");

@@ -6,6 +6,7 @@
     <title>SignUp</title>
     <!-- [Meta] -->
     <meta charset="utf-8" />
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimal-ui" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="description" content="" />
@@ -93,8 +94,8 @@
                             <div class="mb-3">
                                 <label for="first_name" class="form-label"><strong>First Name</strong><span
                                         class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="first_name" name="first_name"
-                                    placeholder="First name" value="{{ old('first_name') }}" required />
+                                <input type="text" class="form-control form-control-validate" id="first_name" name="first_name"
+                                    placeholder="First name" value="{{ old('first_name') }}" required maxlength="50"/>
                                 @error('first_name')
                                     <span class="text-danger" role="alert">
                                         <strong>{{ $message }}</strong>
@@ -102,10 +103,9 @@
                                 @enderror
                             </div>
                             <div class="mb-3">
-                                <label for="middle_name" class="form-label"><strong>Middle Name</strong><span
-                                        class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="middle_name" name="middle_name"
-                                    placeholder="Middle name" value="{{ old('middle_name') }}" />
+                                <label for="middle_name" class="form-label"><strong>Middle Name</strong></label>
+                                <input type="text" class="form-control form-control-validate" id="middle_name" name="middle_name"
+                                    placeholder="Middle name" value="{{ old('middle_name') }}" maxlength="25"/>
                                 @error('middle_name')
                                     <span class="text-danger" role="alert">
                                         <strong>{{ $message }}</strong>
@@ -115,8 +115,8 @@
                             <div class="mb-3">
                                 <label for="last_name" class="form-label"><strong>Last Name</strong><span
                                         class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="last_name" name="last_name"
-                                    placeholder="Last name" value="{{ old('last_name') }}" required />
+                                <input type="text" class="form-control form-control-validate" id="last_name" name="last_name"
+                                    placeholder="Last name" value="{{ old('last_name') }}" required maxlength="50"/>
                                 @error('last_name')
                                     <span class="text-danger" role="alert">
                                         <strong>{{ $message }}</strong>
@@ -126,7 +126,7 @@
                             <div class="mb-3">
                                 <label for="email" class="form-label"><strong>Email Address / Username</strong><span
                                         class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="email" name="email"
+                                <input type="email" class="form-control form-control-validate" id="email" name="email"
                                     placeholder="Email Address" value="{{ old('email') }}" required />
                                 @error('email')
                                     <span class="text-danger" role="alert">
@@ -156,7 +156,7 @@
                             </div>
                             <div class="mb-3 position-relative">
                                 <label for="password" class="form-label"><strong>Password</strong><span class="text-danger">*</span></label>
-                                <input type="password" class="form-control" id="password" name="password" placeholder="Password" required />
+                                <input type="password" class="form-control form-control-validate" id="password" name="password" placeholder="Password" maxlength="8" required />
                                 <span class="password-toggle-icon" id="togglePasswordIcon">
                                     <i class="fa fa-eye text-secondary"></i>
                                 </span>
@@ -168,11 +168,13 @@
                             </div>
                             <div class="mb-3 position-relative">
                                 <label for="password_confirmation" class="form-label"><strong>Confirm Password</strong><span class="text-danger">*</span></label>
-                                <input type="password" class="form-control" id="password_confirmation" name="password_confirmation" placeholder="Confirm Password" required />
+                                <input type="password" class="form-control" id="password_confirmation" name="password_confirmation" placeholder="Confirm Password" maxlength="8"required />
                                 <span class="password-toggle-icon" id="toggleConfirmPasswordIcon">
                                     <i class="fa fa-eye text-secondary"></i>
                                 </span>
+                                <div id="password_confirmation_error" class="error-message"></div>
                             </div>
+
                             <div class="d-grid mt-4">
                                 <button type="submit" class="btn btn-secondary p-2">Sign Up</button>
                             </div>
@@ -201,6 +203,7 @@
 
     <script>
         jQuery(function($) {
+            var csrf_token = $('meta[name="csrf-token"]').attr('content');
             var telInput = document.querySelector("#user_mobile");
             var itiOptions = {
                 allowDropdown: true,
@@ -240,6 +243,44 @@
                 $('#mobile-country-code').val(countryCode.dialCode);
                 $('#mobile-country-iso-code').val(countryCode.iso2);
             });
+
+          
+            function validateField($elem) {
+               
+                var type = $elem.attr('id');
+                var data = {
+                    field_name: type
+                };
+                data[type] = $('#' + type).val();
+                var validation_selector = type;
+                
+                $('#' + validation_selector).removeClass('is-valid is-invalid');
+                $('#' + validation_selector).next('.text-danger, .invalid-message').remove();  
+                $.ajax({
+                    url: '{{ route('user-validation') }}',
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': csrf_token
+                    },
+                    data: data
+                }).fail(function(xhr, textStatus) {
+                    console.log(xhr);
+                    
+                    if (xhr.responseJSON.errors && typeof xhr.responseJSON.errors[type][0] !==
+                        'undefined') {
+                        $('#' + validation_selector).removeClass('is-valid is-invalid');
+                        $('#' + validation_selector).addClass('is-invalid').after(
+                            '<span class="text-danger " role="alert">' + xhr.responseJSON.errors[
+                                type][0] + '</span>');
+                        
+                    }
+                });
+            }
+
+            $('.form-control-validate').on('change', function() {
+            
+                validateField($(this));
+            });
         });
 
         // Password visibility toggle (run after DOM is ready)
@@ -277,7 +318,21 @@
                 });
             }
         });
-
+        $('#password_confirmation').on('change', function() {
+                const password = $('#password').val();
+                const passwordConfirmation = $(this).val();
+                const togglePasswordIcon = document.getElementById('toggleConfirmPasswordIcon');
+                if (password !== passwordConfirmation) {
+                    $('#password_confirmation_error').text('Passwords do not match.');
+                    $(this).addClass('is-invalid').removeClass('is-valid');
+                    togglePasswordIcon.querySelector('i').classList.remove('fa-eye');
+                } else {
+                    $('#password_confirmation_error').text('');
+                    $(this).removeClass('is-invalid');
+                    togglePasswordIcon.querySelector('i').classList.add('fa-eye');
+                   
+                }
+            });
         layout_change('light');
         font_change('Roboto');
         change_box_container('false');
