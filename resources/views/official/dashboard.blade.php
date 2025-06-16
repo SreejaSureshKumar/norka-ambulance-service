@@ -57,10 +57,26 @@
                 <div class="card-body d-flex flex-column justify-content-between" style="min-height: 180px;">
                   <div>
                     <h5 class="text-white mb-1">Processed Applications</h5>
-                    <small class="text-white-50 d-block mb-3">View and manage processed applications.</small>
+                    <small class="text-white-50 d-block mb-3">View and manage approved applications.</small>
                     <div class="mb-4"></div>
                   </div>
-                  <p class="mb-0 opacity-50 fs-5 fw-bold">{{ $processedApplications ?? 0 }} Processed</p>
+                  <p class="mb-0 opacity-50 fs-5 fw-bold">{{ $approveddApplications ?? 0 }} Approved</p>
+                </div>
+              </div>
+            </a>
+          </div>
+          <div class="col-xl-4 col-md-6">
+            <a href="{{ route('application.rejected-list') }}" class="clickable-card">
+              <div class="card bg-primary-dark dashnum-card text-white overflow-hidden mb-4 h-100">
+                <span class="round small"></span>
+                <span class="round big"></span>
+                <div class="card-body d-flex flex-column justify-content-between" style="min-height: 180px;">
+                  <div>
+                    <h5 class="text-white mb-1">Processed Applications</h5>
+                    <small class="text-white-50 d-block mb-3">View and manage rejected applications.</small>
+                    <div class="mb-4"></div>
+                  </div>
+                  <p class="mb-0 opacity-50 fs-5 fw-bold">{{ $rejectedApplications ?? 0 }} Rejected</p>
                 </div>
               </div>
             </a>

@@ -33,49 +33,46 @@ Route::middleware(['auth', 'NoCache'])->group(function () {
         Route::post('/beneficiary/submit-application', [App\Http\Controllers\BeneficiaryController::class, 'submitApplication'])->name('beneficiary.submit-application');
         Route::get('/beneficiary/application/{id}', [App\Http\Controllers\BeneficiaryController::class, 'show'])->name('beneficiary.application.show');
         Route::post('/beneficiary/validate-application', [App\Http\Controllers\BeneficiaryController::class, 'validateApplication'])->name('beneficiary.application.validate');
-        
     });
 
 
     Route::middleware(['auth.usertype:official_user'])->group(function () {
 
-    Route::post('/application/process/{id}', [App\Http\Controllers\ApplicationController::class, 'applicationProcess'])->name('application.process');
-    Route::get('/application/{app_id}', [App\Http\Controllers\ApplicationController::class, 'show'])->name('application.show');
-
-    Route::get('/application/generate-pdf/{app_id}', [App\Http\Controllers\ApplicationController::class, 'generateApplicationPdf'])->name('application.generate-application-pdf');
+        Route::post('/application/process/{id}', [App\Http\Controllers\ApplicationController::class, 'applicationProcess'])->name('application.process');
+        Route::get('/application/{app_id}', [App\Http\Controllers\ApplicationController::class, 'show'])->name('application.show');
     });
-
-
+    Route::middleware(['auth.usertype:official_user,beneficiary'])->group(function () {
+        Route::get('/application/generate-pdf/{app_id}', [App\Http\Controllers\ApplicationController::class, 'generateApplicationPdf'])->name('application.generate-application-pdf');
+    });
     Route::middleware(['auth.usertype:admin_user'])->group(function () {
 
-    Route::get('/users/create', [App\Http\Controllers\UserController::class, 'create'])->name('users.create');
-    Route::post('/users', [App\Http\Controllers\UserController::class, 'store'])->name('users.store');
-    Route::get('/users/{user}', [App\Http\Controllers\UserController::class, 'show'])->name('users.show');
-    Route::get('/users/{user}/edit', [App\Http\Controllers\UserController::class, 'edit'])->name('users.edit');
-    Route::put('/users/{user}', [App\Http\Controllers\UserController::class, 'update'])->name('users.update');
-    Route::delete('/users/{user}', [App\Http\Controllers\UserController::class, 'destroy'])->name('users.destroy');
+        Route::get('/users/create', [App\Http\Controllers\UserController::class, 'create'])->name('users.create');
+        Route::post('/users', [App\Http\Controllers\UserController::class, 'store'])->name('users.store');
+        Route::get('/users/{user}', [App\Http\Controllers\UserController::class, 'show'])->name('users.show');
+        Route::get('/users/{user}/edit', [App\Http\Controllers\UserController::class, 'edit'])->name('users.edit');
+        Route::put('/users/{user}', [App\Http\Controllers\UserController::class, 'update'])->name('users.update');
+        Route::delete('/users/{user}', [App\Http\Controllers\UserController::class, 'destroy'])->name('users.destroy');
 
-    Route::get('/usertypes/create', [App\Http\Controllers\UserTypeController::class, 'create'])->name('usertypes.create');
-    Route::post('/usertypes', [App\Http\Controllers\UserTypeController::class, 'store'])->name('usertypes.store');
-    Route::get('/usertypes/{usertype}', [App\Http\Controllers\UserTypeController::class, 'show'])->name('usertypes.show');
-    Route::get('/usertypes/{usertype}/edit', [App\Http\Controllers\UserTypeController::class, 'edit'])->name('usertypes.edit');
-    Route::put('/usertypes/{usertype}', [App\Http\Controllers\UserTypeController::class, 'update'])->name('usertypes.update');
-    Route::delete('/usertypes/{usertype}', [App\Http\Controllers\UserTypeController::class, 'destroy'])->name('usertypes.destroy');
+        Route::get('/usertypes/create', [App\Http\Controllers\UserTypeController::class, 'create'])->name('usertypes.create');
+        Route::post('/usertypes', [App\Http\Controllers\UserTypeController::class, 'store'])->name('usertypes.store');
+        Route::get('/usertypes/{usertype}', [App\Http\Controllers\UserTypeController::class, 'show'])->name('usertypes.show');
+        Route::get('/usertypes/{usertype}/edit', [App\Http\Controllers\UserTypeController::class, 'edit'])->name('usertypes.edit');
+        Route::put('/usertypes/{usertype}', [App\Http\Controllers\UserTypeController::class, 'update'])->name('usertypes.update');
+        Route::delete('/usertypes/{usertype}', [App\Http\Controllers\UserTypeController::class, 'destroy'])->name('usertypes.destroy');
 
-    Route::get('/usercomponent/create', [App\Http\Controllers\ComponentController::class, 'create'])->name('usercomponent.create');
-    Route::post('/usercomponent', [App\Http\Controllers\ComponentController::class, 'store'])->name('usercomponent.store');
-    Route::get('/usercomponent/{usercomponent}', [App\Http\Controllers\ComponentController::class, 'show'])->name('usercomponent.show');
-    Route::get('/usercomponent/{usercomponent}/edit', [App\Http\Controllers\ComponentController::class, 'edit'])->name('usercomponent.edit');
-    Route::put('/usercomponent/{usercomponent}', [App\Http\Controllers\ComponentController::class, 'update'])->name('usercomponent.update');
-    Route::delete('/usercomponent/{usercomponent}', [App\Http\Controllers\ComponentController::class, 'destroy'])->name('usercomponent.destroy');
+        Route::get('/usercomponent/create', [App\Http\Controllers\ComponentController::class, 'create'])->name('usercomponent.create');
+        Route::post('/usercomponent', [App\Http\Controllers\ComponentController::class, 'store'])->name('usercomponent.store');
+        Route::get('/usercomponent/{usercomponent}', [App\Http\Controllers\ComponentController::class, 'show'])->name('usercomponent.show');
+        Route::get('/usercomponent/{usercomponent}/edit', [App\Http\Controllers\ComponentController::class, 'edit'])->name('usercomponent.edit');
+        Route::put('/usercomponent/{usercomponent}', [App\Http\Controllers\ComponentController::class, 'update'])->name('usercomponent.update');
+        Route::delete('/usercomponent/{usercomponent}', [App\Http\Controllers\ComponentController::class, 'destroy'])->name('usercomponent.destroy');
 
-    Route::get('/userpermission/create', [App\Http\Controllers\ComponentPermissionController::class, 'create'])->name('userpermission.create');
-    Route::post('/userpermission', [App\Http\Controllers\ComponentPermissionController::class, 'store'])->name('userpermission.store');
-    Route::get('/userpermission/{permission}', [App\Http\Controllers\ComponentPermissionController::class, 'show'])->name('userpermission.show');
-    Route::get('/userpermission/{permission}/edit', [App\Http\Controllers\ComponentPermissionController::class, 'edit'])->name('userpermission.edit');
-    Route::put('/userpermission/{permission}', [App\Http\Controllers\ComponentPermissionController::class, 'update'])->name('userpermission.update');
-    Route::delete('/userpermission/{permission}', [App\Http\Controllers\ComponentPermissionController::class, 'destroy'])->name('userpermission.destroy');
-    Route::get('/permissions/components-for-usertype', [\App\Http\Controllers\ComponentPermissionController::class, 'componentsForUsertype'])->name('userpermission.components-for-usertype');
+        Route::get('/userpermission/create', [App\Http\Controllers\ComponentPermissionController::class, 'create'])->name('userpermission.create');
+        Route::post('/userpermission', [App\Http\Controllers\ComponentPermissionController::class, 'store'])->name('userpermission.store');
+        Route::get('/userpermission/{permission}', [App\Http\Controllers\ComponentPermissionController::class, 'show'])->name('userpermission.show');
+        Route::get('/userpermission/{permission}/edit', [App\Http\Controllers\ComponentPermissionController::class, 'edit'])->name('userpermission.edit');
+        Route::put('/userpermission/{permission}', [App\Http\Controllers\ComponentPermissionController::class, 'update'])->name('userpermission.update');
+        Route::delete('/userpermission/{permission}', [App\Http\Controllers\ComponentPermissionController::class, 'destroy'])->name('userpermission.destroy');
+        Route::get('/permissions/components-for-usertype', [\App\Http\Controllers\ComponentPermissionController::class, 'componentsForUsertype'])->name('userpermission.components-for-usertype');
     });
-
 });

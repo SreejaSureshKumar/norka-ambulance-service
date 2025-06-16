@@ -35,10 +35,8 @@
             <td>
                 <p>
                    
-                        The Branch Manager, <br />
-                        New India Assurance Company <br />
-                        Palayam <br />
-                        Thiruvananthapuram <br />
+                        The Embassy Of India, <br />
+                   
                    
                 </p>
             </td>
@@ -54,14 +52,14 @@
                     <tr>
                         <td>Sub:-</td>
                         <td>
-                            NORKAROOTS-</td>
+                            NORKAROOTS-DEATH REPARTIATION REQUEST</td>
                     </tr>
                 </table>
             </td>
         </tr>
     </table>
 
-    <p>I am forwarding here with the original claim application and its supporting documents </p>
+    <p>I am forwarding here with the original  application and its supporting documents </p>
 
    
 

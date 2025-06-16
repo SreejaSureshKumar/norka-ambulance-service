@@ -82,9 +82,9 @@ class HomeController extends Controller
     public function officialdashboard()
     { // Fetch counts for new and processed applications
         $newApplications = Application::where('application_status', 1)->count();
-        $processedApplications = Application::whereIn('application_status',[ 2,3])->count();
-
+        $approveddApplications = Application::whereIn('application_status',[ 2])->count();
+        $rejectedApplications = Application::whereIn('application_status',[3])->count();
         // Pass the counts to the view
-        return view('official.dashboard', compact('newApplications', 'processedApplications'));
+        return view('official.dashboard', compact('newApplications', 'approveddApplications', 'rejectedApplications'));
     }
 }

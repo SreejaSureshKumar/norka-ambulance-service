@@ -12,7 +12,8 @@ use Illuminate\Support\Facades\Crypt;
 use App\Rules\AlphaSpaceNumChar;
 use App\Models\UserComponent;
 use Illuminate\Contracts\Encryption\DecryptException;
-
+use Illuminate\Support\Facades\Mail;
+use App\Mail\ApplicationProcessingEmail;
 
 
 
@@ -133,7 +134,7 @@ class ApplicationController extends Controller
         $previousMenuLabel = 'Application List';
 
         $beneficiary = config('customredirects.user_types.beneficiary');
-        $offcial = config('customredirects.user_types.official_user');
+        $official = config('customredirects.user_types.official_user');
         $user = Auth::user();
         $id = Crypt::decrypt($id);
 
@@ -148,10 +149,8 @@ class ApplicationController extends Controller
             return redirect()->route('application.index')->with('error', 'Application not found.');
         }
 
-        return view('beneficiary.application-details', compact('application', 'edit_enable', 'previousMenuLabel', 'previousMenuUrl'))
-            ->with('user', $user)
-            ->with('beneficiary', $beneficiary)
-            ->with('offcial', $offcial);
+        return view('beneficiary.application-details', compact('application', 'edit_enable', 'previousMenuLabel', 'previousMenuUrl','user','beneficiary','official'));
+    
     }
     public function applicationProcess(Request $request, $id): RedirectResponse
     {
@@ -179,13 +178,23 @@ class ApplicationController extends Controller
 
         // Fetch the application
         $application = Application::findOrFail($id);
-
+        $application_data=[
+            'application_no' => $application->application_no,
+            'deceased_person_name' => $application->deceased_person_name,
+            'application_status' => $status,
+            'date'=>date('d-m-Y')
+            
+        ];
+        $email=$user->email;
         // Update the application with the validated remarks
         $application->remarks = $validatedData['remarks'];
         $application->processed_by = $user->id;
         $application->processed_date = date('Y-m-d H:i:s');
         $application->application_status = $status;
         $application->save();
+
+        Mail::to($email)->send(new ApplicationProcessingEmail($application_data));
+
 
         $message = $application->application_status === 2
             ? 'Application approved successfully.'

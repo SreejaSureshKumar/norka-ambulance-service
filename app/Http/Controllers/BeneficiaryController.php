@@ -15,6 +15,8 @@ use App\Models\Country;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\URL;
+
 
 
 
@@ -69,6 +71,20 @@ class BeneficiaryController extends Controller
 
             $data = [];
             foreach ($applications as $app) {
+                $id = encrypt($app->id);
+                $url = URL::signedRoute('application.show', ['app_id' => $id]);
+                $download_url = route('application.generate-application-pdf', ['app_id' =>  $id]);
+                $actions = '<div class="d-flex gap-2">'; // Flex container with small gap between buttons
+                $actions .= '<a class="btn btn-primary view_but" href="' . $url . '" target="_blank">
+                <div class="preview-icon-wrap"> View</div>
+             </a>';
+
+                // Add download button with modal trigger only for approved applications
+                if ($app->application_status == 2) {
+                    $actions .= '<a href="' . $download_url . '" class="btn btn-success document-modal-control popup" data-download="">
+                        <div class="preview-icon-wrap"><i class="ti ti-file-download"></i></div>
+                     </a>';
+                }
                 $data[] = [
                     'id' => $app->id,
                     'application_no' => $app->application_no,
@@ -76,11 +92,13 @@ class BeneficiaryController extends Controller
                     'passport_no' => $app->passport_no,
                     'death_date' => \Carbon\Carbon::parse($app->death_date)->format('d-m-Y'),
                     'country' => $app->countryRelation->country_name ?? '',
-                    'status' => $app->application_status == 2 ? 'Approved' : ($app->application_status == 3 ? 'Rejected' : 'Pending'),
+                    'status' => $app->application_status == 2
+                        ? '<span class="badge bg-success">Approved</span>'
+                        : ($app->application_status == 3
+                            ? '<span class="badge bg-danger">Rejected</span>'
+                            : '<span class="badge bg-warning text-dark">Pending</span>'),
                     'created_at' => $app->created_at ? $app->created_at->format('d-m-Y') : '',
-                    'actions' => '<a class="btn btn-primary view_but" href="' . route('beneficiary.application.show', encrypt($app->id)) . '" target="_blank">
-                                    <div class="preview-icon-wrap"><em class="icon ni ni-eye"></em> View</div>
-                                  </a>',
+                    'actions' => $actions,
                 ];
             }
 
@@ -170,7 +188,7 @@ class BeneficiaryController extends Controller
         $previousMenuLabel = 'Application List';
 
         $beneficiary = config('customredirects.user_types.beneficiary');
-        $offcial = config('customredirects.user_types.official_user');
+        $official = config('customredirects.user_types.official_user');
 
         $user = Auth::user();
 
@@ -178,10 +196,8 @@ class BeneficiaryController extends Controller
         $edit_enable = 0;
         $id = Crypt::decrypt($id);
         $application = Application::with('countryRelation')->findOrFail($id);
-        return view('beneficiary.application-details', compact('application', 'edit_enable', 'previousMenuLabel', 'previousMenuUrl'))
-            ->with('user', $user)
-            ->with('beneficiary', $beneficiary)
-            ->with('offcial', $offcial);
+        return view('beneficiary.application-details', compact('application', 'edit_enable', 'previousMenuLabel', 'previousMenuUrl','user','beneficiary','official'));
+          
     }
       /**
      * validate the application form fields.
