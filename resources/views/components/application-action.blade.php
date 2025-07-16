@@ -1,32 +1,37 @@
-<div class="card shadow-sm border-0">
+<div class="card shadow-sm border-0 mt-4">
     <div class="card-body">
-        <form id="application-action-form" method="POST" action="{{ route('application.process', encrypt($application->id)) }}">
-            @csrf
+        <div class="row">
+            <div class="col-md-6">
+                <form id="application-action-form" method="POST" action="{{ route($action, encrypt($application->id)) }}">
+                    @csrf
 
-            <!-- Remark Field -->
-            <div class="mb-3">
-                <label for="remarks" class="form-label">Remarks <span class="text-danger">*</span></label>
-                <textarea id="remarks" name="remarks" class="form-control" rows="4" placeholder="Enter remarks here..." required>{{ old('remarks', $remarks ?? '') }}</textarea>
-                @error('remarks')
-                    <span class="text-danger" role="alert">
-                        <strong>{{ $message }}</strong>
-                    </span>
-                @enderror
-            </div>
+                    <!-- Remark Field -->
+                    <div class="mb-3">
+                     
+                                                 <label class="readonly-label">Remarks <span class="text-danger">*</span></label>
 
-            <!-- Approve and Reject Buttons -->
-            <div class="d-flex justify-content-end">
-                <button type="submit" name="action" value="approve" class="btn btn-success me-2 confirm-action" data-message="Are you sure you want to approve this application?">
-                    Approve
-                </button>
-                <button type="submit" name="action" value="reject" class="btn btn-danger confirm-action" data-message="Are you sure you want to reject this application?">
-                    Reject
-                </button>
+                        <textarea id="remarks" name="remarks" class="form-control" rows="4" placeholder="Enter remarks here..." required>{{ old('remarks', $remarks ?? '') }}</textarea>
+                        @error('remarks')
+                            <span class="text-danger" role="alert">
+                                <strong>{{ $message }}</strong>
+                            </span>
+                        @enderror
+                    </div>
+
+                    <!-- Approve and Reject Buttons -->
+                    <div class="d-flex justify-content-end">
+                        <button type="submit" name="action" value="approve" class="btn btn-success me-2 confirm-action" data-message="Are you sure you want to Verify this application?">
+                            Verify
+                        </button>
+                        <button type="submit" name="action" value="reject" class="btn btn-danger confirm-action" data-message="Are you sure you want to reject this application?">
+                            Reject
+                        </button>
+                    </div>
+                </form>
             </div>
-        </form>
+        </div>
     </div>
 </div>
-
 @push('custom-scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function () {

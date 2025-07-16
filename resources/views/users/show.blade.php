@@ -17,16 +17,28 @@
             </div>
             <div class="card-body">
                 <div class="mb-3">
-                    <label class="form-label"><strong>Name:</strong></label>
-                    <input type="text" name="name" placeholder="Name" class="form-control" value="{{ $user->name }}" disabled>
+                    <label class="form-label"><strong>First Name:</strong></label>
+                    <input type="text" class="form-control" value="{{ $user->first_name }}" disabled>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label"><strong>Middle Name:</strong></label>
+                    <input type="text" class="form-control" value="{{ $user->middle_name }}" disabled>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label"><strong>Last Name:</strong></label>
+                    <input type="text" class="form-control" value="{{ $user->last_name }}" disabled>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label"><strong>Mobile Number:</strong></label>
+                    <input type="text" class="form-control" value="{{ $user->user_mobile }}" disabled>
                 </div>
                 <div class="mb-3">
                     <label class="form-label"><strong>Email:</strong></label>
-                    <input type="email" name="email" placeholder="Email" class="form-control" value="{{ $user->email }}" disabled>
+                    <input type="email" class="form-control" value="{{ $user->email }}" disabled>
                 </div>
                 <div class="mb-3">
                     <label class="form-label"><strong>Usertype:</strong></label>
-                    <select name="user_type" class="form-control" disabled>
+                    <select class="form-control" disabled>
                         <option value="" disabled>Select Usertype</option>
                         @foreach ($usertypes as $value => $label)
                             <option value="{{ $value }}" {{ isset($user->user_type) && $user->user_type == $value ? 'selected' : '' }}>

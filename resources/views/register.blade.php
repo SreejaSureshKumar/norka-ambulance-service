@@ -13,19 +13,19 @@
     <meta name="keywords" content="" />
     <meta name="author" content="C-DIT" />
 
-    <!-- [Favicon] icon -->
+
     <link rel="icon" href="{{ asset('images/favicon.png') }}" type="image/x-icon" />
-    <!-- [phosphor Icons] https://phosphoricons.com/ -->
+ 
     <link rel="stylesheet" href="{{ asset('fonts/phosphor/duotone/style.css') }}" />
-    <!-- [Tabler Icons] https://tablericons.com -->
+
     <link rel="stylesheet" href="{{ asset('fonts/tabler-icons.min.css') }}" />
-    <!-- [Feather Icons] https://feathericons.com -->
+   
     <link rel="stylesheet" href="{{ asset('fonts/feather.css') }}" />
-    <!-- [Font Awesome Icons] https://fontawesome.com/icons -->
+   
     <link rel="stylesheet" href="{{ asset('fonts/fontawesome.css') }}" />
-    <!-- [Material Icons] https://fonts.google.com/icons -->
+
     <link rel="stylesheet" href="{{ asset('fonts/material.css') }}" />
-    <!-- [Template CSS Files] -->
+ 
     <link rel="stylesheet" href="{{ asset('css/plugins/bootstrap.min.css') }}" />
     <link rel="stylesheet" href="{{ asset('css/intlTelInput.min.css') }}" />
     <link rel="stylesheet" href="{{ asset('css/style.css') }}" id="main-style-link" />

@@ -19,6 +19,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'check.usertype' => \App\Http\Middleware\CheckUserTypeAccess::class,
             'auth.usertype' => \App\Http\Middleware\UserTypeCheck::class,
         ]);
+        
+        
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

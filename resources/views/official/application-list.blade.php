@@ -10,9 +10,10 @@
             </div>
    
         @endif
+         
         <div class="card-header">
             <div class="d-flex justify-content-between align-items-center">
-                <h3 class="card-title mb-0">New Applications </h3>
+                <h3 class="card-title mb-0">Death Repartiation / New Applications </h3>
             </div>
         </div>
         <div class="card-body">
@@ -22,7 +23,7 @@
                         <tr>
                             <th>Sl No.</th>
                             <th>Application No</th>
-                            <th>Decease Name</th>
+                            <th>Deceased's Name</th>
                             <th>Passport No</th>
                             <th> Death Date</th>
                             <th>Country</th>
@@ -39,7 +40,7 @@
     </div>
 @endsection
 @push('custom-scripts')
-    <script>
+    <script  data-cfasync="false">
         $(document).ready(function() {
             var table = $('#applications-table').DataTable({
                 processing: true,
