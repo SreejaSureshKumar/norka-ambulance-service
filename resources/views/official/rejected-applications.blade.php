@@ -4,7 +4,7 @@
     <div class="card">
         <div class="card-header">
             <div class="d-flex justify-content-between align-items-center">
-                <h3 class="card-title mb-0">Applications List</h3>
+                <h3 class="card-title mb-0">Death Repartiation / Applications List</h3>
 
             </div>
         </div>
@@ -33,7 +33,7 @@
     </div>
 @endsection
 @push('custom-scripts')
-    <script>
+    <script data-cfasync="false">
         $(document).ready(function() {
             var table = $('#applications-table').DataTable({
                 processing: true,

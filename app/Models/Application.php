@@ -21,8 +21,8 @@ class Application extends Model
         'sponsor_details',
         'contact_abroad_name',
         'contact_abroad_phone',
-        'contact_kerala_name',
-        'contact_kerala_phone',
+        'contact_local_name',
+        'contact_local_phone',
         'airport_from',
         'airport_to',
         'native_address',
@@ -32,7 +32,13 @@ class Application extends Model
         'created_by',
         'processed_by',
         'processed_date',
-        'remarks'
+        'remarks',
+        'intimation_flag',
+        'ambulance_service_status',
+        'alt_contact_abroad_name',
+        'alt_contact_local_name',
+        'alt_contact_local_phone',
+        'alt_contact_abroad_phone'
     ];
 
     public function countryRelation()

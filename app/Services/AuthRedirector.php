@@ -25,13 +25,11 @@ class AuthRedirector
         // If usertype_name is not found, fallback to 'default'
         $usertype_name = $usertype_name ?: 'default';
 
-        info("User type ID: $usertype_id");
-        info("Mapped usertype name: $usertype_name");
-        info("Available redirects: " . json_encode($redirects));
+        
 
         // Fetch the route using the usertype name
         $route = $redirects[$usertype_name] ?? $redirects['default'];
-        info("Redirect route: $route");
+        
 
         return $route;
     }

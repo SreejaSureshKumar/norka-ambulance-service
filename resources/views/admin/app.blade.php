@@ -8,6 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimal-ui" />
     <meta name="csrf-token" content="{{ csrf_token() }}">
+
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="description" content="" />
     <meta name="keywords" content="" />
@@ -16,15 +17,15 @@
     <!-- [Favicon] icon -->
     <link rel="icon" href="{{ asset('images/favicon.png') }}" type="image/x-icon" />
 
-    <!-- [phosphor Icons] https://phosphoricons.com/ -->
+  
     <link rel="stylesheet" href="{{ asset('fonts/phosphor/duotone/style.css') }}" />
-    <!-- [Tabler Icons] https://tablericons.com -->
+   
     <link rel="stylesheet" href="{{ asset('fonts/tabler-icons.min.css') }}" />
-    <!-- [Feather Icons] https://feathericons.com -->
+   
     <link rel="stylesheet" href="{{ asset('fonts/feather.css') }}" />
-    <!-- [Font Awesome Icons] https://fontawesome.com/icons -->
+   
     <link rel="stylesheet" href="{{ asset('fonts/fontawesome.css') }}" />
-    <!-- [Material Icons] https://fonts.google.com/icons -->
+  <link rel="stylesheet" href="{{ asset('css/plugins/flatpickr.min.css') }}" />
     <link rel="stylesheet" href="{{ asset('fonts/material.css') }}" />
     <link rel="stylesheet" href="{{ asset('css/plugins/bootstrap.min.css') }}" />
     <!-- [Template CSS Files] -->
@@ -82,6 +83,7 @@
     </div>
     <x-admin.main-footer />
     <!-- Required Js -->
+     <script src="{{asset('js/plugins/apexcharts.min.js')}}"></script>
     <script src="{{ asset('js/plugins/popper.min.js') }}"></script>
     <script src="{{ asset('js/plugins/simplebar.min.js') }}"></script>
     <script src="{{ asset('js/plugins/bootstrap.min.js') }}"></script>
@@ -89,6 +91,7 @@
     <script src="{{ asset('js/script.js') }}"></script>
     <script src="{{ asset('js/theme.js') }}"></script>
     <script src="{{ asset('js/plugins/feather.min.js') }}"></script>
+ <script src="{{ asset('js/plugins/flatpickr.min.js') }}" ></script>
     <script src="{{ asset('js/jquery.js') }}"></script>
     <script src="{{ asset('js/libs/intlTelInput.min.js') }}"></script>
     <script src="{{ asset('js/libs/intlTelInputWithUtils.js') }}"></script>
@@ -100,9 +103,7 @@
         layout_change('light');
     </script>
 
-    <script>
-        font_change('Roboto');
-    </script>
+   
 
     <script>
         change_box_container('false');

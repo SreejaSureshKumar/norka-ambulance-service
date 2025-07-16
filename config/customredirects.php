@@ -5,7 +5,8 @@ return [
         'admin_user' => 1,
         'beneficiary' => 2,
         'official_user' => 3,
-        // ... other mappings
+        'agency_user'=>6,
+        'nodal_officer'=>7
     ],
     'redirects' => [
         'admin_user' => 'home.admin',

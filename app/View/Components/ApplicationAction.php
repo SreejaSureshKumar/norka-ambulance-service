@@ -7,6 +7,7 @@ use Illuminate\View\Component;
 class ApplicationAction extends Component
 {
     public $application;
+    public $action;
 
     /**
      * Create a new component instance.
@@ -14,9 +15,10 @@ class ApplicationAction extends Component
      * @param  mixed  $application
      * @return void
      */
-    public function __construct($application)
+    public function __construct($application,$action)
     {
         $this->application = $application;
+        $this->action = $action;
     }
 
     /**

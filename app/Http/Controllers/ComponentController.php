@@ -74,47 +74,55 @@ class ComponentController extends Controller
     public function show($id): View
     {
         $id = decrypt($id);
-        $usercomponent = UserComponent::find($id);
+        
+        $usercomponent = UserComponent::with('parentComponent')->find($id);
+        
         $usercomponents = UserComponent::where('component_parent', '=', 0)->pluck('component_name', 'component_id')->all();
         return view('usercomponent.show', compact('usercomponent', 'usercomponents'));
     }
-    public function edit($id):View{
-        $id = decrypt($id);
-        $usercomponent = UserComponent::find($id);
-       
-        $usercomponents = UserComponent::where('component_parent', '=', 0)->pluck('component_name', 'component_id')->all();
+public function edit($id): View
+{
+    $id = decrypt($id);
+    $usercomponent = UserComponent::find($id);
     
-        return view('usercomponent.edit',compact('usercomponent','usercomponents'));
+    // Get only components that can be parents (main menus) and exclude current component
+    $usercomponents = UserComponent::where('component_parent', 0)
+        ->where('component_id', '!=', $id)
+        ->pluck('component_name', 'component_id')
+        ->all();
+    
+    return view('usercomponent.edit', compact('usercomponent', 'usercomponents'));
+}
+
+public function update(Request $request, $id): RedirectResponse
+{
+    $id = decrypt($id);
+    $usercomponent = UserComponent::find($id);
+    
+    // Check if this component has any children
+    $hasChildren = UserComponent::where('component_parent', $usercomponent->component_id)->exists();
+    
+    $this->validate($request, [
+        'component_name' => 'required|string|max:255|regex:/^[a-zA-Z0-9\s]+$/',
+        'component_path' => 'nullable|string|max:255|regex:/^[a-zA-Z._-]+$/',
+        'component_order' => 'required|numeric',
+        'component_status' => 'required|numeric',
+        'component_icon' => 'nullable|string|max:255|regex:/^[a-zA-Z]+(?:[ -][a-zA-Z]+)*$/',
+        'component_parent' => 'nullable|numeric'
+    ]);
+    
+    $input = $request->all();
+    
+    // If component has children, force parent to be 0 (main menu)
+    if ($hasChildren) {
+        $input['component_parent'] = 0;
     }
-     /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id): RedirectResponse
-    {
-        $id=decrypt($id);
-        $this->validate($request, [
-            'component_name' => 'required|string|max:255|regex:/^[a-zA-Z0-9\s]+$/',
-            'component_path' => 'nullable|string|max:255|regex:/^[a-zA-Z._-]+$/',
-            'component_order' => 'required|numeric',
-            'component_status' => 'required|numeric',
-            'component_icon' => 'nullable|string|max:255|regex:/^[a-zA-Z]+(?:[ -][a-zA-Z]+)*$/',
-            'component_parent' => 'nullable|numeric'
-        ]);
     
-        $input = $request->all();
-      
+    $usercomponent->update($input);
     
-        $usercomponent = UserComponent::find($id);
-        $usercomponent->update($input);
-        
-    
-        return redirect()->route('usercomponent.index')
-                        ->with('success','Component updated successfully');
-    }
+    return redirect()->route('usercomponent.index')
+                    ->with('success', 'Component updated successfully');
+}
      /**
      * Remove the specified resource from storage.
      *

@@ -30,14 +30,16 @@ class ComponentPermissionController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request): View
-    {
+  public function index(Request $request): View
+{
+    $permissions = ComponentPermission::with(['usertype', 'component'])
+        ->latest()
+        ->get()
+        ->groupBy('usertype_id');
 
-        $permissions = ComponentPermission::latest()->get();
+    return view('permissions.index', compact('permissions'));
+}
 
-
-        return view('permissions.index', compact('permissions'));
-    }
     /**
      * Show the form for creating a new resource.
      *
@@ -96,30 +98,71 @@ class ComponentPermissionController extends Controller
             ->with('success', 'Permissions assigned successfully');
     }
 
-    public function edit($id): View
-    {
-        $id = decrypt($id);
-        $permission = \App\Models\ComponentPermission::findOrFail($id);
+public function edit($id): View
+{
+    $id = decrypt($id);
+    $permission = ComponentPermission::findOrFail($id);
+    $usertype = $permission->usertype;
 
-        $usertype = $permission->usertype;
-        $mappedComponent = $permission->component;
-        $parentComponent = $mappedComponent && $mappedComponent->component_parent
-            ? UserComponent::find($mappedComponent->component_parent)
-            : null;
+    // Get all permissions for this usertype with component details
+    $assignedPermissions = ComponentPermission::with('component')
+        ->where('usertype_id', $usertype->id)
+        ->get()
+        ->keyBy('component_id');
 
-        // Get all children of the parent component for the select box
-        $childComponents = $parentComponent
-            ? UserComponent::where('component_parent', $parentComponent->component_id)->pluck('component_name', 'component_id')->all()
-            : [];
+    // Get all relevant components (assigned ones and their parents)
+    $allComponents = UserComponent::where('component_status', 1)
+        ->where(function($query) use ($assignedPermissions) {
+            $query->whereIn('component_id', $assignedPermissions->pluck('component_id'))
+                  ->orWhereIn('component_id', function($q) use ($assignedPermissions) {
+                      $q->select('component_parent')
+                        ->from('component')
+                        ->whereIn('component_id', $assignedPermissions->pluck('component_id'))
+                        ->whereNotNull('component_parent');
+                  });
+        })
+        ->get()
+        ->groupBy('component_parent');
 
-        return view('permissions.edit', compact(
-            'permission',
-            'usertype',
-            'mappedComponent',
-            'parentComponent',
-            'childComponents'
-        ));
+    // Build the tree
+    $tree = [];
+    foreach ($allComponents[0] ?? [] as $mainMenu) {
+        $children = $allComponents[$mainMenu->component_id] ?? [];
+        
+        $hasPermission = $assignedPermissions->has($mainMenu->component_id);
+        $hasChildrenWithPermission = collect($children)->contains(function ($child) use ($assignedPermissions) {
+            return $assignedPermissions->has($child->component_id);
+        });
+
+        if ($hasPermission || $hasChildrenWithPermission) {
+            $tree[] = [
+                'id' => $mainMenu->component_id,
+                'name' => $mainMenu->component_name,
+                'path' => $mainMenu->component_path,
+                'assigned' => $hasPermission,
+                'status' => $hasPermission ? $assignedPermissions[$mainMenu->component_id]->permission_status : 0,
+                'children' => collect($children)
+                    ->filter(function ($child) use ($assignedPermissions) {
+                        return $assignedPermissions->has($child->component_id);
+                    })
+                    ->map(function ($child) use ($assignedPermissions) {
+                        return [
+                            'id' => $child->component_id,
+                            'name' => $child->component_name,
+                            'path' => $child->component_path,
+                            'assigned' => true,
+                            'status' => $assignedPermissions[$child->component_id]->permission_status,
+                        ];
+                    })
+                    ->values()
+                    ->toArray()
+            ];
+        }
     }
+
+    return view('permissions.edit', compact('usertype', 'tree','permission'));
+}
+
 
     /**
      * Update the specified resource in storage.
@@ -128,25 +171,55 @@ class ComponentPermissionController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id): RedirectResponse
-    {
-        $id = decrypt($id);
-        $permission = ComponentPermission::findOrFail($id);
+public function update(Request $request, $id): RedirectResponse
+{
+    $id = decrypt($id);
+    $permission = ComponentPermission::findOrFail($id);
+    $usertypeId = $permission->usertype_id;
 
-        $rules = [
-            'component_id' => 'required|exists:component,component_id',
-            'permission_status' => 'required|in:0,1',
-        ];
+    $this->validate($request, [
+        'permissions' => 'array',
+        'permissions.*' => 'exists:component,component_id'
+    ]);
 
-        $validated = $request->validate($rules);
+    DB::transaction(function() use ($request, $usertypeId) {
+        // Get current permissions
+        $currentPermissions = ComponentPermission::where('usertype_id', $usertypeId)
+            ->pluck('component_id')
+            ->toArray();
+        
+        $selectedPermissions = $request->input('permissions', []);
 
-        $permission->component_id = $validated['component_id'];
-        $permission->permission_status = $validated['permission_status'];
-        $permission->save();
+        // Update permissions that were unchecked (set status to 0)
+        $permissionsToDisable = array_diff($currentPermissions, $selectedPermissions);
+        if (!empty($permissionsToDisable)) {
+            ComponentPermission::where('usertype_id', $usertypeId)
+                ->whereIn('component_id', $permissionsToDisable)
+                ->update(['permission_status' => 0]);
+        }
 
-        return redirect()->route('userpermission.index')
-            ->with('success', 'Permission updated successfully');
-    }
+        // Update permissions that were checked (set status to 1)
+        $permissionsToEnable = array_intersect($currentPermissions, $selectedPermissions);
+        if (!empty($permissionsToEnable)) {
+            ComponentPermission::where('usertype_id', $usertypeId)
+                ->whereIn('component_id', $permissionsToEnable)
+                ->update(['permission_status' => 1]);
+        }
+
+        // Add new permissions that were checked but didn't exist before
+        $permissionsToAdd = array_diff($selectedPermissions, $currentPermissions);
+        foreach ($permissionsToAdd as $componentId) {
+            ComponentPermission::create([
+                'usertype_id' => $usertypeId,
+                'component_id' => $componentId,
+                'permission_status' => 1
+            ]);
+        }
+    });
+
+    return redirect()->route('userpermission.index')
+        ->with('success', 'Permissions updated successfully');
+}
 
     /**
      * Remove the specified resource from storage.

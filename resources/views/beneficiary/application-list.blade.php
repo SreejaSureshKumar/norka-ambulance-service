@@ -20,10 +20,11 @@
                     <thead>
                         <tr>
                             <th>Sl No.</th>
+                             <th>Service</th>
                             <th>Application No</th>
                             <th>Deceased Name</th>
                             <th>Passport No</th>
-                            <th>Death Date</th>
+                           
                             <th>Country</th>
                             <th>Status</th>
                             <th>Submiited On</th>
@@ -53,6 +54,10 @@
                         data: 'id',
                         name: 'id'
                     },
+                       {
+                        data: 'service_type',
+                        name: 'service_type'
+                    },
                     {
                         data: 'application_no',
                         name: 'application_no'
@@ -65,10 +70,7 @@
                         data: 'passport_no',
                         name: 'passport_no'
                     },
-                    {
-                        data: 'death_date',
-                        name: 'death_date'
-                    },
+                 
                     {
                         data: 'country',
                         name: 'country'

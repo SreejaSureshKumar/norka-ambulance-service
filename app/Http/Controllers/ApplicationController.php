@@ -59,8 +59,16 @@ class ApplicationController extends Controller
 
             $limit = $request->input('length');
             $start = $request->input('start');
-            $order = $columns[$request->input('order.0.column') ?? 0] ?? 'id';
-            $dir = $request->input('order.0.dir') ?? 'desc';
+             // Handle initial load vs sorted requests
+            if (empty($request->input('order.0.column'))) {
+                // Initial load - force created_at desc
+                $order = 'created_at';
+                $dir = 'desc';
+            } else {
+                // User clicked a column to sort
+                $order = $columns[$request->input('order.0.column')] ?? 'created_at';
+                $dir = $request->input('order.0.dir') ?? 'desc';
+            }
 
             $query = Application::with('countryRelation')->where('application_status', 1);
 
@@ -139,6 +147,8 @@ class ApplicationController extends Controller
         $id = Crypt::decrypt($id);
 
         $application = Application::with('countryRelation')->findOrFail($id);
+        
+        //enable user to verify /approve the application
 
         $edit_enable = 1;
         if ($application->application_status != 1) {
@@ -401,4 +411,5 @@ class ApplicationController extends Controller
         }
         return view('official.rejected-applications', compact('user', 'beneficiary', 'offcial'));
     }
+    
 }

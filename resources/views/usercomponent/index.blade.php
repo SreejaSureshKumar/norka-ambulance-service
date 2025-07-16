@@ -1,81 +1,80 @@
 @extends('admin.app')
 
 @section('content')
-<div class="card">
-    <div class="card-body">
-<div class="row">
-    <div class="col-lg-12 margin-tb">
-        <div class="pull-left">
-            <h2>Components</h2>
+<div class="card mb-5">
+    <div class="card-body pb-3">
+        <div class="row mb-4">
+            <div class="col-lg-12 d-flex justify-content-between align-items-center">
+
+                <h2 class="mb-0">Components</h2>
+
+
+                <a class="btn btn-primary" href="{{ route('usercomponent.create') }}"><i class="fa fa-plus"></i> Create New Component</a>
+
+            </div>
         </div>
-        <div class="pull-right">
-         <a class="btn btn-success mb-2" href="{{ route('usercomponent.create') }}"><i class="fa fa-plus"></i> Create New Component</a>
-     </div>
+        @session('success')
+        <div class="alert alert-success" role="alert">
+            {{ $value }}
+        </div>
+        @endsession
+        <table class="table table-striped" id="componentTable">
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>Component Name</th>
+                    <th>Component Path</th>
+                    <th>Component Parent</th>
+                    <th>Icon</th>
+                    <th>Status</th>
+                    <th width="280px">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach ($data as $key => $component)
+                <tr>
+                    <td>{{ ++$i }}</td>
+                    <td>{{ $component->component_name }}</td>
+                    <td>{{ $component->component_path }}</td>
+                    <td>
+                        @if($component->component_parent)
+                        {{ $component->parentComponent->component_name }}
+                        @else
+                        <span class="">--</span>
+                        @endif
+                    </td>
+                    <td>
+                        @if($component->component_icon)
+                        {{ $component->component_icon }}
+                        @else
+                        <span class="text">--</span>
+                        @endif
+                    </td>
+                    <td>
+                        @if($component->component_status == 1)
+                        <span class="badge bg-success">Active</span>
+                        @else
+                        <span class="badge bg-danger">Inactive</span>
+                        @endif
+                    </td>
+                    <td>
+                        <a class="btn btn-info btn-sm" href="{{ route('usercomponent.show',encrypt($component->component_id)) }}"><i class="ti ti-eye"></i> Show</a>
+                        <a class="btn btn-primary btn-sm" href="{{ route('usercomponent.edit',encrypt($component->component_id)) }}"><i class="ti ti-pencil"></i> Edit</a>
+                        <form method="POST" action="{{ route('usercomponent.destroy', encrypt($component->component_id)) }}" style="display:inline">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-danger btn-sm"><i class="ti ti-trash"></i> Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
+
     </div>
 </div>
-@session('success')
-    <div class="alert alert-success" role="alert"> 
-        {{ $value }}
-    </div>
-@endsession
 
-<table class="table table-bordered" id="componentTable">
-   <thead>
-     <tr>
-         <th>No</th>
-         <th>Component Name</th>
-         <th>Component Path</th>
-         <th>Component Parent</th>
-         <th>Icon</th>
-         <th>Status</th>
-         <th width="280px">Action</th>
-     </tr>
-   </thead>
-   <tbody>
-   @foreach ($data as $key => $component)
-    <tr>
-        <td>{{ ++$i }}</td>
-        <td>{{ $component->component_name }}</td>
-        <td>{{ $component->component_path }}</td>
-        <td>
-            @if($component->component_parent)
-                {{ $component->parentComponent->component_name }}
-            @else
-                <span class="">--</span>
-            @endif
-        </td>
-        <td>
-            @if($component->component_icon)
-            {{ $component->component_icon }}
-            @else
-            <span class="text">--</span>
-            @endif
-        </td>
-        <td>
-            @if($component->component_status == 1)
-                <span class="badge bg-success">Active</span>
-            @else
-                <span class="badge bg-danger">Inactive</span>
-            @endif
-        </td>
-        <td>
-             <a class="btn btn-info btn-sm" href="{{ route('usercomponent.show',encrypt($component->component_id)) }}"><i class="ti ti-eye"></i> Show</a>
-             <a class="btn btn-primary btn-sm" href="{{ route('usercomponent.edit',encrypt($component->component_id)) }}"><i class="ti ti-pencil"></i> Edit</a>
-              <form method="POST" action="{{ route('usercomponent.destroy', encrypt($component->component_id)) }}" style="display:inline">
-                  @csrf
-                  @method('DELETE')
-                  <button type="submit" class="btn btn-danger btn-sm"><i class="ti ti-trash"></i> Delete</button>
-              </form>
-        </td>
-    </tr>
-   @endforeach
-   </tbody>
-</table>
-</div>
-</div>
 
-{{-- Remove Laravel pagination when using DataTables --}}
-{{-- {!! $data->links('pagination::bootstrap-5') !!} --}}
 @endsection
 
 @push('custom-scripts')
@@ -100,6 +99,3 @@
     });
 </script>
 @endpush
-
-
-

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Application;
+use App\Models\ServiceApplication;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -71,7 +72,7 @@ class HomeController extends Controller
             }
         }
 
-        
+
 
         return view('adminuser.dashboard', compact('mainMenus'));
     }
@@ -80,11 +81,21 @@ class HomeController extends Controller
         return view('beneficiary.dashboard');
     }
     public function officialdashboard()
-    { // Fetch counts for new and processed applications
-        $newApplications = Application::where('application_status', 1)->count();
-        $approveddApplications = Application::whereIn('application_status',[ 2])->count();
-        $rejectedApplications = Application::whereIn('application_status',[3])->count();
-        // Pass the counts to the view
-        return view('official.dashboard', compact('newApplications', 'approveddApplications', 'rejectedApplications'));
+    {
+        // Death Repatriation counts
+    $deathRepatriation = [
+        'new' => Application::where('application_status', 1)->count(),
+        'approved' => Application::where('application_status', 2)->count(),
+        'rejected' => Application::where('application_status', 3)->count()
+    ];
+
+    // Ambulance Service counts
+    $ambulanceService = [
+        'new' => ServiceApplication::where('application_status', 1)->count(),
+        'approved' => ServiceApplication::where('application_status', 2)->count(),
+        'rejected' => ServiceApplication::where('application_status', 3)->count()
+    ];
+
+    return view('official.dashboard', compact('deathRepatriation', 'ambulanceService'));
     }
 }
