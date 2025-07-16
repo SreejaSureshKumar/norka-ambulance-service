@@ -63,7 +63,7 @@ class AgencyController extends Controller
             }
 
 
-            $query = ServiceApplication::with('countryRelation', 'stateRelation', 'driverDetails','agencyUser')->where('application_status', 2)
+            $query = ServiceApplication::with('countryRelation', 'stateRelation', 'driverDetails', 'agencyUser')->where('application_status', 2)
                 ->where('agency_id', $user->id);
 
             // Search filter
@@ -90,10 +90,36 @@ class AgencyController extends Controller
                 $actions .= '<a class="btn btn-primary view_but" href="' . $url . '" target="_blank">
                 <div class="preview-icon-wrap"><em class="icon ni ni-eye"></em> View</div>
                 </a>';
-                if (!$app->driverDetails) {
-                    $actions .= '<a href="#" class="btn btn-primary add-details-modal" data-id="' . $app->id . '" data-number="' . $app->application_no . '">Add Details</a>';
+                $hasDriver = $app->driverDetails !== null;
+                $serviceDate = $app->service_date ?? null;
+                $serviceDate = \Carbon\Carbon::parse($app->arriving_date_time)->format('d-m-Y');
+                $serviceExpired = $serviceDate && \Carbon\Carbon::parse($serviceDate)->isPast();
+
+                if (!$hasDriver) {
+                    if (!$serviceExpired) {
+                        // Allow adding driver details
+                        $actions .= '<a href="#" class="btn btn-primary add-details-modal"
+            data-id="' . $app->id . '" data-number="' . $app->application_no . '">Add Details</a>';
+                        $status = '<span class="badge bg-success align-self-center">Verified</span>';
+                    } else {
+                        // Cannot add driver - too late
+                        $status = '<span class="badge bg-danger align-self-center">Service Not Possible</span>';
+                    }
                 } else {
-                    $actions .= '<span class="badge bg-success align-self-center">Driver Details Added</span>';
+                    if ($serviceExpired) {
+                        // Show Mark as Completed button
+                        $actions .= '<form method="POST" action="" style="display:inline;">
+            ' . csrf_field() . '
+            <button type="submit" class="btn btn-success btn-sm confirm-complete"
+                data-id="' . $app->id . '" data-number="' . $app->application_no . '"
+                onclick="return confirm(\'Are you sure you want to mark this application as completed?\');">
+                <em class="icon ni ni-check-circle"></em> Mark as Completed
+            </button>
+        </form>';
+                        $status = '<span class="badge bg-warning align-self-center">Awaiting Completion</span>';
+                    } else {
+                        $status = '<span class="badge bg-info align-self-center">Driver Details Added</span>';
+                    }
                 }
                 $actions .= '</div>';
                 $data[] = [
@@ -103,9 +129,9 @@ class AgencyController extends Controller
                     'passport_no' => $app->passport_no,
                     'state' => $app->stateRelation->state_name,
                     'country' => $app->countryRelation->country_name ?? '',
-                    'status' => $app->application_status == 2 ? 'Approved' : ($app->application_status == 3 ? 'Rejected' : 'Pending'),
+                    'status' => $status,
                     'created_at' => $app->created_at ? $app->created_at->format('d-m-Y') : '',
-                    'service_date'=> $app->arriving_date_time ? \Carbon\Carbon::parse($app->arriving_date_time)->format('d-m-Y') : '',
+                    'service_date' => $app->arriving_date_time ? \Carbon\Carbon::parse($app->arriving_date_time)->format('d-m-Y') : '',
                     'actions' =>  $actions,
                 ];
             }
