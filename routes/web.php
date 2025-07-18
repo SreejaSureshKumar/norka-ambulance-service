@@ -32,7 +32,10 @@ Route::middleware(['auth', 'NoCache'])->group(function () {
     Route::get('beneficiary', [App\Http\Controllers\BeneficiaryController::class, 'index'])->name('beneficiary.index')->middleware(['check.usertype']);
     Route::get('application', [App\Http\Controllers\ApplicationController::class, 'index'])->name('application.index')->middleware(['check.usertype']);
     Route::get('new-application', [App\Http\Controllers\AgencyController::class, 'index'])->name('agency.index')->middleware(['check.usertype']);
+    Route::get('service-completed-list', [App\Http\Controllers\AgencyController::class, 'serviceCompletedList'])->name('agency.service-completed-list')->middleware(['check.usertype']);
+    Route::get('ambulance-service-completed-list', [App\Http\Controllers\AmbulanceApplicationController::class, 'serviceCompletedList'])->name('service-application.service-completed')->middleware(['check.usertype']);
 
+    
     Route::middleware(['auth.usertype:beneficiary'])->group(function () {
         Route::get('/beneficiary/application-form', [App\Http\Controllers\BeneficiaryController::class, 'applicationForm'])->name('beneficiary.application-form');
         Route::post('/beneficiary/submit-application', [App\Http\Controllers\BeneficiaryController::class, 'submitApplication'])->name('beneficiary.submit-application');
@@ -46,9 +49,9 @@ Route::middleware(['auth', 'NoCache'])->group(function () {
     });
 
 
-    Route::middleware(['auth.usertype:official_user'])->group(function () {
+    Route::middleware(['auth.usertype:official_user,nodal_officer'])->group(function () {
 
-        Route::post('/application/process/{id}', [App\Http\Controllers\ApplicationController::class, 'applicationProcess'])->name('application.process');
+        Route::post('/application/application-action/{id}', [App\Http\Controllers\ApplicationController::class, 'applicationProcess'])->name('application.application-action');
 
 
         Route::post('/application/process/{id}', [App\Http\Controllers\AmbulanceApplicationController::class, 'applicationProcess'])->name('application.application-process');
@@ -70,6 +73,9 @@ Route::middleware(['auth', 'NoCache'])->group(function () {
 
     Route::middleware(['auth.usertype:agency_user'])->group(function () {
         Route::post('add-details', [App\Http\Controllers\AgencyController::class, 'addDetails'])->name('agency.add-details');
+        Route::post('mark-completed', [App\Http\Controllers\AgencyController::class, 'markCompleted'])->name('agency.mark-completed');
+        Route::post('add-service-details', [App\Http\Controllers\AgencyController::class, 'addServiceDetails'])->name('agency.add-service-details');
+       
     });
     Route::middleware(['auth.usertype:admin_user'])->group(function () {
 

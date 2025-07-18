@@ -7,14 +7,14 @@
 
                     <!-- Remark Field -->
                     <div class="mb-3">
-                     
-                                                 <label class="readonly-label">Remarks <span class="text-danger">*</span></label>
+
+                        <label class="readonly-label">Remarks <span class="text-danger">*</span></label>
 
                         <textarea id="remarks" name="remarks" class="form-control" rows="4" placeholder="Enter remarks here..." required>{{ old('remarks', $remarks ?? '') }}</textarea>
                         @error('remarks')
-                            <span class="text-danger" role="alert">
-                                <strong>{{ $message }}</strong>
-                            </span>
+                        <span class="text-danger" role="alert">
+                            <strong>{{ $message }}</strong>
+                        </span>
                         @enderror
                     </div>
 
@@ -34,26 +34,26 @@
 </div>
 @push('custom-scripts')
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        // Add confirmation dialog for Approve/Reject buttons
+    document.addEventListener('DOMContentLoaded', function() {
+
         const confirmButtons = document.querySelectorAll('.confirm-action');
         confirmButtons.forEach(button => {
-            button.addEventListener('click', function (event) {
+            button.addEventListener('click', function(event) {
                 const message = this.getAttribute('data-message');
                 if (!confirm(message)) {
-                    event.preventDefault(); // Prevent form submission if user cancels
+                    event.preventDefault();
                 }
             });
         });
 
-        // Client-side validation for the remarks field
-        const form = document.getElementById('application-action-form'); // Use the form's ID
-        form.addEventListener('submit', function (event) {
+
+        const form = document.getElementById('application-action-form');
+        form.addEventListener('submit', function(event) {
             const remarksField = document.getElementById('remarks');
             if (remarksField.value.trim() === '') {
                 alert('Remarks field is required.');
                 remarksField.focus();
-                event.preventDefault(); // Prevent form submission
+                event.preventDefault();
             }
         });
     });

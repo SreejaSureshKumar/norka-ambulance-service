@@ -112,199 +112,341 @@
     </div>
 </div>
 
-<!-- Outer Application Card -->
-<div class="outer-card-wrapper">
-    <div class="card shadow-sm mb-4">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">
-                Application No: <span><strong>{{ $application->application_no ?? 'N/A' }}</strong></span>
-            </h5>
-        </div>
-        <div class="card-body">
-            <div class="row gx-3 gy-3">
-                <div class="col-md-6">
-                    <div class="section-card">
-                        <div class="section-header">Details of the Deceased</div>
-                        <div class="mb-3">
-                            <label class="readonly-label">Name of the Deceased</label>
-                            <div class="readonly-value">{{ $application->deceased_person_name }}</div>
-                        </div>
-                        <div class="mb-3">
-                            <label class="readonly-label">Passport Number</label>
-                            <div class="readonly-value">{{ $application->passport_no }}</div>
-                        </div>
-                        <div class="mb-3">
-                            <label class="readonly-label">Country</label>
-                            <div class="readonly-value">{{ $application->countryRelation->country_name ?? '-' }}</div>
-                        </div>
-                    </div>
-                    <div class="section-card">
-                        <div class="section-header">Contact Information</div>
-                        <div class="mb-3">
-                            <label class="readonly-label">Emergency Contact Name (Abroad )</label>
-                            <div class="readonly-value">{{ $application->contact_abroad_name }}</div>
-                        </div>
-                        <div class="mb-3">
-                            <label class="readonly-label">Contact Number (Abroad)</label>
-                            <div class="readonly-value">{{ $application->contact_abroad_phone }}</div>
-                        </div>
-                        @if(!empty($application->alt_contact_abroad_name))
-                        <div class="mb-3">
-                            <label class="readonly-label">Alternative Contact Name (Abroad)</label>
-                            <div class="readonly-value">{{ $application->alt_contact_abroad_name }}</div>
-                        </div>
-                        @endif
-                        @if(!empty($application->alt_contact_abroad_phone))
-                        <div class="mb-3">
-                            <label class="readonly-label">Alternative Contact Number (Abroad)</label>
-                            <div class="readonly-value">{{ $application->alt_contact_abroad_phone }}</div>
-                        </div>
-                        @endif
-                        <div class="mb-3">
-                            <label class="readonly-label">Contact Name (Local)</label>
-                            <div class="readonly-value">{{ $application->contact_local_name }}</div>
-                        </div>
-                        <div class="mb-3">
-                            <label class="readonly-label">Contact Number (Local)</label>
-                            <div class="readonly-value">{{ $application->contact_local_phone }}</div>
-                        </div>
-                        @if(!empty($application->alt_contact_local_name))
-                        <div class="mb-3">
-                            <label class="readonly-label">Alternative Contact Name (Local)</label>
-                            <div class="readonly-value">{{ $application->alt_contact_local_name }}</div>
-                        </div>
-                        @endif
-                        @if(!empty($application->alt_contact_local_phone))
-                        <div class="mb-3">
-                            <label class="readonly-label">Alternative Contact Number (Local)</label>
-                            <div class="readonly-value">{{ $application->alt_contact_local_phone }}</div>
-                        </div>
-                        @endif
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="section-card">
-                        <div class="section-header">Flight Details</div>
-                        <div class="mb-3">
-                            <label class="readonly-label">Flight Number</label>
-                            <div class="readonly-value">{{ $application->flight_no }}</div>
-                        </div>
-                        <div class="mb-3">
-                            <label class="readonly-label">Departing Date & Time</label>
-                            <div class="readonly-value">
-                                @if($application->departure_date_time)
-                                {{ \Carbon\Carbon::parse($application->departure_date_time)->format('d-m-Y ,h:i A') }}
-                                @else
-                                N/A
-                                @endif
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label class="readonly-label">Arriving Date & Time</label>
-                            <div class="readonly-value">
-                                @if($application->arriving_date_time)
-                                {{ \Carbon\Carbon::parse($application->arriving_date_time)->format('d-m-Y ,h:i A') }}
-                                @else
-                                N/A
-                                @endif
-                            </div>
-                        </div>
-                    </div>
-                    <div class="section-card">
-                        <div class="section-header">Destination Information</div>
-                        <div class="mb-3">
-                            <label class="readonly-label">State</label>
-                            <div class="readonly-value">{{ $application->stateRelation->state_name ?? '-' }}</div>
-                        </div>
-                        <div class="mb-3">
-                            <label class="readonly-label">District</label>
-                            <div class="readonly-value">{{ $application->districtRelation->district_name ?? '-' }}</div>
-                        </div>
-                        <div class="mb-3">
-                            <label class="readonly-label">Communication Address</label>
-                            <div class="readonly-value">{{ $application->native_address }}</div>
-                        </div>
-                        <div class="mb-3">
-                            <label class="readonly-label">Attachment</label>
-                            <div>
-                                @if($application->application_attachment)
-                                <a href="{{ Storage::url($application->application_attachment) }}" target="_blank" class="document-modal-control popup" data-download="">View Attachment <i class="ti ti-paperclip"></i></a>
-                                @else
-                                Not Uploaded
-                                @endif
-                            </div>
-                        </div>
-                    </div>
-                </div>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+
+            @if (session('error_status'))
+            <div class="alert alert-danger alert-dismissible fade show my-3" role="alert">
+                {{ session('error_status') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
-            <!-- Application Action Section -->
-            @if ($edit_enable)
-            <x-application-action :application="$application" :action="'application.application-process'" />
             @endif
         </div>
     </div>
-
-    @if(!empty($application->agencyUser) && ( $official == Auth::user()->user_type|| $application->agency_id == Auth::user()->id|| $nodal_officer == Auth::user()->user_type))
-    <div class="row">
-        <div class="col-md-12">
-            <div class="section-card bg-white border-start border-4 shadow-sm">
-                <div class="section-header">
-                    @if(!empty($application->driverDetails))
-                    Agency & Driver Details
-                    @else
-                    Agency Details
-                    @endif
-                </div>
-                <div class="row">
-                    <div class="@if(!empty($application->driverDetails)) col-md-6 @else col-md-12 @endif">
-                        <dl class="row mb-0">
-                            <dt class="col-sm-5 readonly-label">Agency Name</dt>
-                            <dd class="col-sm-7 readonly-value">{{ $application->agencyUser->name ?? '-' }}</dd>
-                            <dt class="col-sm-5 readonly-label">Agency Contact</dt>
-                            <dd class="col-sm-7 readonly-value">{{ $application->agencyUser->user_mobile ?? '-' }}</dd>
-                            <dt class="col-sm-5 readonly-label">Agency Email</dt>
-                            <dd class="col-sm-7 readonly-value">{{ $application->agencyUser->email ?? '-' }}</dd>
-                        </dl>
-                    </div>
-                    @if(!empty($application->driverDetails))
+    <div class="outer-card-wrapper">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    Application No: <span><strong>{{ $application->application_no ?? 'N/A' }}</strong></span>
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row gx-3 gy-3">
                     <div class="col-md-6">
-                        <dl class="row mb-0">
-                            <dt class="col-sm-5 readonly-label">Driver Name</dt>
-                            <dd class="col-sm-7 readonly-value">{{ $application->driverDetails->driver_name }}</dd>
-                            <dt class="col-sm-5 readonly-label">Mobile</dt>
-                            <dd class="col-sm-7 readonly-value">{{ $application->driverDetails->mobile }}</dd>
-                            <dt class="col-sm-5 readonly-label">Address</dt>
-                            <dd class="col-sm-7 readonly-value">{{ $application->driverDetails->address }}</dd>
-                        </dl>
+                        <div class="section-card">
+                            <div class="section-header">Details of the Deceased</div>
+                            <div class="mb-3">
+                                <label class="readonly-label">Name of the Deceased</label>
+                                <div class="readonly-value">{{ $application->deceased_person_name }}</div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="readonly-label">Passport Number</label>
+                                <div class="readonly-value">{{ $application->passport_no }}</div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="readonly-label">Country</label>
+                                <div class="readonly-value">{{ $application->countryRelation->country_name ?? '-' }}</div>
+                            </div>
+                        </div>
+                        <div class="section-card">
+                            <div class="section-header">Contact Information</div>
+                            <div class="mb-3">
+                                <label class="readonly-label">Emergency Contact Name (Abroad )</label>
+                                <div class="readonly-value">{{ $application->contact_abroad_name }}</div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="readonly-label">Contact Number (Abroad)</label>
+                                <div class="readonly-value">{{ $application->contact_abroad_phone }}</div>
+                            </div>
+                            @if(!empty($application->alt_contact_abroad_name))
+                            <div class="mb-3">
+                                <label class="readonly-label">Alternative Contact Name (Abroad)</label>
+                                <div class="readonly-value">{{ $application->alt_contact_abroad_name }}</div>
+                            </div>
+                            @endif
+                            @if(!empty($application->alt_contact_abroad_phone))
+                            <div class="mb-3">
+                                <label class="readonly-label">Alternative Contact Number (Abroad)</label>
+                                <div class="readonly-value">{{ $application->alt_contact_abroad_phone }}</div>
+                            </div>
+                            @endif
+                            <div class="mb-3">
+                                <label class="readonly-label">Contact Name (Local)</label>
+                                <div class="readonly-value">{{ $application->contact_local_name }}</div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="readonly-label">Contact Number (Local)</label>
+                                <div class="readonly-value">{{ $application->contact_local_phone }}</div>
+                            </div>
+                            @if(!empty($application->alt_contact_local_name))
+                            <div class="mb-3">
+                                <label class="readonly-label">Alternative Contact Name (Local)</label>
+                                <div class="readonly-value">{{ $application->alt_contact_local_name }}</div>
+                            </div>
+                            @endif
+                            @if(!empty($application->alt_contact_local_phone))
+                            <div class="mb-3">
+                                <label class="readonly-label">Alternative Contact Number (Local)</label>
+                                <div class="readonly-value">{{ $application->alt_contact_local_phone }}</div>
+                            </div>
+                            @endif
+                        </div>
                     </div>
-                    @endif
+                    <div class="col-md-6">
+                        <div class="section-card">
+                            <div class="section-header">Flight Details</div>
+                            <div class="mb-3">
+                                <label class="readonly-label">Flight Number</label>
+                                <div class="readonly-value">{{ $application->flight_no }}</div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="readonly-label">Departing Date & Time</label>
+                                <div class="readonly-value">
+                                    @if($application->departure_date_time)
+                                    {{ \Carbon\Carbon::parse($application->departure_date_time)->format('d-m-Y ,h:i A') }}
+                                    @else
+                                    N/A
+                                    @endif
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="readonly-label">Arriving Date & Time</label>
+                                <div class="readonly-value">
+                                    @if($application->arriving_date_time)
+                                    {{ \Carbon\Carbon::parse($application->arriving_date_time)->format('d-m-Y ,h:i A') }}
+                                    @else
+                                    N/A
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                        <div class="section-card">
+                            <div class="section-header">Destination Information</div>
+                            <div class="mb-3">
+                                <label class="readonly-label">State</label>
+                                <div class="readonly-value">{{ $application->stateRelation->state_name ?? '-' }}</div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="readonly-label">District</label>
+                                <div class="readonly-value">{{ $application->districtRelation->district_name ?? '-' }}</div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="readonly-label">Communication Address</label>
+                                <div class="readonly-value">{{ $application->native_address }}</div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="readonly-label">Attachment</label>
+                                <div>
+                                    @if($application->application_attachment)
+                                    <a href="{{ Storage::url($application->application_attachment) }}" target="_blank" class="document-modal-control popup" data-download="">View Attachment <i class="ti ti-paperclip"></i></a>
+                                    @else
+                                    Not Uploaded
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+
+
+
+                @if ($edit_enable)
+                <div class="section-card">
+
+                    <form method="POST" action="{{ route('application.application-process',encrypt($application->id) )}}">
+                        @csrf
+                        <input type="hidden" name="hid_action" value="{{ $edit_enable }}">
+                        @if ($edit_enable==1)
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="application_type" class="readonly-label">Assign Agency</label>
+                                <select name="agency_id" id="agency_id" class="form-control">
+                                    <option value="" disabled selected>Select</option>
+                                    @foreach($agencies as $agency)
+                                    <option value="{{ $agency->id }}">{{ $agency->name }}</option>
+                                    @endforeach
+                                </select>
+                                @error('agency_id')
+                                <span class="text-danger invalid-message" role="alert">
+                                    <strong>{{ $message }}</strong>
+                                </span>
+                                @enderror
+                            </div>
+                        </div>
+                        @endif
+                        <div class="col-md-6">
+                            <div class="mb-3">
+
+                                <label class="readonly-label">Remarks <span class="text-danger">*</span></label>
+
+                                <textarea id="remarks" name="remarks" class="form-control" rows="4" placeholder="Enter remarks here..." required>{{ old('remarks', $remarks ?? '') }}</textarea>
+                                @error('remarks')
+                                <span class="text-danger" role="alert">
+                                    <strong>{{ $message }}</strong>
+                                </span>
+                                @enderror
+                            </div>
+
+
+                            <div class="d-flex justify-content-end">
+                                <button type="submit" name="action" id="verify_btn" value="approve" class="btn btn-success me-2 confirm-action" data-action="{{$edit_enable}}" data-message="Are you sure you want to {{ $edit_enable == 1 ? 'verify' : 'approve' }} this application ?">
+                                    {{ $edit_enable == 1 ? 'Verify' : 'Approve' }}
+                                </button>
+                                <button type="submit" name="action" id="reject_btn" value="reject" class="btn btn-danger confirm-action" data-message="Are you sure you want to reject this application?">
+                                    Reject
+                                </button>
+                            </div>
+
+                        </div>
+
+
+
+                    </form>
+
+                </div>
+                @endif
+
+
             </div>
         </div>
-    </div>
-    @endif
 
-    @if(isset($official) && $official == Auth::user()->user_type && !empty($application->remarks))
-    <div class="row">
-        <div class="col-md-12">
-            <!-- Keep previous remarks section style and markup -->
-            <div class="section-card bg-white border-start border-4  shadow-sm">
-                <div class="section-header ">Remarks</div>
-                <div class="p-3 rounded bg-light text-dark">
-                    <p class="mb-2" style="white-space: pre-line;">{{ $application->remarks }}</p>
-                    <div class="remarks-meta text-muted small mt-2 border-top pt-2">
-                        <i class="ti ti-clock"></i>
-                        Added on {{ \Carbon\Carbon::parse($application->processed_date)->format('d-m-Y') }}
-                        at {{ \Carbon\Carbon::parse($application->processed_date)->format('H:i:s') }}
-                        @if (isset($application->processedUser))
-                        by <strong>{{ $application->processedUser->name ?? 'N/A' }}</strong>
+        @if(!empty($application->agencyUser) && ( $official == Auth::user()->user_type|| $application->agency_id == Auth::user()->id|| $nodal_officer == Auth::user()->user_type))
+        <div class="row">
+            <div class="col-md-12">
+                <div class="section-card bg-white border-start border-4 shadow-sm">
+                    <div class="section-header">
+                        @if(!empty($application->driverDetails) )
+                        Agency & Driver Details
+                        @else
+                        Agency Details
+                        @endif
+                    </div>
+                    <div class="row">
+                        @if( $official == Auth::user()->user_type || $nodal_officer == Auth::user()->user_type)
+                        <div class="@if(!empty($application->driverDetails)) col-md-6 @else col-md-12 @endif">
+                            <dl class="row mb-0">
+                                <dt class="col-sm-5 readonly-label">Agency Name</dt>
+                                <dd class="col-sm-7 readonly-value">{{ $application->agencyUser->name ?? '-' }}</dd>
+                                <dt class="col-sm-5 readonly-label">Agency Contact</dt>
+                                <dd class="col-sm-7 readonly-value">{{ $application->agencyUser->user_mobile ?? '-' }}</dd>
+                                <dt class="col-sm-5 readonly-label">Agency Email</dt>
+                                <dd class="col-sm-7 readonly-value">{{ $application->agencyUser->email ?? '-' }}</dd>
+                            </dl>
+                        </div>
+                        @endif
+                        @if(!empty($application->driverDetails))
+                        <div class="@if(($application->agency_id != Auth::user()->id)) col-md-6 @else col-md-12 @endif">
+                            <dl class="row mb-0">
+                                <dt class="col-sm-5 readonly-label">Driver Name</dt>
+                                <dd class="col-sm-7 readonly-value">{{ $application->driverDetails->driver_name }}</dd>
+                                <dt class="col-sm-5 readonly-label">Mobile</dt>
+                                <dd class="col-sm-7 readonly-value">{{ $application->driverDetails->mobile }}</dd>
+                                <dt class="col-sm-5 readonly-label">Address</dt>
+                                <dd class="col-sm-7 readonly-value">{{ $application->driverDetails->address }}</dd>
+                            </dl>
+                        </div>
                         @endif
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-    @endif
+        @endif
+        @if(!empty($application->serviceDetails) && ( $application->agency_id == Auth::user()->id|| $nodal_officer == Auth::user()->user_type))
+        <div class="row">
+            <div class="col-md-12">
+                <div class="section-card bg-white border-start border-4 shadow-sm">
+                    <div class="section-header">
+                        Service Details
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <dl class="row mb-0">
+                                <dt class="col-sm-5 readonly-label">Starting Point</dt>
+                                <dd class="col-sm-7 readonly-value">{{ $application->serviceDetails->source_location ?? '-' }}</dd>
+                                <dt class="col-sm-5 readonly-label">Destination Point</dt>
+                                <dd class="col-sm-7 readonly-value">{{ $application->serviceDetails->destination_location ?? '-' }}</dd>
+                                <dt class="col-sm-5 readonly-label">Distance Travelled (in kms)</dt>
+                                <dd class="col-sm-7 readonly-value">{{ $application->serviceDetails->total_distance ?? '-' }}</dd>
+                                <dt class="col-sm-5 readonly-label">Total Amount</dt>
+                                <dd class="col-sm-7 readonly-value">{{ $application->serviceDetails->amount ?? '-' }}</dd>
+                                <dt class="col-sm-5 readonly-label">
+                                
+                                    @if($application->serviceDetails->attachment_path)
+                                    <a href="{{ Storage::url($application->serviceDetails->attachment_path) }}" target="_blank" class="document-modal-control popup" data-download="">View Attachment <i class="ti ti-paperclip"></i></a>
+                                    @else
+                                    Not Uploaded
+                                    @endif
+                               </dt>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @endif
+        @if( ($official == Auth::user()->user_type || $nodal_officer == Auth::user()->user_type) && !empty($application->remarks))
+        <div class="row">
+            <div class="col-md-12">
+                <!-- Keep previous remarks section style and markup -->
+                <div class="section-card bg-white border-start border-4  shadow-sm">
+                    <div class="section-header ">Remarks</div>
+                    <div class="p-3 rounded bg-light text-dark">
+                        <p class="mb-2" style="white-space: pre-line;">{{ $application->remarks }}</p>
+                        <div class="remarks-meta text-muted small mt-2 border-top pt-2">
+                            <i class="ti ti-clock"></i>
+                            Added on {{ \Carbon\Carbon::parse($application->processed_date)->format('d-m-Y') }}
+                            at {{ \Carbon\Carbon::parse($application->processed_date)->format('H:i:s') }}
+                            @if (isset($application->processedUser))
+                            by <strong>{{ $application->processedUser->name ?? 'N/A' }}</strong>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @endif
 
+    </div>
 </div>
 @endsection
+
+@push('custom-scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.confirm-action').forEach(function(button) {
+            button.addEventListener('click', function(e) {
+                const agencySelect = document.getElementById('agency_id');
+                const remarks = document.getElementById('remarks');
+                const action = this.dataset.action;
+                // Only validate for Verify button
+                if (this.id === 'verify_btn' && action == 1) {
+                    if (!agencySelect.value) {
+                        e.preventDefault();
+                        alert('Please select an agency before verifying the application.');
+                        agencySelect.focus();
+                        return;
+                    }
+                }
+
+                // Confirm dialog if data-message exists
+                const message = this.dataset.message;
+                if (message && !confirm(message)) {
+                    e.preventDefault();
+                }
+            });
+        });
+
+        const form = document.getElementById('application-action-form');
+        form.addEventListener('submit', function(event) {
+            const remarksField = document.getElementById('remarks');
+            if (remarksField.value.trim() === '') {
+                event.preventDefault();
+                alert('Remarks field is required.');
+                remarksField.focus();
+
+            }
+        });
+    });
+</script>
+@endpush

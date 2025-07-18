@@ -40,7 +40,7 @@
                         <th>Deceased's Name</th>
                         <th>Passport No</th>
                         <th>Country</th>
-                        
+
                         <th>Submitted On</th>
                         <th>Service Date</th>
                         <th>Status</th>
@@ -57,7 +57,7 @@
 <!-- Modal -->
 <div class="modal fade" id="updateDetailsModal" tabindex="-1" aria-labelledby="updateModalLabel" aria-hidden="true">
     <div class="modal-dialog">
-        <form method="POST" action="{{ route('agency.add-details') }}" id="details-form">
+        <form method="POST" action="{{ route('agency.add-service-details') }}" id="add-details-form" enctype="multipart/form-data">
             @csrf
             <div class="modal-content">
                 <div class="modal-header">
@@ -69,31 +69,41 @@
 
                     <label class="form-label fw-bold">Application No : <span id="app_number" class="text-primary"></span></label>
                     <div class="mb-3">
-                        <label for="driver_name" class="col-form-label">Name:</label>
-                        <input type="text" class="form-control" id="driver_name" name="driver_name" required>
-                        @error('driver_name')
+                        <label for="source_location" class="col-form-label">Starting Point<span
+                                class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="source_location" name="source_location" required>
+                        @error('source_location')
                         <span class="text-danger  " role="alert">
                             <strong>{{ $message }}</strong>
                         </span>
                         @enderror
                     </div>
                     <div class="mb-3">
-                        <label for="mobile" class="col-form-label">Mobile Number:</label>
-                        <input type="text" class="form-control" id="mobile" name="mobile" required>
-                        @error('mobile')
-                        <span class="text-danger" role="alert">
-                            <strong>{{ $message }}</strong>
-                        </span>
-                        @enderror
+                        <label for="destination_location" class="col-form-label">Destination Point<span
+                                class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="destination_location" name="destination_location" required>
+                       
                     </div>
                     <div class="mb-3">
-                        <label for="address" class="col-form-label">Address:</label>
-                        <textarea class="form-control" id="address"  name="address" required></textarea>
-                        @error('address')
-                        <span class="text-danger" role="alert">
-                            <strong>{{ $message }}</strong>
-                        </span>
-                        @enderror
+                        <label for="amount" class="col-form-label">Total Amount<span
+                                class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="amount" name="amount" required>
+                       
+                    </div>
+                    <div class="mb-3">
+                        <label for="total_distance" class="col-form-label">Distance travelled (in kms)<span
+                                class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="total_distance" name="total_distance" required>
+                       
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="attachment_path" class="col-form-label">Upload Attachment <span
+                                class="text-danger">*</span></label>
+                        <div class="form-file mb-3">
+                            <input type="file" class="form-control" aria-label="file example" name="attachment_path" required>
+                          
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -113,7 +123,7 @@
             processing: true,
             serverSide: true,
             ajax: {
-                url: "{{ route('agency.index') }}",
+                url: "{{ route('agency.service-completed-list') }}",
                 type: "GET",
                 dataType: "json",
             },
@@ -137,17 +147,17 @@
                     data: 'country',
                     name: 'country'
                 },
-             
-                
+
+
                 {
                     data: 'created_at',
                     name: 'created_at'
                 },
-                 {
+                {
                     data: 'service_date',
                     name: 'service_date'
                 },
-                   {
+                {
                     data: 'status',
                     name: 'status'
                 },
@@ -175,7 +185,7 @@
         });
     });
 
-    $(document).on('click', '.add-details-modal', function(e) {
+    $(document).on('click', '.service-details-modal', function(e) {
         e.preventDefault();
         const appId = $(this).data('id');
         const appNo = $(this).data('number');
@@ -187,35 +197,52 @@
 
     });
 
- 
-    $(document).on('click', '.confirm-complete', function(e) {
-        e.preventDefault();
-        const appId = $(this).data('id');
-      
-     alert('Are you sure you want to mark this application as completed?');
-        $.ajax({
-            url: "{{ route('agency.mark-completed') }}",
-            type: 'POST',
-            data: {
-                _token: '{{ csrf_token() }}',
-                application_id: appId
-            },
-            success: function(response) {
-                if (response.success) {
-                    alert(response.message);
-                    $('#row' + appId).remove();
-                } else {
-                    alert(response.message);
-                }
-            },
-            error: function(xhr, status, error) {
-                console.error(xhr.responseText);
-                alert('An error occurred while processing your request.');
-            }
-        });
 
+   $('#add-details-form').on('submit', function (e) {
+    e.preventDefault();
+
+    let form = this;
+    let formData = new FormData(form);
+
+    // Clear previous errors
+    $(form).find('span.text-danger').text('');
+
+    $.ajax({
+        type: 'POST',
+        url: $(form).attr('action'),
+        data: formData,
+        contentType: false,
+        processData: false,
+        success: function (response) {
+            $('#updateDetailsModal').modal('hide');
+            alert('Details submitted successfully');
+            location.reload();
+        },
+        error: function (xhr) {
+            if (xhr.status === 422) {
+                let errors = xhr.responseJSON.errors;
+                if (errors) {
+                    Object.keys(errors).forEach(function (key) {
+                        // Find the input by name and append error below it
+                        let field = $(form).find('[name="' + key + '"]');
+                        let errorElement = field.next('span.text-danger');
+
+                        // If error span not found, create it
+                        if (!errorElement.length) {
+                            field.after('<span class="text-danger" role="alert"><strong>' + errors[key][0] + '</strong></span>');
+                        } else {
+                            errorElement.html('<strong>' + errors[key][0] + '</strong>');
+                        }
+                    });
+                }
+            } else {
+                alert('An unexpected error occurred.');
+            }
+        }
     });
-      // Confirmation before submit
+});
+
+    // Confirmation before submit
     document.addEventListener('DOMContentLoaded', function() {
         var form = document.getElementById('details-form');
         var submitBtn = document.getElementById('submit-btn');

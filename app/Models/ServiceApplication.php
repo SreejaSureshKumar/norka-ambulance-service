@@ -66,4 +66,8 @@ class ServiceApplication extends Model
     {
         return $this->belongsTo(User::class, 'agency_id', 'id');
     }
+    public function serviceDetails()
+    {
+        return $this->hasOne(ServiceDetails::class, 'application_id', 'id');
+    }
 }

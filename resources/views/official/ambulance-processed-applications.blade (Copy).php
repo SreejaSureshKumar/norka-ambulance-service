@@ -46,6 +46,42 @@
     </div>
 </div>
 
+<!-- Modal -->
+<div class="modal fade" id="assignAgencyModal" tabindex="-1" aria-labelledby="assignAgencyModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <form method="POST" action="{{ route('application.assign-agency') }}" id="agency-form">
+            @csrf
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="assignAgencyModalLabel">Assign Agency</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="hid_application_id" id="hid_application_id">
+
+                    <label  class="form-label fw-bold">Application No : <span id="app_number" class="text-primary"></span></label>
+                    <div class="mb-3">
+
+                        <select name="agency_id" id="agency_id" class="form-select" >
+                            <option value="">Select Agency</option>
+                            @foreach($agencies as $agency)
+                            <option value="{{ $agency->id }}">{{ $agency->name }}</option>
+                            @endforeach
+                        </select>
+                        @error('agency_id')
+                          <span class="text-danger invalid-message" role="alert">
+                            <strong>{{ $message }}</strong>
+                        </span>
+                        @enderror
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" type="submit" id="submit-btn">Assign</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
 
 @endsection
 @push('custom-scripts')
@@ -59,7 +95,6 @@
                 type: "GET",
                 dataType: "json",
             },
-            order: [[5, 'desc']],
             columns: [{
                     data: 'id',
                     name: 'id'
@@ -119,7 +154,18 @@
         });
     });
 
-  
+    // Move this OUTSIDE document.ready - Critical fix!
+    $(document).on('click', '.assign-modal-control', function(e) {
+        e.preventDefault();
+        const appId = $(this).data('id');
+        const appNo = $(this).data('number');
+        $('#app_number').text( appNo);
+
+        $('#hid_application_id').val(appId);
+
+        $('#assignAgencyModal').modal('show');
+
+    });
 
       // Confirmation before submit
     document.addEventListener('DOMContentLoaded', function() {

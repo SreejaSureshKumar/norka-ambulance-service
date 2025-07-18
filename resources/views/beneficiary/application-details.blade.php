@@ -238,7 +238,7 @@
             </div>
 
             @if ($edit_enable)
-            <x-application-action :application="$application" :action="'application.process'" />
+            <x-application-action :application="$application" :action="'application.application-action'" />
             @endif
         </div>
     </div>
