@@ -235,15 +235,26 @@ class AmbulanceApplicationController extends Controller
                 return redirect()->back()->with('error_status', 'Failed !!!');
             }
         } else {
-         
-         
+            $validatedData = $request->validate([
+                'remarks' => ['required', 'max:1000', new AlphaSpaceNumChar],
+
+            ], [
+                'remarks.required' => 'The remarks field is required.',
+                'remarks.string' => 'The remarks must be a valid string.',
+                'remarks.max' => 'The remarks may not be greater than 1000 characters.',
+
+            ]);
+
             if ($request->input('action') === 'approve') {
                 $status = 4;
             } elseif ($request->input('action') === 'reject') {
                 $status = 5;
             }
+       
             $data = [
-               
+                'approval_remarks' => $validatedData['remarks'],
+                'approved_by' => $user->id,
+                'approved_date' => date('Y-m-d H:i:s'),
                 'application_status' => $status,
 
             ];
@@ -289,7 +300,7 @@ class AmbulanceApplicationController extends Controller
             ];
 
             //fetch applications which are processed
-            $totalData = ServiceApplication::whereIn('application_status', [2,4])->count();
+            $totalData = ServiceApplication::whereIn('application_status', [2, 4])->count();
             $totalFiltered = $totalData;
 
             $limit = request()->input('length');
@@ -297,7 +308,7 @@ class AmbulanceApplicationController extends Controller
             $order = $columns[request()->input('order.0.column') ?? 5] ?? 'created_at';
             $dir = request()->input('order.0.dir') ?? 'desc';
 
-            $query = ServiceApplication::with('countryRelation')->whereIn('application_status', [2,4]);
+            $query = ServiceApplication::with('countryRelation')->whereIn('application_status', [2, 4]);
             if ($nodal_officer == $user->user_type) {
                 $query->where('service_status', '=', 0);
             }
@@ -331,11 +342,9 @@ class AmbulanceApplicationController extends Controller
                 $actions .= '<a class="btn btn-primary view_but" href="' . $url . '" target="_blank">
                 <div class="preview-icon-wrap"> View</div>
              </a></div>';
-             if($app->application_status==4)
-             {
-             $status = '<span class="badge bg-info text-dark">Processing</span>';
-             }
-               elseif ($app->agency_id != 0 && ($app->driverDetails()->count() == 0)) {
+                if ($app->application_status == 4) {
+                    $status = '<span class="badge bg-info text-dark">Processing</span>';
+                } elseif ($app->agency_id != 0 && ($app->driverDetails()->count() == 0)) {
                     $status = '<span class="badge bg-primary text-dark">Assigned to Agency </span>';
                 } elseif ($app->service_status == 1 && $app->serviceDetails()->count() == 0) {
                     $status = '<span class="badge bg-success text-dark">Service Completed</span>';
@@ -548,7 +557,7 @@ class AmbulanceApplicationController extends Controller
                 if ($app->application_status == 2) {
                     $status = '<span class="badge bg-info text-dark">Submitted details</span>';
                 } else {
-                    $status = '<span class="badge bg-success text-dark">Approved</span>';
+                    $status = '<span class="badge bg-success text-dark">Approved for payment</span>';
                 }
                 $data[] = [
                     'id' => $app->id,

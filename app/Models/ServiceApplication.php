@@ -38,7 +38,10 @@ class ServiceApplication extends Model
         'remarks',
         'intimation_flag',
         'agency_id',
-        'arrival_airport'
+        'arrival_airport',
+        'approval_remarks',
+        'approved_date',
+        'approved_by',  
     ];
 
     public function countryRelation()
@@ -69,5 +72,9 @@ class ServiceApplication extends Model
     public function serviceDetails()
     {
         return $this->hasOne(ServiceDetails::class, 'application_id', 'id');
+    }
+      public function approvedUser()
+    {
+        return $this->belongsTo(User::class, 'approved_by', 'id');
     }
 }

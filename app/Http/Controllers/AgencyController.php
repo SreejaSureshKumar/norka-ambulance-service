@@ -161,7 +161,7 @@ class AgencyController extends Controller
                 8 => 'service_date'
             ];
             //fetch applications whic are submittedand pending for approval
-            $totalData = ServiceApplication::whereIn('application_status',[2,4] )->where('service_status', 0)->count();
+            $totalData = ServiceApplication::whereIn('application_status', [2, 4])->where('service_status', 0)->count();
             $totalFiltered = $totalData;
 
             $limit = $request->input('length');
@@ -178,7 +178,7 @@ class AgencyController extends Controller
             }
 
 
-            $query = ServiceApplication::with('countryRelation', 'stateRelation', 'driverDetails', 'agencyUser','serviceDetails')->whereIn('application_status', [2,4])
+            $query = ServiceApplication::with('countryRelation', 'stateRelation', 'driverDetails', 'agencyUser', 'serviceDetails')->whereIn('application_status', [2, 4])
                 ->where('agency_id', $user->id)->where('service_status', 1);
 
             // Search filter
@@ -216,8 +216,12 @@ class AgencyController extends Controller
 
                     $status = '<span class="badge bg-info text-dark">Service completed</span>';
                 } else {
-
-                    $status = '<span class="badge bg-success text-dark">Details submitted</span>';
+                    if ($app->application_status==4) {
+                        $status = '<span class="badge bg-success text-dark">Approved for Payment</span>';
+                    } else {
+                        //service date expired but no driver assigned
+                        $status = '<span class="badge bg-primary text-dark">Details submitted</span>';
+                    }
                 }
                 $actions .= '</div>';
                 $data[] = [

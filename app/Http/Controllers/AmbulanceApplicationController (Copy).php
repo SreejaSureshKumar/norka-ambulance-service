@@ -373,7 +373,7 @@ dd($request->all());
 
 
                 // Prepare actions
-                $actions = '<div class="d-flex gap-2">'; // Flex container with small gap between buttons
+                $actions = '<div class="d-flex gap-2">'; 
                 $actions .= '<a class="btn btn-primary view_but" href="' . $url . '" target="_blank">
                 <div class="preview-icon-wrap"> View</div>
              </a></div>';

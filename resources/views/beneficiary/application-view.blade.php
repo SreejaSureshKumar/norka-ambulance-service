@@ -310,14 +310,23 @@
 
             </div>
         </div>
-
-        @if(!empty($application->agencyUser) && ( $official == Auth::user()->user_type|| $application->agency_id == Auth::user()->id|| $nodal_officer == Auth::user()->user_type))
+@php
+    $user = Auth::user();
+    $isAgencyItself = $application->agency_id == $user->id;
+    $isApplicant=$application->created_by== $user->id;
+    $isOfficialOrNodal = in_array($user->user_type, [$official, $nodal_officer]);
+@endphp
+       @if(!empty($application->agencyUser) && ($isAgencyItself || $isOfficialOrNodal ||$isApplicant))
         <div class="row">
             <div class="col-md-12">
                 <div class="section-card bg-white border-start border-4 shadow-sm">
                     <div class="section-header">
                         @if(!empty($application->driverDetails) )
+                        @if( $official == Auth::user()->user_type || $nodal_officer == Auth::user()->user_type)
                         Agency & Driver Details
+                        @else
+                        Driver Details
+                        @endif
                         @else
                         Agency Details
                         @endif
@@ -336,7 +345,7 @@
                         </div>
                         @endif
                         @if(!empty($application->driverDetails))
-                        <div class="@if(($application->agency_id != Auth::user()->id)) col-md-6 @else col-md-12 @endif">
+                        <div class="@if(($isApplicant || $isAgencyItself)) col-md-12 @else col-md-6 @endif">
                             <dl class="row mb-0">
                                 <dt class="col-sm-5 readonly-label">Driver Name</dt>
                                 <dd class="col-sm-7 readonly-value">{{ $application->driverDetails->driver_name }}</dd>
@@ -385,23 +394,36 @@
             </div>
         </div>
         @endif
-        @if( ($official == Auth::user()->user_type || $nodal_officer == Auth::user()->user_type) && !empty($application->remarks))
+        @if(  $isOfficialOrNodal && !empty($application->remarks))
         <div class="row">
             <div class="col-md-12">
-                <!-- Keep previous remarks section style and markup -->
+              
                 <div class="section-card bg-white border-start border-4  shadow-sm">
                     <div class="section-header ">Remarks</div>
                     <div class="p-3 rounded bg-light text-dark">
                         <p class="mb-2" style="white-space: pre-line;">{{ $application->remarks }}</p>
                         <div class="remarks-meta text-muted small mt-2 border-top pt-2">
                             <i class="ti ti-clock"></i>
-                            Added on {{ \Carbon\Carbon::parse($application->processed_date)->format('d-m-Y') }}
+                            verified  on {{ \Carbon\Carbon::parse($application->processed_date)->format('d-m-Y') }}
                             at {{ \Carbon\Carbon::parse($application->processed_date)->format('H:i:s') }}
                             @if (isset($application->processedUser))
                             by <strong>{{ $application->processedUser->name ?? 'N/A' }}</strong>
                             @endif
                         </div>
                     </div>
+                    @if(!empty($application->approval_remarks))
+                     <div class="p-3 rounded bg-light text-dark">
+                        <p class="mb-2" style="white-space: pre-line;">{{ $application->approval_remarks }}</p>
+                        <div class="remarks-meta text-muted small mt-2 border-top pt-2">
+                            <i class="ti ti-clock"></i>
+                            approved on {{ \Carbon\Carbon::parse($application->approved_date)->format('d-m-Y') }}
+                            at {{ \Carbon\Carbon::parse($application->processed_date)->format('H:i:s') }}
+                            @if (isset($application->approvedUser))
+                            by <strong>{{ $application->approvedUser->name ?? 'N/A' }}</strong>
+                            @endif
+                        </div>
+                    </div>
+                    @endif
                 </div>
             </div>
         </div>
