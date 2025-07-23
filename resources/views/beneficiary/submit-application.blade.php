@@ -244,8 +244,7 @@
                         @enderror
                     </div>
                     <div class="col-md-6">
-                        <label for="airport_to" class="form-label">Arriving Airport <span
-                                class="text-danger">*</span></label>
+                        <label for="airport_to" class="form-label">Arriving Airport</label>
                         <input type="text" class="form-control form-control-validate" id="airport_to" name="airport_to"
                             placeholder="Enter arriving airport" value="{{ old('airport_to') }}">
                         @error('airport_to')

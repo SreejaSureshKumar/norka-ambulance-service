@@ -92,7 +92,7 @@ class HomeController extends Controller
     // Ambulance Service counts
     $ambulanceService = [
         'new' => ServiceApplication::where('application_status', 1)->count(),
-        'approved' => ServiceApplication::where('application_status', 2)->count(),
+        'approved' => ServiceApplication::whereIn('application_status', [2,4])->count(),
         'rejected' => ServiceApplication::where('application_status', 3)->count()
     ];
 

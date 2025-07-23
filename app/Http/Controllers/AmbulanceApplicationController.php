@@ -343,7 +343,7 @@ class AmbulanceApplicationController extends Controller
                 <div class="preview-icon-wrap"> View</div>
              </a></div>';
                 if ($app->application_status == 4) {
-                    $status = '<span class="badge bg-info text-dark">Processing</span>';
+                    $status = '<span class="badge bg-info text-dark">Approved for payment</span>';
                 } elseif ($app->agency_id != 0 && ($app->driverDetails()->count() == 0)) {
                     $status = '<span class="badge bg-primary text-dark">Assigned to Agency </span>';
                 } elseif ($app->service_status == 1 && $app->serviceDetails()->count() == 0) {

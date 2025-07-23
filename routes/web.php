@@ -59,7 +59,7 @@ Route::middleware(['auth', 'NoCache'])->group(function () {
         Route::post('/assign-to-agency', [App\Http\Controllers\AmbulanceApplicationController::class, 'agencyAssign'])->name('application.assign-agency');
     });
 
-    Route::middleware(['auth.usertype:official_user,beneficiary'])->group(function () {
+    Route::middleware(['auth.usertype:official_user,beneficiary,nodal_officer'])->group(function () {
         Route::get('/application/generate-pdf/{app_id}', [App\Http\Controllers\ApplicationController::class, 'generateApplicationPdf'])->name('application.generate-application-pdf');
     });
     Route::middleware(['auth.usertype:official_user,nodal_officer'])->group(function () {

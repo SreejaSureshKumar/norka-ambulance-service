@@ -138,7 +138,7 @@
                                     value="{{ old('mobile_country_code') ?? '91' }}" />
                                 <input type="hidden" name="mobile_country_iso_code" id="mobile-country-iso-code"
                                     class="@error('contact_abroad_phone') is-invalid @enderror"
-                                    value="{{ old('mobile_country_iso_code') ?? 'in' }}" />
+                                    value="{{ old('mobile_country_iso_code', $application->mobile_country_iso_code ?? 'in') }}" />
                             </div>
                             <div class="col-md-6">
                                 <label for="alt_contact_abroad_name" class="form-label">Contact Name (Alternative)</label>
@@ -162,7 +162,7 @@
                                     value="{{ old('mobile_country_code2') ?? '91' }}" />
                                 <input type="hidden" name="mobile_country_iso_code2" id="mobile-country-iso-code2"
                                     class="@error('alt_contact_abroad_phone') is-invalid @enderror"
-                                    value="{{ old('mobile_country_iso_code2') ?? 'in' }}" />
+                                    value="{{ old('mobile_country_iso_code2', $application->alt_mobile_iso_code ?? 'in' )}}" />
                             </div>
                         </div>
                     </div>
@@ -245,7 +245,8 @@
                                 <div class="input-group timepicker">
                                     <input class="form-control flatpickr-input" id="departure_time"
                                         name="departure_time" placeholder="Select time" type="text" readonly="readonly" value="{{ old('departure_time') }}">
-                                         <span class="input-group-text"><i class="feather icon-clock"></i></span></div>
+                                    <span class="input-group-text"><i class="feather icon-clock"></i></span>
+                                </div>
 
 
 
@@ -411,20 +412,35 @@
     var telInput = document.querySelector("#contact_abroad_phone");
 
     var telInput1 = document.querySelector("#alt_contact_abroad_phone");
-
+    
+    var isoCode = document.querySelector("#mobile-country-iso-code");
+   
+    const initialCountry = (isoCode?.value || 'in').toLowerCase();
     var itiOptions = {
         allowDropdown: true,
         autoPlaceholder: "aggressive",
         utilsScript: "{{ asset('js/libs/intlTelInputWithUtils.js') }}",
         separateDialCode: true,
         formatOnDisplay: false,
-        initialCountry: "{{ old('mobile_country_iso_code') ?? 'in' }}",
+        initialCountry: initialCountry,
+        preferredCountries: ['in', 'au', 'ca', 'kw', 'om', 'qa', 'sa', 'ae', 'gb', 'us']
+    };
+    const isoCodeInput = document.querySelector("#mobile-country-iso-code2")
+    
+    const initialIso = (isoCodeInput?.value || 'in').toLowerCase();
+    var itiOptions1 = {
+        allowDropdown: true,
+        autoPlaceholder: "aggressive",
+        utilsScript: "{{ asset('js/libs/intlTelInputWithUtils.js') }}",
+        separateDialCode: true,
+        formatOnDisplay: false,
+        initialCountry: initialIso,
         preferredCountries: ['in', 'au', 'ca', 'kw', 'om', 'qa', 'sa', 'ae', 'gb', 'us']
     };
     //initialize  intlTelInput
     var regIti = window.intlTelInput(telInput, itiOptions);
 
-    var regIti1 = window.intlTelInput(telInput1, itiOptions);
+    var regIti1 = window.intlTelInput(telInput1, itiOptions1);
 
     // Validation function
     function validatePhoneNumber(input, itiInstance, errorSelector) {
@@ -454,7 +470,7 @@
     });
     // Update hidden country code fields for phone 2
     telInput1.addEventListener('countrychange', () => {
-        const country = regIti2.getSelectedCountryData();
+        const country = regIti1.getSelectedCountryData();
         document.getElementById('mobile-country-code2').value = country.dialCode;
         document.getElementById('mobile-country-iso-code2').value = country.iso2;
     });

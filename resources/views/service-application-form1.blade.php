@@ -121,9 +121,9 @@
                                 @error('contact_abroad_name') <span class="text-danger">{{ $message }}</span> @enderror
                             </div>
                             <div class="col-md-6">
-                                <label for="contact_abroad_phone" class="form-label"> Contact Number <span
+                                <label for="contact_abroad_phone" class="form-label"> Contfgfgact Number <span
                                         class="text-danger">*</span></label>
-                                <input type="tel"
+                                <input type="text"
                                     class="form-control  @error('contact_abroad_phone') is-invalid @enderror"
                                     id="contact_abroad_phone" name="contact_abroad_phone" placeholder="Phone Number"
                                     maxlength="25" value="{{ old('contact_abroad_phone',$application->contact_abroad_phone ?? '') }}" required>
@@ -158,7 +158,7 @@
                                 </span>
                                 @enderror
                                 <div id="mobile-error2" class="text-danger mt-1" style="font-size: 0.9em;"></div>
-                                <input type="hidden" name="mobile_country_code2" id="mobile-country-code2"
+                                <input type="text" name="mobile_country_code2" id="mobile-country-code2"
                                     value="{{ old('mobile_country_code2') ?? '91' }}" />
                                 <input type="hidden" name="mobile_country_iso_code2" id="mobile-country-iso-code2"
                                     class="@error('alt_contact_abroad_phone') is-invalid @enderror"
@@ -376,6 +376,7 @@
 <x-validate-application action="beneficiary.validate-application" />
 @push('custom-scripts')
 <script>
+    
     var telInput = document.querySelector("#contact_abroad_phone");
 
     var telInput1 = document.querySelector("#alt_contact_abroad_phone");

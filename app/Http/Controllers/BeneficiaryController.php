@@ -119,9 +119,18 @@ class BeneficiaryController extends Controller
             $historyApps->each(function ($item) use ($applications) {
                 $applications->push($item);
             });
-            // Apply sorting
-            $order = $columns[$request->input('order.0.column')] ?? 'created_at';
-            $dir = $request->input('order.0.dir') ?? 'desc';
+
+            if (empty($request->input('order.0.column'))) {
+                // Initial load - force created_at desc
+                $order = 'created_at';
+                $dir = 'desc';
+            } else {
+                // User clicked a column to sort
+                $order = $columns[$request->input('order.0.column')] ?? 'created_at';
+                $dir = $request->input('order.0.dir') ?? 'desc';
+            }
+
+
 
             $applications = $applications->sortBy($order, SORT_REGULAR, $dir === 'desc');
             // Get counts before pagination
@@ -183,39 +192,38 @@ class BeneficiaryController extends Controller
 
     private function getStatusBadge($application)
     {
-           $status = $application->status;
-    $serviceStatus = $application->service_status;
-    $applicationType = $application->application_type;
+        $status = $application->status;
+        $serviceStatus = $application->service_status;
+        $applicationType = $application->application_type;
 
-    // Only check driverDetails if from application_type 2
-    $hasDriverAssigned = ($applicationType == 2) && !empty($application->driverDetails);
+        // Only check driverDetails if from application_type 2
+        $hasDriverAssigned = ($applicationType == 2) && !empty($application->driverDetails);
 
-    if ($status == 2) {
-        if ($applicationType == 2) {
-            if (!$hasDriverAssigned) {
-                return '<span class="badge bg-info text-dark">Approved</span>';
+        if ($status == 2) {
+            if ($applicationType == 2) {
+                if (!$hasDriverAssigned) {
+                    return '<span class="badge bg-info text-dark">Approved</span>';
+                }
+                if ($hasDriverAssigned && $serviceStatus == 1) {
+                    return '<span class="badge bg-success text-dark">Service Completed</span>';
+                }
+
+                if ($hasDriverAssigned && $serviceStatus == 0) {
+                    return '<span class="badge bg-primary">Driver Assigned</span>';
+                }
             }
 
-            if ($hasDriverAssigned && $serviceStatus == 0) {
-                return '<span class="badge bg-primary">Driver Assigned</span>';
-            }
-
-            if ($serviceStatus == 1) {
-                return '<span class="badge bg-success text-dark">Service Completed</span>';
-            }
+            // For application_type == 1 (Death Repatriation)
+            return '<span class="badge bg-success">Approved</span>';
         }
 
-        // For application_type == 1 (Death Repatriation)
-        return '<span class="badge bg-success">Approved</span>';
-    }
-  
-    return match ($status) {
-      
-        1 => '<span class="badge bg-primary text-dark">Submitted</span>',
-        3 => '<span class="badge bg-danger text-dark">Rejected</span>',
-        4 => '<span class="badge bg-success text-dark">Service Completed</span>',
-        default => '<span class="badge bg-warning text-dark">Pending</span>',
-    };
+        return match ($status) {
+
+            1 => '<span class="badge bg-primary text-dark">Submitted</span>',
+            3 => '<span class="badge bg-danger text-dark">Rejected</span>',
+            4 => '<span class="badge bg-success text-dark">Service Completed</span>',
+            default => '<span class="badge bg-warning text-dark">Pending</span>',
+        };
     }
 
     private function getActionButtons($url, $downloadUrl, $app, $label)
@@ -356,7 +364,7 @@ class BeneficiaryController extends Controller
                 'native_address' => $request->native_address,
                 'created_by' => $user->id,
                 'intimation_flag' => $request->intimation_flag ?? 0,
-                'arrival_airport'=> $request->airport_to,
+                'arrival_airport' => $request->airport_to,
             ]);
         }
         if ($new_application) {
@@ -374,6 +382,7 @@ class BeneficiaryController extends Controller
 
     public function applicationSubmission(Request $request): RedirectResponse
     {
+
         $user = Auth::user();
         $iso_code = strtoupper($request->mobile_country_iso_code);
         $app_id = $request->application_id;
@@ -444,7 +453,7 @@ class BeneficiaryController extends Controller
         ]);
         // Combine date and time
         $departureDatetime = Carbon::parse($request->departure_date . ' ' . $request->departure_time);
-        $arrivalDatetime = Carbon::parse($request->arrival_date . ' ' . $request->arriving_time);
+        $arrivalDatetime = Carbon::parse($request->arriving_date . ' ' . $request->arriving_time);
 
         if ($request->hasFile('application_attachment')) {
             $file = $request->file('application_attachment');
