@@ -164,7 +164,7 @@ class AmbulanceApplicationController extends Controller
     public function applicationProcess(Request $request, $id): RedirectResponse
     {
         $user = Auth::user();
-
+dd($request->all());
         $id = Crypt::decrypt($id);
         $remarks = $request->input('remarks', '');
 
@@ -281,9 +281,9 @@ class AmbulanceApplicationController extends Controller
                 }
 
                 if ($app->agency_id != 0 && ($app->driverDetails()->count() == 0)) {
-                    $status = '<span class="badge bg-info text-dark">Agency Assigned</span>';
+                    $status = '<span class="badge bg-info text-dark">Assigned to Agency</span>';
                 } elseif ($app->driverDetails()->count() > 0) {
-                    $status = '<span class="badge bg-primary">Driver Assigned</span>';
+                    $status = '<span class="badge bg-primary">Assigned to Agency</span>';
                 }else {
                     $status = '<span class="badge bg-warning text-dark">Verified</span>';
                 }
@@ -373,7 +373,7 @@ class AmbulanceApplicationController extends Controller
 
 
                 // Prepare actions
-                $actions = '<div class="d-flex gap-2">'; // Flex container with small gap between buttons
+                $actions = '<div class="d-flex gap-2">'; 
                 $actions .= '<a class="btn btn-primary view_but" href="' . $url . '" target="_blank">
                 <div class="preview-icon-wrap"> View</div>
              </a></div>';

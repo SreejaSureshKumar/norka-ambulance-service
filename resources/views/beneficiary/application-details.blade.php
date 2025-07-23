@@ -238,7 +238,7 @@
             </div>
 
             @if ($edit_enable)
-            <x-application-action :application="$application" :action="'application.process'" />
+            <x-application-action :application="$application" :action="'application.application-action'" />
             @endif
         </div>
     </div>
@@ -254,7 +254,7 @@
                         <p class="mb-2" style="white-space: pre-line;">{{ $application->remarks }}</p>
                         <div class="remarks-meta text-muted small mt-2 border-top pt-2">
                             <i class="ti ti-clock"></i>
-                            Added on {{ \Carbon\Carbon::parse($application->processed_date)->format('d-m-Y') }}
+                            verified on {{ \Carbon\Carbon::parse($application->processed_date)->format('d-m-Y') }}
                             at {{ \Carbon\Carbon::parse($application->processed_date)->format('H:i:s') }}
                             @if (isset($application->processedUser))
                             by <strong>{{ $application->processedUser->name ?? 'N/A' }}</strong>
