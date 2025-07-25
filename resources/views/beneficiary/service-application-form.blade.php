@@ -158,11 +158,11 @@
                                 </span>
                                 @enderror
                                 <div id="mobile-error2" class="text-danger mt-1" style="font-size: 0.9em;"></div>
-                                <input type="hidden" name="mobile_country_code2" id="mobile-country-code2"
+                                <input type="hidden" name="alt_mobile_country_code" id="mobile-country-code2"
                                     value="{{ old('mobile_country_code2', $application->alt_mobile_country_code ?? '91' )}}" />
-                                <input type="hidden" name="mobile_country_iso_code2" id="mobile-country-iso-code2"
+                                <input type="hidden" name="alt_mobile_iso_code" id="mobile-country-iso-code2"
                                     class="@error('alt_contact_abroad_phone') is-invalid @enderror"
-                                    value="{{ old('mobile_country_iso_code2', $application->alt_mobile_iso_code ?? 'in' )}}" />
+                                    value="{{ old('alt_mobile_iso_code', $application->alt_mobile_iso_code ?? 'in' )}}" />
                             </div>
                         </div>
                     </div>
@@ -364,35 +364,52 @@
 
                 <div class="row g-4">
                     <div class="col-md-6 mt-5 pt-2">
-                        <label for="application_attachment" class="form-label">Upload Attachment <span
-                                class="text-danger">*</span></label>
-                        <div class="form-file mb-3">
-                            <input type="file" class="form-control" aria-label="file example" name="application_attachment" required>
-                            @error('application_attachment')
-                            <span class="text-danger" role="alert">
-                                <strong>{{ $message }}</strong>
-                            </span>
-                            @enderror
+                        <label for="application_attachment_0" class="form-label">
+                            Upload Attachment <span class="text-danger">*</span>
+                            <button type="button" class="btn btn-primary ms-2" id="add-attachment-row"><i class="ti ti-plus"></i></button>
+                        </label>
+                        <div id="attachment-rows" class="row">
+                            @php
+                            $attachments = old('application_attachment', []);
+                            $count = max(1, count($attachments));
+                            @endphp
+                            @for ($i = 0; $i < $count; $i++)
+                                <div class="col-md-12 form-file mb-3 attachment-row d-flex align-items-center">
+                                <input type="file" class="form-control"
+                                    name="application_attachment[]"
+                                    id="application_attachment_{{ $i }}"
+                                    @if($i===0) required @endif>
+                                @if($i > 0)
+                                <button type="button" class="btn btn-danger btn-sm ms-2 delete-attachment-row">Delete</button>
+                                @endif
+                                @error('application_attachment.' . $i)
+                                <span class="text-danger" role="alert">
+                                    <strong>{{ $message }}</strong>
+                                </span>
+                                @enderror
                         </div>
+                        @endfor
                     </div>
-                    <div class="col-md-6  mt-5 pt-2">
-                        <div class="form-check  mt-4 pt-2">
-                            <input type="checkbox" class="form-check-input" id="intimation_flag" name="intimation_flag" value="1"
-                                {{ old('intimation_flag', $application->intimation_flag ?? '') == 1 ? 'checked' : '' }}>
-                            <label for="intimation_flag" class="form-check-label">Do you need Whatsapp Intimation?</label>
-                        </div>
-                        @error('intimation_flag') <span class="text-danger">{{ $message }}</span> @enderror
+                  
+                </div>
+                <div class="col-md-6  mt-5 pt-2">
+                    <div class="form-check  mt-4 pt-2">
+                        <input type="checkbox" class="form-check-input" id="intimation_flag" name="intimation_flag" value="1"
+                            {{ old('intimation_flag', $application->intimation_flag ?? '') == 1 ? 'checked' : '' }}>
+                        <label for="intimation_flag" class="form-check-label">Do you need Whatsapp Intimation?</label>
                     </div>
+                    @error('intimation_flag') <span class="text-danger">{{ $message }}</span> @enderror
                 </div>
         </div>
-
-        <div class="mt-4 mb-3 text-center">
-            <button type="submit" class="btn btn-secondary" id="submit-btn">
-                Submit Application
-            </button>
-        </div>
-        </form>
     </div>
+
+    <div class="mt-4 mb-3 text-center">
+        <button type="submit" class="btn btn-secondary" id="submit-btn">
+            Submit Application
+        </button>
+    </div>
+    </form>
+</div>
 </div>
 @endsection
 <x-validate-application action="beneficiary.validate-application" />
@@ -412,9 +429,9 @@
     var telInput = document.querySelector("#contact_abroad_phone");
 
     var telInput1 = document.querySelector("#alt_contact_abroad_phone");
-    
+
     var isoCode = document.querySelector("#mobile-country-iso-code");
-   
+
     const initialCountry = (isoCode?.value || 'in').toLowerCase();
     var itiOptions = {
         allowDropdown: true,
@@ -426,7 +443,7 @@
         preferredCountries: ['in', 'au', 'ca', 'kw', 'om', 'qa', 'sa', 'ae', 'gb', 'us']
     };
     const isoCodeInput = document.querySelector("#mobile-country-iso-code2")
-    
+
     const initialIso = (isoCodeInput?.value || 'in').toLowerCase();
     var itiOptions1 = {
         allowDropdown: true,
@@ -474,18 +491,20 @@
         document.getElementById('mobile-country-code2').value = country.dialCode;
         document.getElementById('mobile-country-iso-code2').value = country.iso2;
     });
-    // Confirmation before submit
     document.addEventListener('DOMContentLoaded', function() {
         var form = document.getElementById('submit-application-form');
         var submitBtn = document.getElementById('submit-btn');
         if (form && submitBtn) {
             form.addEventListener('submit', function(e) {
+                // Validate file uploads first
+             
                 if (!confirm('Are you sure you want to submit this application?')) {
                     e.preventDefault();
                 }
             });
         }
     });
+   
     $('#state').on('change', function() {
         var stateId = $(this).val();
         var csrf_token = $('meta[name="csrf-token"]').attr('content');
@@ -527,5 +546,36 @@
             $('#district').empty().append('<option value="">Select State first</option>').prop('disabled', true);
         }
     });
+
+    let attachmentCount = {{$count}};
+    document.getElementById('add-attachment-row').addEventListener('click', function() {
+        if (attachmentCount < 5) {
+            const row = document.createElement('div');
+            row.className = 'col-md-12 form-file mb-3 attachment-row d-flex align-items-center';
+            row.innerHTML = `
+                <input type="file" class="form-control" name="application_attachment[]" id="application_attachment_${attachmentCount}">
+                <button type="button" class="btn btn-danger btn-sm ms-2 delete-attachment-row">Delete</button>
+            `;
+            document.getElementById('attachment-rows').appendChild(row);
+            attachmentCount++;
+            updateDeleteButtons();
+        }
+    });
+
+    function updateDeleteButtons() {
+        const rows = document.querySelectorAll('.attachment-row');
+        rows.forEach((row, idx) => {
+            const btn = row.querySelector('.delete-attachment-row');
+            if (btn) {
+                btn.style.display = (idx > 0) ? 'inline-block' : 'none';
+                btn.onclick = function() {
+                    row.remove();
+                    attachmentCount--;
+                    updateDeleteButtons();
+                };
+            }
+        });
+    }
+    updateDeleteButtons();
 </script>
 @endpush
