@@ -38,7 +38,9 @@ class Application extends Model
         'alt_contact_abroad_name',
         'alt_contact_local_name',
         'alt_contact_local_phone',
-        'alt_contact_abroad_phone'
+        'alt_contact_abroad_phone',
+        'mobile_country_code',
+        'alt_mobile_country_code'
     ];
 
     public function countryRelation()

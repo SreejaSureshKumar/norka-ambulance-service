@@ -32,6 +32,15 @@
     </div>
 </div>
 <br>
+ @if (count($errors) > 0)
+                        <div class="alert alert-danger">
+                            <ul class="mb-0">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                        @endif
  @if (session('error_status'))
       
             <div class="alert alert-success alert-dismissible fade show my-3" role="alert">
@@ -111,7 +120,7 @@
                         <label for="cause_of_death" class="form-label">Cause of Death<span
                                 class="text-danger">*</span></label>
                         <textarea class="form-control form-control-validate" id="cause_of_death" name="cause_of_death" rows="2"
-                            placeholder="Enter cause of death"></textarea>
+                            placeholder="Enter cause of death">{{ old('native_address') ?? ''}}</textarea>
                         @error('cause_of_death')
                         <span class="text-danger  " role="alert">
                             <strong>{{ $message }}</strong>
@@ -122,7 +131,7 @@
                         <label for="sponsor_details" class="form-label">Sponsor/Company/Organisation<span
                                 class="text-danger">*</span></label>
                         <textarea class="form-control form-control-validate" id="sponsor_details" name="sponsor_details" rows="2"
-                            placeholder="Enter sponsor details"></textarea>
+                            placeholder="Enter sponsor details">{{ old('sponsor_details') ?? ''}}</textarea>
                         @error('sponsor_details')
                         <span class="text-danger  " role="alert">
                             <strong>{{ $message }}</strong>
@@ -175,11 +184,11 @@
                                 </span>
                                 @enderror
                                 <div id="mobile-error2" class="text-danger mt-1" style="font-size: 0.9em;"></div>
-                                <input type="hidden" name="mobile_country_code2" id="mobile-country-code2"
-                                    value="{{ old('mobile_country_code2') ?? '91' }}" />
-                                <input type="hidden" name="mobile_country_iso_code2" id="mobile-country-iso-code2"
+                                <input type="hidden" name="alt_mobile_country_code" id="mobile-country-code2"
+                                    value="{{ old('alt_mobile_country_code') ?? '91' }}" />
+                                <input type="hidden" name="alt_mobile_iso_code" id="mobile-country-iso-code2"
                                     class="@error('alt_contact_abroad_phone') is-invalid @enderror"
-                                    value="{{ old('mobile_country_iso_code2') ?? 'in' }}" />
+                                    value="{{ old('alt_mobile_iso_code') ?? 'in' }}" />
                             </div>
                         </div>
                     </div>
@@ -309,10 +318,20 @@
         initialCountry: "{{ old('mobile_country_iso_code') ?? 'in' }}",
         preferredCountries: ['in', 'au', 'ca', 'kw', 'om', 'qa', 'sa', 'ae', 'gb', 'us']
     };
+
+     var itiOptions1 = {
+        allowDropdown: true,
+        autoPlaceholder: "aggressive",
+        utilsScript: "{{ asset('js/libs/intlTelInputWithUtils.js') }}",
+        separateDialCode: true,
+        formatOnDisplay: false,
+        initialCountry: "{{ old('mobile_country_iso_code2') ?? 'in' }}",
+        preferredCountries: ['in', 'au', 'ca', 'kw', 'om', 'qa', 'sa', 'ae', 'gb', 'us']
+    };
     //initialize  intlTelInput
     var regIti = window.intlTelInput(telInput, itiOptions);
 
-    var regIti1 = window.intlTelInput(telInput1, itiOptions);
+    var regIti1 = window.intlTelInput(telInput1, itiOptions1);
 
     // Validation function
     function validatePhoneNumber(input, itiInstance, errorSelector) {
@@ -342,7 +361,9 @@
     });
     // Update hidden country code fields for phone 2
     telInput1.addEventListener('countrychange', () => {
-        const country = regIti2.getSelectedCountryData();
+        
+        const country = regIti1.getSelectedCountryData();
+
         document.getElementById('mobile-country-code2').value = country.dialCode;
         document.getElementById('mobile-country-iso-code2').value = country.iso2;
     });

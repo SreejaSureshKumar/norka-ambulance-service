@@ -135,7 +135,7 @@
                                 @enderror
                                 <div id="mobile-error" class="text-danger mt-1" style="font-size: 0.9em;"></div>
                                 <input type="hidden" name="mobile_country_code" id="mobile-country-code"
-                                    value="{{ old('mobile_country_code') ?? '91' }}" />
+                                    value="{{ old('mobile_country_code' , $application->mobile_country_code ?? '91' )}}" />
                                 <input type="hidden" name="mobile_country_iso_code" id="mobile-country-iso-code"
                                     class="@error('contact_abroad_phone') is-invalid @enderror"
                                     value="{{ old('mobile_country_iso_code', $application->mobile_country_iso_code ?? 'in') }}" />
@@ -159,7 +159,7 @@
                                 @enderror
                                 <div id="mobile-error2" class="text-danger mt-1" style="font-size: 0.9em;"></div>
                                 <input type="hidden" name="mobile_country_code2" id="mobile-country-code2"
-                                    value="{{ old('mobile_country_code2') ?? '91' }}" />
+                                    value="{{ old('mobile_country_code2', $application->alt_mobile_country_code ?? '91' )}}" />
                                 <input type="hidden" name="mobile_country_iso_code2" id="mobile-country-iso-code2"
                                     class="@error('alt_contact_abroad_phone') is-invalid @enderror"
                                     value="{{ old('mobile_country_iso_code2', $application->alt_mobile_iso_code ?? 'in' )}}" />
