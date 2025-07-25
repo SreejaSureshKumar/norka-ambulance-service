@@ -160,9 +160,9 @@
                                 <div id="mobile-error2" class="text-danger mt-1" style="font-size: 0.9em;"></div>
                                 <input type="hidden" name="alt_mobile_country_code" id="mobile-country-code2"
                                     value="{{ old('mobile_country_code2', $application->alt_mobile_country_code ?? '91' )}}" />
-                                <input type="hidden" name="mobile_country_iso_code2" id="mobile-country-iso-code2"
+                                <input type="hidden" name="alt_mobile_iso_code" id="mobile-country-iso-code2"
                                     class="@error('alt_contact_abroad_phone') is-invalid @enderror"
-                                    value="{{ old('mobile_country_iso_code2', $application->alt_mobile_iso_code ?? 'in' )}}" />
+                                    value="{{ old('alt_mobile_iso_code', $application->alt_mobile_iso_code ?? 'in' )}}" />
                             </div>
                         </div>
                     </div>
@@ -381,24 +381,26 @@
                         </div>
                         <small class="text-muted">Maximum 5 files. Only PDF/JPG/JPEG/PNG. Max 2MB each.</small>
                     </div>
-                    <div class="col-md-6  mt-5 pt-2">
-                        <div class="form-check  mt-4 pt-2">
-                            <input type="checkbox" class="form-check-input" id="intimation_flag" name="intimation_flag" value="1"
-                                {{ old('intimation_flag', $application->intimation_flag ?? '') == 1 ? 'checked' : '' }}>
-                            <label for="intimation_flag" class="form-check-label">Do you need Whatsapp Intimation?</label>
-                        </div>
-                        @error('intimation_flag') <span class="text-danger">{{ $message }}</span> @enderror
+                  
+                </div>
+                <div class="col-md-6  mt-5 pt-2">
+                    <div class="form-check  mt-4 pt-2">
+                        <input type="checkbox" class="form-check-input" id="intimation_flag" name="intimation_flag" value="1"
+                            {{ old('intimation_flag', $application->intimation_flag ?? '') == 1 ? 'checked' : '' }}>
+                        <label for="intimation_flag" class="form-check-label">Do you need Whatsapp Intimation?</label>
                     </div>
+                    @error('intimation_flag') <span class="text-danger">{{ $message }}</span> @enderror
                 </div>
         </div>
-
-        <div class="mt-4 mb-3 text-center">
-            <button type="submit" class="btn btn-secondary" id="submit-btn">
-                Submit Application
-            </button>
-        </div>
-        </form>
     </div>
+
+    <div class="mt-4 mb-3 text-center">
+        <button type="submit" class="btn btn-secondary" id="submit-btn">
+            Submit Application
+        </button>
+    </div>
+    </form>
+</div>
 </div>
 @endsection
 <x-validate-application action="beneficiary.validate-application" />
@@ -418,9 +420,9 @@
     var telInput = document.querySelector("#contact_abroad_phone");
 
     var telInput1 = document.querySelector("#alt_contact_abroad_phone");
-    
+
     var isoCode = document.querySelector("#mobile-country-iso-code");
-   
+
     const initialCountry = (isoCode?.value || 'in').toLowerCase();
     var itiOptions = {
         allowDropdown: true,
@@ -432,7 +434,7 @@
         preferredCountries: ['in', 'au', 'ca', 'kw', 'om', 'qa', 'sa', 'ae', 'gb', 'us']
     };
     const isoCodeInput = document.querySelector("#mobile-country-iso-code2")
-    
+
     const initialIso = (isoCodeInput?.value || 'in').toLowerCase();
     var itiOptions1 = {
         allowDropdown: true,
@@ -480,18 +482,20 @@
         document.getElementById('mobile-country-code2').value = country.dialCode;
         document.getElementById('mobile-country-iso-code2').value = country.iso2;
     });
-    // Confirmation before submit
     document.addEventListener('DOMContentLoaded', function() {
         var form = document.getElementById('submit-application-form');
         var submitBtn = document.getElementById('submit-btn');
         if (form && submitBtn) {
             form.addEventListener('submit', function(e) {
+                // Validate file uploads first
+             
                 if (!confirm('Are you sure you want to submit this application?')) {
                     e.preventDefault();
                 }
             });
         }
     });
+   
     $('#state').on('change', function() {
         var stateId = $(this).val();
         var csrf_token = $('meta[name="csrf-token"]').attr('content');
@@ -534,7 +538,7 @@
         }
     });
 
-    let attachmentCount = 1;
+    let attachmentCount = {{$count}};
     document.getElementById('add-attachment-row').addEventListener('click', function() {
         if (attachmentCount < 5) {
             const row = document.createElement('div');
@@ -554,7 +558,7 @@
         rows.forEach((row, idx) => {
             const btn = row.querySelector('.delete-attachment-row');
             if (btn) {
-                btn.style.display = (idx > 0) ? 'inline-block' : 'none'; // Only show for additional rows
+                btn.style.display = (idx > 0) ? 'inline-block' : 'none';
                 btn.onclick = function() {
                     row.remove();
                     attachmentCount--;
@@ -564,20 +568,5 @@
         });
     }
     updateDeleteButtons();
-
-    // Client-side validation for empty file inputs
-    document.getElementById('submit-application-form').addEventListener('submit', function(e) {
-        let valid = true;
-        const fileInputs = document.querySelectorAll('#attachment-rows input[type="file"]');
-        if (!fileInputs[0].value) valid = false; // first is required
-        // Remove name from empty additional file inputs
-        fileInputs.forEach((input, idx) => {
-            if (idx > 0 && input.value === "") input.removeAttribute('name');
-        });
-        if (!valid) {
-            alert('Please upload at least one attachment.');
-            e.preventDefault();
-        }
-    });
 </script>
 @endpush

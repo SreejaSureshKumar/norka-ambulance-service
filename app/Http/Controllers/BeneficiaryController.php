@@ -251,7 +251,6 @@ class BeneficiaryController extends Controller
         $user = Auth::user();
         $is_resume = $request->query('resume');
         $app_id = $request->query('id');
- 
         $countries = Country::all()->where('active', 'Y');
         $states = \App\Models\State::all()->where('state_status', 1);
 
@@ -404,6 +403,7 @@ class BeneficiaryController extends Controller
         $user = Auth::user();
         $iso_code = strtoupper($request->mobile_country_iso_code);
         $app_id = $request->application_id;
+
         $validated = $request->validate([
             // Personal Information
             'deceased_person_name' => ['required', 'max:255', new AlphaSpace],
@@ -437,9 +437,9 @@ class BeneficiaryController extends Controller
 
             // File Upload
             'application_attachment' => ['required', 'array', 'max:5'],
-            'application_attachment.0' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:2048'],
-            'application_attachment.*' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:2048'],
-            'intimation_flag' => ['nullable', 'numeric', 'in:0,1'],
+            'application_attachment.0' => ['required', 'file', 'mimes:pdf', 'max:2048'],
+            'application_attachment.*' => ['nullable', 'file', 'mimes:pdf', 'max:2048'],
+            // 'intimation_flag' => ['nullable', 'numeric', 'in:0,1'],
 
 
         ], [], [
@@ -471,13 +471,31 @@ class BeneficiaryController extends Controller
             'native_address' => 'Address',
 
             // File Upload
-            'application_attachment' => 'Attachment'
+            'application_attachment' => 'Attachment',
+            'application_attachment.0' => 'Attachment',
+            'application_attachment.*' =>'Attachment'
         ]);
         // Combine date and time
         $departureDatetime = Carbon::parse($request->departure_date . ' ' . $request->departure_time);
         $arrivalDatetime = Carbon::parse($request->arriving_date . ' ' . $request->arriving_time);
 
-        
+
+        // if ($request->hasFile('application_attachment')) {
+        //     $file = $request->file('application_attachment');
+        //     $extension = $file->getClientOriginalExtension();
+
+        //     $up_filename = strtotime("now") . '.' . $extension;
+        //     $filePath = 'documents/' . $up_filename;
+        //     $attachuploaded = Storage::disk('public')->put(
+        //         $filePath,
+        //         file_get_contents($file->getRealPath())
+        //     );
+
+
+        //     if (!$attachuploaded) {
+        //         throw new \Exception("Failed to store file");
+        //     }
+        // }
         $maxAttempts = 20;
         $attempt = 0;
 
@@ -499,19 +517,37 @@ class BeneficiaryController extends Controller
         }
 
         // Merge validated input with extra columns
-        $data = array_merge($validated, [
+        $data = [
+            "deceased_person_name" => $request->deceased_person_name,
+            "passport_no" => $request->passport_no,
+            "country"=>$request->country,
+
+            "contact_abroad_name" => $request->contact_abroad_name,
+            "contact_abroad_phone" => $request->contact_abroad_phone,
+            "mobile_country_code" => $request->mobile_country_code,
+            "mobile_country_iso_code" => $request->mobile_country_iso_code,
+            "alt_contact_abroad_name" => $request->alt_contact_abroad_name,
+            "alt_contact_abroad_phone" => $request->alt_contact_abroad_phone,
+            "contact_local_name" => $request->contact_local_name,
+            "contact_local_phone" => $request->contact_local_phone,
+            "alt_contact_local_name" => $request->alt_contact_local_name,
+            "alt_contact_local_phone" => $request->alt_contact_local_phone,
+            "flight_no" => $request->flight_no,
+
+            "native_address" => $request->native_address,
             'application_status' => 1,
             'created_by' => $user->id,
             'application_no' => $application_no,
             'departure_date_time' =>  $departureDatetime,
             'arriving_date_time' => $arrivalDatetime,
-         
 
-        ]);
+
+        ];
 
         if ($request->filled('alt_contact_abroad_phone')) {
             $data = array_merge($data, [
                 'alt_mobile_country_code' => $request->alt_mobile_country_code,
+                'alt_mobile_iso_code' =>$request->alt_mobile_country_code
 
             ]);
         }
