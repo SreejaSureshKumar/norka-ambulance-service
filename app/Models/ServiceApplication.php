@@ -41,7 +41,11 @@ class ServiceApplication extends Model
         'arrival_airport',
         'approval_remarks',
         'approved_date',
-        'approved_by',  
+        'approved_by',
+        'mobile_country_code',
+        'alt_mobile_country_code',
+        'mobile_country_iso_code',
+        'alt_mobile_iso_code'
     ];
 
     public function countryRelation()
@@ -73,7 +77,7 @@ class ServiceApplication extends Model
     {
         return $this->hasOne(ServiceDetails::class, 'application_id', 'id');
     }
-      public function approvedUser()
+    public function approvedUser()
     {
         return $this->belongsTo(User::class, 'approved_by', 'id');
     }

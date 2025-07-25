@@ -156,7 +156,7 @@ class BeneficiaryController extends Controller
                     $label = 'View';
                 } elseif ($app->status == 0) {
                     $label = 'Apply';
-                    $url = $app->application_type == 2 ? route('beneficiary.service-application-form', ['resume' => 1]) : '';
+                    $url = $app->application_type == 2 ? route('beneficiary.service-application-form', ['resume' => 1, 'id' => encrypt($app->id)]) : '';
                 }
 
 
@@ -250,13 +250,18 @@ class BeneficiaryController extends Controller
     {
         $user = Auth::user();
         $is_resume = $request->query('resume');
+        $app_id = $request->query('id');
+        $id = decrypt($request->id);
         $countries = Country::all()->where('active', 'Y');
         $states = \App\Models\State::all()->where('state_status', 1);
 
         $application = null;
 
-        if ($is_resume == 1) {
+        if ($is_resume == 1 && $app_id) {
+            $id = decrypt($app_id);
+
             $application = ServiceApplication::where('created_by', $user->id)
+                ->where('id', $id)
                 ->where('application_status', 0)
                 ->first();
         }
@@ -272,6 +277,7 @@ class BeneficiaryController extends Controller
     {
         $user = Auth::user();
         $iso_code = strtoupper($request->mobile_country_iso_code);
+
         $validated = $request->validate([
             'deceased_person_name' => ['required',  'max:255', new AlphaSpace],
             'passport_no' => ['required',  new Passport],
@@ -292,7 +298,9 @@ class BeneficiaryController extends Controller
             'native_address' => ['required',  'max:1000', new AlphaSpaceNumChar],
             'cargo_norka_status' => ['nullable', 'numeric', 'in:0,1'],
             'intimation_flag' => ['nullable', 'numeric', 'in:0,1'],
-            'ambulance_service_status' => ['nullable', 'numeric', 'in:0,1']
+            'ambulance_service_status' => ['nullable', 'numeric', 'in:0,1'],
+            'mobile_country_code' => ['required', 'numeric'],
+            'alt_mobile_country_code' => ['nullable', 'numeric']
         ], [ //custom   messages
         ], [
 
@@ -338,7 +346,7 @@ class BeneficiaryController extends Controller
                 ->withInput();
         }
 
-        // Merge validated input with extra columns
+
         $data = array_merge($validated, [
             'application_status' => 1,
             'created_by' => $user->id,
@@ -349,7 +357,7 @@ class BeneficiaryController extends Controller
         DB::beginTransaction();
         $new_application = Application::create($data);
         if ($request->ambulance_service_status == 1) {
-            $service_application = ServiceApplication::create([
+            $data = [
                 'deceased_person_name' => $request->deceased_person_name,
                 'passport_no' => $request->passport_no,
                 'country' => $request->country,
@@ -365,7 +373,19 @@ class BeneficiaryController extends Controller
                 'created_by' => $user->id,
                 'intimation_flag' => $request->intimation_flag ?? 0,
                 'arrival_airport' => $request->airport_to,
-            ]);
+                'mobile_country_code' => $request->mobile_country_code,
+
+                'mobile_country_iso_code' => $request->mobile_country_iso_code
+
+            ];
+            if ($request->filled('alt_contact_abroad_phone')) {
+                $data = array_merge($data, [
+                    'alt_mobile_country_code' => $request->alt_mobile_country_code,
+                    'alt_mobile_iso_code'     => $request->alt_mobile_iso_code,
+                ]);
+            }
+
+            $service_application = ServiceApplication::create($data);
         }
         if ($new_application) {
             DB::commit();

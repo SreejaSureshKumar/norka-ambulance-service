@@ -159,7 +159,7 @@
                         </div>
                         <div class="mb-3">
                             <label class="readonly-label">Arrival Airport</label>
-                            <div class="readonly-value">{{ $application->airport_to }}</div>
+                            <div class="readonly-value">{{ $application->airport_to ?? '--'}}</div>
                         </div>
                     </div>
                     <div class="section-card">
@@ -180,7 +180,7 @@
                         </div>
                         <div class="mb-3">
                             <label class="readonly-label">Contact Number (Abroad)</label>
-                            <div class="readonly-value">{{ $application->contact_abroad_phone }}</div>
+                            <div class="readonly-value">+{{ $application->mobile_country_code}} {{ $application->contact_abroad_phone }}</div>
                         </div>
                           @if(!empty($application->alt_contact_abroad_name))
                         <div class="mb-3">
@@ -230,7 +230,7 @@
                         <div class="mb-3">
                             <label class="readonly-label">Is Ambulance Service Required?</label>
                             <div class="readonly-value">
-                                {{ $application->ambulance_required ? 'Yes' : 'No' }}
+                                {{ $application->ambulance_service_status ? 'Yes' : 'No' }}
                             </div>
                         </div>
                     </div>
