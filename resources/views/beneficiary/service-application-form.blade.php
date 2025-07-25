@@ -366,29 +366,20 @@
                     <div class="col-md-6 mt-5 pt-2">
                         <label for="application_attachment_0" class="form-label">
                             Upload Attachment <span class="text-danger">*</span>
-                            <button type="button" class="btn btn-primary ms-2" id="add-attachment-row"><i class="ti ti-plus"></i></button>
+                            <button type="button" class="btn btn-primary ms-2" id="add-attachment-row">Add Row</button>
                         </label>
                         <div id="attachment-rows" class="row">
-                            @php
-                            $attachments = old('application_attachment', []);
-                            $count = max(1, count($attachments));
-                            @endphp
-                            @for ($i = 0; $i < $count; $i++)
-                                <div class="col-md-12 form-file mb-3 attachment-row d-flex align-items-center">
-                                <input type="file" class="form-control"
-                                    name="application_attachment[]"
-                                    id="application_attachment_{{ $i }}"
-                                    @if($i===0) required @endif>
-                                @if($i > 0)
-                                <button type="button" class="btn btn-danger btn-sm ms-2 delete-attachment-row">Delete</button>
-                                @endif
-                                @error('application_attachment.' . $i)
+                            <div class="col-md-12 form-file mb-3 attachment-row d-flex align-items-center">
+                                <input type="file" class="form-control" name="application_attachment[]" id="application_attachment_0" required>
+                                <!-- No delete button for first row -->
+                                @error('application_attachment.0')
                                 <span class="text-danger" role="alert">
                                     <strong>{{ $message }}</strong>
                                 </span>
                                 @enderror
+                            </div>
                         </div>
-                        @endfor
+                        <small class="text-muted">Maximum 5 files. Only PDF/JPG/JPEG/PNG. Max 2MB each.</small>
                     </div>
                   
                 </div>

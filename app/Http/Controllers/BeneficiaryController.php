@@ -251,7 +251,6 @@ class BeneficiaryController extends Controller
         $user = Auth::user();
         $is_resume = $request->query('resume');
         $app_id = $request->query('id');
-
         $countries = Country::all()->where('active', 'Y');
         $states = \App\Models\State::all()->where('state_status', 1);
 
@@ -304,7 +303,6 @@ class BeneficiaryController extends Controller
             'application_attachment' => ['required', 'array', 'max:5'],
             'application_attachment.0' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:2048'],
             'application_attachment.*' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:2048'],
-
         ], [ //custom   messages
         ], [
 
@@ -788,3 +786,4 @@ class BeneficiaryController extends Controller
         ]);
     }
 }
+
