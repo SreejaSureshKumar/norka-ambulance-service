@@ -158,7 +158,7 @@
                                 </span>
                                 @enderror
                                 <div id="mobile-error2" class="text-danger mt-1" style="font-size: 0.9em;"></div>
-                                <input type="hidden" name="mobile_country_code2" id="mobile-country-code2"
+                                <input type="hidden" name="alt_mobile_country_code" id="mobile-country-code2"
                                     value="{{ old('mobile_country_code2', $application->alt_mobile_country_code ?? '91' )}}" />
                                 <input type="hidden" name="mobile_country_iso_code2" id="mobile-country-iso-code2"
                                     class="@error('alt_contact_abroad_phone') is-invalid @enderror"
@@ -364,16 +364,22 @@
 
                 <div class="row g-4">
                     <div class="col-md-6 mt-5 pt-2">
-                        <label for="application_attachment" class="form-label">Upload Attachment <span
-                                class="text-danger">*</span></label>
-                        <div class="form-file mb-3">
-                            <input type="file" class="form-control" aria-label="file example" name="application_attachment" required>
-                            @error('application_attachment')
-                            <span class="text-danger" role="alert">
-                                <strong>{{ $message }}</strong>
-                            </span>
-                            @enderror
+                        <label for="application_attachment_0" class="form-label">
+                            Upload Attachment <span class="text-danger">*</span>
+                            <button type="button" class="btn btn-primary ms-2" id="add-attachment-row">Add Row</button>
+                        </label>
+                        <div id="attachment-rows" class="row">
+                            <div class="col-md-12 form-file mb-3 attachment-row d-flex align-items-center">
+                                <input type="file" class="form-control" name="application_attachment[]" id="application_attachment_0" required>
+                                <!-- No delete button for first row -->
+                                @error('application_attachment.0')
+                                <span class="text-danger" role="alert">
+                                    <strong>{{ $message }}</strong>
+                                </span>
+                                @enderror
+                            </div>
                         </div>
+                        <small class="text-muted">Maximum 5 files. Only PDF/JPG/JPEG/PNG. Max 2MB each.</small>
                     </div>
                     <div class="col-md-6  mt-5 pt-2">
                         <div class="form-check  mt-4 pt-2">
@@ -525,6 +531,52 @@
         } else {
             // If no state selected, disable and reset district dropdown
             $('#district').empty().append('<option value="">Select State first</option>').prop('disabled', true);
+        }
+    });
+
+    let attachmentCount = 1;
+    document.getElementById('add-attachment-row').addEventListener('click', function() {
+        if (attachmentCount < 5) {
+            const row = document.createElement('div');
+            row.className = 'col-md-12 form-file mb-3 attachment-row d-flex align-items-center';
+            row.innerHTML = `
+                <input type="file" class="form-control" name="application_attachment[]" id="application_attachment_${attachmentCount}">
+                <button type="button" class="btn btn-danger btn-sm ms-2 delete-attachment-row">Delete</button>
+            `;
+            document.getElementById('attachment-rows').appendChild(row);
+            attachmentCount++;
+            updateDeleteButtons();
+        }
+    });
+
+    function updateDeleteButtons() {
+        const rows = document.querySelectorAll('.attachment-row');
+        rows.forEach((row, idx) => {
+            const btn = row.querySelector('.delete-attachment-row');
+            if (btn) {
+                btn.style.display = (idx > 0) ? 'inline-block' : 'none'; // Only show for additional rows
+                btn.onclick = function() {
+                    row.remove();
+                    attachmentCount--;
+                    updateDeleteButtons();
+                };
+            }
+        });
+    }
+    updateDeleteButtons();
+
+    // Client-side validation for empty file inputs
+    document.getElementById('submit-application-form').addEventListener('submit', function(e) {
+        let valid = true;
+        const fileInputs = document.querySelectorAll('#attachment-rows input[type="file"]');
+        if (!fileInputs[0].value) valid = false; // first is required
+        // Remove name from empty additional file inputs
+        fileInputs.forEach((input, idx) => {
+            if (idx > 0 && input.value === "") input.removeAttribute('name');
+        });
+        if (!valid) {
+            alert('Please upload at least one attachment.');
+            e.preventDefault();
         }
     });
 </script>

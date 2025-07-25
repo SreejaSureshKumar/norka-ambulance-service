@@ -251,7 +251,7 @@ class BeneficiaryController extends Controller
         $user = Auth::user();
         $is_resume = $request->query('resume');
         $app_id = $request->query('id');
-        $id = decrypt($request->id);
+ 
         $countries = Country::all()->where('active', 'Y');
         $states = \App\Models\State::all()->where('state_status', 1);
 
@@ -300,7 +300,10 @@ class BeneficiaryController extends Controller
             'intimation_flag' => ['nullable', 'numeric', 'in:0,1'],
             'ambulance_service_status' => ['nullable', 'numeric', 'in:0,1'],
             'mobile_country_code' => ['required', 'numeric'],
-            'alt_mobile_country_code' => ['nullable', 'numeric']
+            'alt_mobile_country_code' => ['nullable', 'numeric'],
+            'application_attachment' => ['required', 'array', 'max:5'],
+            'application_attachment.0' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:2048'],
+            'application_attachment.*' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:2048'],
         ], [ //custom   messages
         ], [
 
@@ -314,16 +317,11 @@ class BeneficiaryController extends Controller
             'contact_abroad_phone' => 'Contact Number',
             'contact_local_name' => 'Local contact (name)',
             'contact_local_phone' => 'Local Contact number',
-            'airport_from' => 'Departure airport',
-            'airport_to' => 'Arrival airport',
-            'native_address' => 'Native address',
-            'cargo_norka_status' => 'NORKA cargo status',
-            'Is_intimation' => 'Whatsapp Intimation',
-            'ambulance_service_status' => 'Amulance Service',
             'alt_contact_abroad_name' => 'Alternative Contact Name',
             'alt_contact_local_name' => 'Alternative Contact Name',
             'alt_contact_local_phone' => 'Alternative Contact Number',
-            'alt_contact_abroad_phone' => 'Alternative Contact Name'
+            'alt_contact_abroad_phone' => 'Alternative Contact Name',
+            'application_attachment.0.required' => 'At least one attachment is required.'
         ]);
 
         $maxAttempts = 20;
@@ -421,6 +419,8 @@ class BeneficiaryController extends Controller
             'alt_contact_abroad_phone' => ['nullable', new PhoneNumber($iso_code), 'max:25'],
             'alt_contact_local_name' => ['nullable',  'max:255', new AlphaSpace],
             'alt_contact_local_phone' => ['nullable', new PhoneNumber('IN'), 'max:25'],
+            'mobile_country_code' => ['required', 'numeric'],
+            'alt_mobile_country_code' => ['nullable', 'numeric'],
 
 
             // Flight Information
@@ -436,7 +436,9 @@ class BeneficiaryController extends Controller
             'native_address' => ['required', 'max:255', new AlphaSpaceNumChar],
 
             // File Upload
-            'application_attachment' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:2048'],
+            'application_attachment' => ['required', 'array', 'max:5'],
+            'application_attachment.0' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:2048'],
+            'application_attachment.*' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:2048'],
             'intimation_flag' => ['nullable', 'numeric', 'in:0,1'],
 
 
@@ -475,25 +477,7 @@ class BeneficiaryController extends Controller
         $departureDatetime = Carbon::parse($request->departure_date . ' ' . $request->departure_time);
         $arrivalDatetime = Carbon::parse($request->arriving_date . ' ' . $request->arriving_time);
 
-        if ($request->hasFile('application_attachment')) {
-            $file = $request->file('application_attachment');
-            $extension = $file->getClientOriginalExtension();
-
-            $up_filename = strtotime("now") . '.' . $extension;
-            $filePath = 'documents/' . $up_filename;
-            $attachuploaded = Storage::disk('public')->put(
-                $filePath,
-                file_get_contents($file->getRealPath())
-            );
-
-
-            if (!$attachuploaded) {
-                throw new \Exception("Failed to store file");
-            }
-        }
-
-
-
+        
         $maxAttempts = 20;
         $attempt = 0;
 
@@ -521,14 +505,44 @@ class BeneficiaryController extends Controller
             'application_no' => $application_no,
             'departure_date_time' =>  $departureDatetime,
             'arriving_date_time' => $arrivalDatetime,
-            'application_attachment' => $filePath
+         
 
         ]);
+
+        if ($request->filled('alt_contact_abroad_phone')) {
+            $data = array_merge($data, [
+                'alt_mobile_country_code' => $request->alt_mobile_country_code,
+
+            ]);
+        }
         if ($request->filled('application_id')) {
             $application = ServiceApplication::find($request->application_id);
             $application->update($data);
         } else {
             $application = ServiceApplication::create($data);
+        }
+
+        // Handle file uploads for multiple files
+        if ($request->hasFile('application_attachment')) {
+            foreach ($request->file('application_attachment') as $file) {
+                if ($file && is_object($file)) { // skip empty or invalid
+                    $extension = $file->getClientOriginalExtension();
+                    $up_filename = strtotime("now") . '_' . uniqid() . '.' . $extension;
+                    $filePath = 'documents/' . $up_filename;
+                    $attachuploaded = Storage::disk('public')->put(
+                        $filePath,
+                        file_get_contents($file->getRealPath())
+                    );
+                    if (!$attachuploaded) {
+                        throw new \Exception("Failed to store file");
+                    }
+                    // Save to new attachment table
+                    \App\Models\ServiceApplicationAttachment::create([
+                        'application_id' => $application->id,
+                        'attachment_path' => $filePath,
+                    ]);
+                }
+            }
         }
 
         return redirect()->route('beneficiary.index')->with('success', 'Application submitted successfully!');
@@ -658,7 +672,8 @@ class BeneficiaryController extends Controller
             'native_address' => ['required', 'max:255', new AlphaSpaceNumChar],
 
             // File Upload
-            'application_attachment' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:2048'],
+            'application_attachment.0' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:2048'],
+            'application_attachment.*' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:2048'],
 
 
         ];
@@ -683,7 +698,7 @@ class BeneficiaryController extends Controller
             'flight_no' => 'Flight No',
             'departure_date' => 'Departure Date',
             'departure_time' => 'Departure Time',
-
+            'arrival_airport' => 'Arrival Airport',
 
             // Location Information
             'state' => 'State',
@@ -735,3 +750,4 @@ class BeneficiaryController extends Controller
         ]);
     }
 }
+

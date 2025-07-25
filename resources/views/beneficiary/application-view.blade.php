@@ -157,7 +157,7 @@
                             </div>
                             <div class="mb-3">
                                 <label class="readonly-label">Contact Number (Abroad)</label>
-                                <div class="readonly-value">{{ $application->contact_abroad_phone }}</div>
+                                <div class="readonly-value">+{{ $application->mobile_country_code}} {{ $application->contact_abroad_phone }}</div>
                             </div>
                             @if(!empty($application->alt_contact_abroad_name))
                             <div class="mb-3">
@@ -168,7 +168,7 @@
                             @if(!empty($application->alt_contact_abroad_phone))
                             <div class="mb-3">
                                 <label class="readonly-label">Alternative Contact Number (Abroad)</label>
-                                <div class="readonly-value">{{ $application->alt_contact_abroad_phone }}</div>
+                                <div class="readonly-value">+{{$application->alt_mobile_country_code}} {{ $application->alt_contact_abroad_phone }}</div>
                             </div>
                             @endif
                             <div class="mb-3">
