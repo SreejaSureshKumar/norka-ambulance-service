@@ -40,14 +40,7 @@
                             <p class="text-muted"><span class="sub-text">{{ Auth::user()->email }}</span></p>
                             <hr />
                             <div class="profile-notification-scroll position-relative" style="max-height: calc(100vh - 280px)">
-                                <a href="#" class="dropdown-item">
-                                    <i class="ti ti-settings"></i>
-                                    <span>Account Settings</span>
-                                </a>
-                                <a href="#" class="dropdown-item">
-                                    <i class="ti ti-user"></i>
-                                    <span>Social Profile</span>
-                                </a>
+                              
                                 <a class="dropdown-item" href="{{ route('logout') }}"
                                     onclick="event.preventDefault();
                                         document.getElementById('logout-form').submit();">

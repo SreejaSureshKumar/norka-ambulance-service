@@ -34,7 +34,7 @@ Route::middleware(['auth', 'NoCache'])->group(function () {
     Route::get('new-application', [App\Http\Controllers\AgencyController::class, 'index'])->name('agency.index')->middleware(['check.usertype']);
     Route::get('service-completed-list', [App\Http\Controllers\AgencyController::class, 'serviceCompletedList'])->name('agency.service-completed-list')->middleware(['check.usertype']);
     Route::get('ambulance-service-completed-list', [App\Http\Controllers\AmbulanceApplicationController::class, 'serviceCompletedList'])->name('service-application.service-completed')->middleware(['check.usertype']);
-
+    Route::get('create-batch',[App\Http\Controllers\FundDisbursementController::class,'index'])->name('accounts.create-batch')->middleware(['check.usertype']);
     
     Route::middleware(['auth.usertype:beneficiary'])->group(function () {
         Route::get('/beneficiary/application-form', [App\Http\Controllers\BeneficiaryController::class, 'applicationForm'])->name('beneficiary.application-form');
@@ -49,7 +49,9 @@ Route::middleware(['auth', 'NoCache'])->group(function () {
          Route::post('/beneficiary/cancel-service', [App\Http\Controllers\BeneficiaryController::class, 'cancelService'])->name('beneficiary.cancel-service');
     });
 
-
+ Route::middleware(['auth.usertype:accounts_user'])->group(function () {
+        Route::post('/batch-create', [App\Http\Controllers\FundDisbursementController::class, 'createBatch'])->name('accounts.batch-creation');
+    });
     Route::middleware(['auth.usertype:official_user,nodal_officer'])->group(function () {
 
         Route::post('/application/application-action/{id}', [App\Http\Controllers\ApplicationController::class, 'applicationProcess'])->name('application.application-action');

@@ -258,11 +258,11 @@ class AgencyController extends Controller
         $agency_id = $request->agency_id;
         $validatedData = $request->validate([
             'driver_name' => ['required', 'max:255', new AlphaSpace],
-            'address' => ['required',  'max:255', new AlphaSpaceNumChar],
+            'vehicle_number' => ['required',  'max:255', new AlphaSpaceNumChar],
             'mobile' => ['required', new PhoneNumber('IN'), 'max:25']
         ], [], [
             'driver_name' => 'Name',
-            'address' => 'Address',
+            'vehicle_number' => 'Vehicle Number',
             'mobile' => 'Mobile'
 
         ]);

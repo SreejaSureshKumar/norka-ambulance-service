@@ -235,13 +235,20 @@
                                 <label class="readonly-label">Communication Address</label>
                                 <div class="readonly-value">{{ $application->native_address }}</div>
                             </div>
+                          
                             <div class="mb-3">
-                                <label class="readonly-label">Attachment</label>
+                                <label class="readonly-label">Attachments</label>
                                 <div>
-                                    @if($application->application_attachment)
-                                    <a href="{{ Storage::url($application->application_attachment) }}" target="_blank" class="document-modal-control popup" data-download="">View Attachment <i class="ti ti-paperclip"></i></a>
+                                    @if(isset($application->attachments) && $application->attachments->count())
+                                        @foreach($application->attachments as $attachment)
+                                            <div class="mb-1">
+                                                <a href="{{ Storage::url($attachment->attachment_path) }}" target="_blank" class="document-modal-control popup" data-download="">
+                                                  View Attachment<i class="ti ti-paperclip"></i>
+                                                </a>
+                                            </div>
+                                        @endforeach
                                     @else
-                                    Not Uploaded
+                                        Not Uploaded
                                     @endif
                                 </div>
                             </div>
@@ -351,8 +358,8 @@
                                 <dd class="col-sm-7 readonly-value">{{ $application->driverDetails->driver_name }}</dd>
                                 <dt class="col-sm-5 readonly-label">Mobile</dt>
                                 <dd class="col-sm-7 readonly-value">{{ $application->driverDetails->mobile }}</dd>
-                                <dt class="col-sm-5 readonly-label">Address</dt>
-                                <dd class="col-sm-7 readonly-value">{{ $application->driverDetails->address }}</dd>
+                                <dt class="col-sm-5 readonly-label">Vehicle Number</dt>
+                                <dd class="col-sm-7 readonly-value">{{ $application->driverDetails->vehicle_number }}</dd>
                             </dl>
                         </div>
                         @endif

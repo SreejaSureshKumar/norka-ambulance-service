@@ -45,7 +45,8 @@ class ServiceApplication extends Model
         'mobile_country_code',
         'alt_mobile_country_code',
         'mobile_country_iso_code',
-        'alt_mobile_iso_code'
+        'alt_mobile_iso_code',
+        'batch_id',
     ];
 
     public function countryRelation()
@@ -80,5 +81,9 @@ class ServiceApplication extends Model
     public function approvedUser()
     {
         return $this->belongsTo(User::class, 'approved_by', 'id');
+    }
+    public function attachments()
+    {
+        return $this->hasMany(ServiceApplicationAttachment::class, 'application_id', 'id');
     }
 }

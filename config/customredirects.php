@@ -6,7 +6,8 @@ return [
         'beneficiary' => 2,
         'official_user' => 3,
         'agency_user'=>6,
-        'nodal_officer'=>7
+        'nodal_officer'=>7,
+        'accounts_user'=>8,
     ],
     'redirects' => [
         'admin_user' => 'home.admin',

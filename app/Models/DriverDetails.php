@@ -15,7 +15,7 @@ class DriverDetails extends Model
        
         'driver_name',
         'mobile',
-        'address',
+        'vehicle_number',
         'application_id',
         'created_by',
         'created_at',

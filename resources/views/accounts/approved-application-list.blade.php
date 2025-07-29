@@ -27,7 +27,10 @@
     @endif
     <div class="card-header">
         <div class="d-flex justify-content-between align-items-center">
-            <h3 class="card-title mb-0">Ambulance Service / New Applications </h3>
+            <h3 class="card-title mb-0">Ambulance Service / Applications </h3>
+            <button class="btn btn-success" id="create-batch-btn" type="button">
+                <i class="fa fa-plus"></i> Create Batch
+            </button>
         </div>
     </div>
     <div class="card-body">
@@ -35,15 +38,17 @@
             <table id="applications-table" class="table table-bordered table-striped w-100">
                 <thead>
                     <tr>
+                        <th>
+                            <input type="checkbox" id="select-all">
+                        </th>
                         <th>Sl No.</th>
                         <th>Application No</th>
                         <th>Deceased's Name</th>
                         <th>Passport No</th>
                         <th>Country</th>
-                        
                         <th>Submitted On</th>
-                        <th>Service Date</th>
-                        <th>Status</th>
+                        <th>Approved On</th>
+                        
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -88,7 +93,7 @@
                     </div>
                     <div class="mb-3">
                         <label for="address" class="col-form-label">Vehicle Number :</label>
-                       <input type="text" class="form-control" id="vehicle_number" name="vehicle_number" maxlength="25" required>
+                        <input type="text" class="form-control" id="vehicle_number" name="vehicle_number" maxlength="25" required>
                         @error('vehicle_number')
                         <span class="text-danger" role="alert">
                             <strong>{{ $message }}</strong>
@@ -108,16 +113,41 @@
 
 @push('custom-scripts')
 <script data-cfasync="false">
+   
+    var selectedApplications = JSON.parse(localStorage.getItem('selectedApplications') || '[]');
+
+    function updateLocalStorage() {
+        localStorage.setItem('selectedApplications', JSON.stringify(selectedApplications));
+    }
+
+    function isSelected(id) {
+        return selectedApplications.includes(id);
+    }
+
+    function renderSelectCheckbox(id) {
+        return `<input type="checkbox" class="row-select" value="${id}" ${isSelected(id) ? 'checked' : ''}>`;
+    }
+
     $(document).ready(function() {
         var table = $('#applications-table').DataTable({
             processing: true,
             serverSide: true,
             ajax: {
-                url: "{{ route('agency.index') }}",
+                url: "{{ route('accounts.create-batch') }}",
                 type: "GET",
                 dataType: "json",
             },
-            columns: [{
+            columns: [
+                {
+                    data: 'id',
+                    name: 'select',
+                    orderable: false,
+                    searchable: false,
+                    render: function(data, type, row) {
+                        return renderSelectCheckbox(data);
+                    }
+                },
+                {
                     data: 'id',
                     name: 'id'
                 },
@@ -137,19 +167,15 @@
                     data: 'country',
                     name: 'country'
                 },
-             
-                
+
+
                 {
                     data: 'created_at',
                     name: 'created_at'
                 },
-                 {
-                    data: 'service_date',
-                    name: 'service_date'
-                },
-                   {
-                    data: 'status',
-                    name: 'status'
+                {
+                    data: 'approved_date',
+                    name: 'approved_date'
                 },
                 {
                     data: 'actions',
@@ -169,9 +195,94 @@
             fnRowCallback: function(nRow, aData, iDisplayIndex) {
                 var row = $(nRow);
                 row.attr("id", 'row' + aData['id']);
-                $("td:first", nRow).html(iDisplayIndex + 1);
+                $("td:eq(1)", nRow).html(iDisplayIndex + 1); 
                 return nRow;
+            },
+            drawCallback: function(settings) {
+                
+                $('.row-select').each(function() {
+                    var id = parseInt($(this).val());
+                    $(this).prop('checked', isSelected(id));
+                });
+              
+                var allChecked = $('.row-select').length > 0 && $('.row-select:checked').length === $('.row-select').length;
+                $('#select-all').prop('checked', allChecked);
             }
+        });
+
+     
+        $(document).on('change', '.row-select', function() {
+            var id = parseInt($(this).val());
+            if ($(this).is(':checked')) {
+                if (!selectedApplications.includes(id)) {
+                    selectedApplications.push(id);
+                }
+            } else {
+                selectedApplications = selectedApplications.filter(function(val) { return val !== id; });
+            }
+            updateLocalStorage();
+        
+            var allChecked = $('.row-select').length > 0 && $('.row-select:checked').length === $('.row-select').length;
+            $('#select-all').prop('checked', allChecked);
+        });
+
+      
+        $('#select-all').on('change', function() {
+            var checked = $(this).is(':checked');
+            $('.row-select').each(function() {
+                var id = parseInt($(this).val());
+                $(this).prop('checked', checked);
+                if (checked) {
+                    if (!selectedApplications.includes(id)) {
+                        selectedApplications.push(id);
+                    }
+                } else {
+                    selectedApplications = selectedApplications.filter(function(val) { return val !== id; });
+                }
+            });
+            updateLocalStorage();
+        });
+
+   
+        table.on('draw', function() {
+            $('.row-select').each(function() {
+                var id = parseInt($(this).val());
+                $(this).prop('checked', isSelected(id));
+            });
+            var allChecked = $('.row-select').length > 0 && $('.row-select:checked').length === $('.row-select').length;
+            $('#select-all').prop('checked', allChecked);
+        });
+
+       
+        $('#create-batch-btn').on('click', function() {
+            if (selectedApplications.length === 0) {
+                alert('Please select at least one application to create a batch.');
+                return;
+            }
+            if (!confirm('Are you sure you want to create a batch with the selected applications?')) {
+                return;
+            }
+            $.ajax({
+                url: "{{ route('accounts.batch-creation') }}",
+                type: 'POST',
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    application_ids: selectedApplications
+                },
+                success: function(response) {
+                    if (response.success) {
+                        alert(response.message || 'Batch created successfully!');
+                        selectedApplications = [];
+                        updateLocalStorage();
+                        table.ajax.reload();
+                    } else {
+                        alert(response.message || 'Failed to create batch.');
+                    }
+                },
+                error: function(xhr) {
+                    alert('An error occurred while creating the batch.');
+                }
+            });
         });
     });
 
@@ -187,12 +298,12 @@
 
     });
 
- 
+
     $(document).on('click', '.confirm-complete', function(e) {
         e.preventDefault();
         const appId = $(this).data('id');
-      
-     alert('Are you sure you want to mark this application as completed?');
+
+        alert('Are you sure you want to mark this application as completed?');
         $.ajax({
             url: "{{ route('agency.mark-completed') }}",
             type: 'POST',
@@ -204,7 +315,7 @@
                 if (response.success) {
                     alert(response.message);
                     location.reload();
-                   
+
                 }
             },
             error: function(xhr, status, error) {
@@ -214,7 +325,7 @@
         });
 
     });
-      // Confirmation before submit
+    // Confirmation before submit
     document.addEventListener('DOMContentLoaded', function() {
         var form = document.getElementById('details-form');
         var submitBtn = document.getElementById('submit-btn');
