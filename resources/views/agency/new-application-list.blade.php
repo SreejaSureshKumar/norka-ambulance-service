@@ -203,9 +203,7 @@
             success: function(response) {
                 if (response.success) {
                     alert(response.message);
-                    $('#row' + appId).remove();
-                } else {
-                    alert(response.message);
+                   
                 }
             },
             error: function(xhr, status, error) {

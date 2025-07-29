@@ -300,7 +300,7 @@ class AmbulanceApplicationController extends Controller
             ];
 
             //fetch applications which are processed
-            $totalData = ServiceApplication::whereIn('application_status', [2, 4])->count();
+            $totalData = ServiceApplication::whereIn('application_status', [2,4,6])->count();
             $totalFiltered = $totalData;
 
             $limit = request()->input('length');
@@ -308,7 +308,7 @@ class AmbulanceApplicationController extends Controller
             $order = $columns[request()->input('order.0.column') ?? 5] ?? 'created_at';
             $dir = request()->input('order.0.dir') ?? 'desc';
 
-            $query = ServiceApplication::with('countryRelation')->whereIn('application_status', [2, 4]);
+            $query = ServiceApplication::with('countryRelation')->whereIn('application_status', [2, 4 ,6]);
             if ($nodal_officer == $user->user_type) {
                 $query->where('service_status', '=', 0);
             }
@@ -344,7 +344,10 @@ class AmbulanceApplicationController extends Controller
              </a></div>';
                 if ($app->application_status == 4) {
                     $status = '<span class="badge bg-info text-dark">Approved for payment</span>';
-                } elseif ($app->agency_id != 0 && ($app->driverDetails()->count() == 0)) {
+                }
+                if ($app->application_status == 6) {
+                    $status = '<span class="badge bg-danger text-dark">Cancelled</span>';
+                }  elseif ($app->agency_id != 0 && ($app->driverDetails()->count() == 0)) {
                     $status = '<span class="badge bg-primary text-dark">Assigned to Agency </span>';
                 } elseif ($app->service_status == 1 && $app->serviceDetails()->count() == 0) {
                     $status = '<span class="badge bg-success text-dark">Service Completed</span>';

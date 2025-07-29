@@ -33,6 +33,14 @@
 </div>
 <br>
 
+@php
+    // Fix for undefined $count variable
+    $count = 1;
+    if (isset($application) && method_exists($application, 'attachments')) {
+        $count = max(1, $application->attachments()->count());
+    }
+@endphp
+
 <div class="container pb-1">
     @error('application_no')
     <div class="alert alert-danger alert-dismissible fade show my-3" role="alert">
@@ -366,20 +374,24 @@
                     <div class="col-md-6 mt-5 pt-2">
                         <label for="application_attachment_0" class="form-label">
                             Upload Attachment <span class="text-danger">*</span>
-                            <button type="button" class="btn btn-primary ms-2" id="add-attachment-row">Add Row</button>
+                            <button type="button" class="btn btn-primary ms-2" id="add-attachment-row"><i class="ti ti-plus"></i></button>
                         </label>
                         <div id="attachment-rows" class="row">
                             <div class="col-md-12 form-file mb-3 attachment-row d-flex align-items-center">
                                 <input type="file" class="form-control" name="application_attachment[]" id="application_attachment_0" required>
-                                <!-- No delete button for first row -->
-                                @error('application_attachment.0')
-                                <span class="text-danger" role="alert">
-                                    <strong>{{ $message }}</strong>
-                                </span>
-                                @enderror
+                             
                             </div>
                         </div>
-                        <small class="text-muted">Maximum 5 files. Only PDF/JPG/JPEG/PNG. Max 2MB each.</small>
+                      
+                        @if($errors->has('application_attachment') || $errors->has('application_attachment.0') || $errors->has('application_attachment.*'))
+                            <span class="text-danger" role="alert">
+                                <strong>
+                                    {{ $errors->first('application_attachment') ?: $errors->first('application_attachment.0') ?: $errors->first('application_attachment.*') }}
+                                </strong>
+                            </span>
+                            <br>
+                        @endif
+                        <small class="text-muted">Maximum 5 files. Only PDF. Max 2MB each.</small>
                     </div>
                   
                 </div>
@@ -488,7 +500,12 @@
         if (form && submitBtn) {
             form.addEventListener('submit', function(e) {
                 // Validate file uploads first
-             
+                var firstAttachment = document.getElementById('application_attachment_0');
+                if (!firstAttachment || !firstAttachment.files || firstAttachment.files.length === 0) {
+                    alert('Please upload at least one attachment .');
+                    e.preventDefault();
+                    return;
+                }
                 if (!confirm('Are you sure you want to submit this application?')) {
                     e.preventDefault();
                 }
