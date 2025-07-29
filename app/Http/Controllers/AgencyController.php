@@ -49,7 +49,7 @@ class AgencyController extends Controller
                 7 => 'created_at',
             ];
             //fetch applications whic are submittedand pending for approval
-            $totalData = ServiceApplication::where('application_status', 2)->where('service_status', 0)->count();
+            $totalData = ServiceApplication::whereIn('application_status', [2, 6])->where('service_status', 0)->count();
             $totalFiltered = $totalData;
 
             $limit = $request->input('length');
@@ -66,7 +66,7 @@ class AgencyController extends Controller
             }
 
 
-            $query = ServiceApplication::with('countryRelation', 'stateRelation', 'driverDetails', 'agencyUser')->where('application_status', 2)
+            $query = ServiceApplication::with('countryRelation', 'stateRelation', 'driverDetails', 'agencyUser')->whereIn('application_status', [2, 6])
                 ->where('agency_id', $user->id);
 
             // Search filter
@@ -113,9 +113,12 @@ class AgencyController extends Controller
                         //Mark as service completed
                         $actions .= '<button type="button" class="btn btn-success btn-sm confirm-complete"
                 data-id="' . $app->id . '" >
-                <em class="icon ni ni-check-circle"></em> Mark as Completed';
+                <em class="icon ni ni-check-circle"></em> Mark as Completed</button>';
                         $status = '<span class="badge bg-warning text-dark">Awaiting Completion</span>';
-                    } else {
+                    }elseif($app->application_status == 6) {
+                        $status = '<span class="badge bg-danger text-dark">Cancelled</span>';
+                    }
+                     else {
                         $status = '<span class="badge bg-info text-dark">Assigned to driver</span>';
                     }
                 }
@@ -216,7 +219,7 @@ class AgencyController extends Controller
 
                     $status = '<span class="badge bg-info text-dark">Service completed</span>';
                 } else {
-                    if ($app->application_status==4) {
+                    if ($app->application_status == 4) {
                         $status = '<span class="badge bg-success text-dark">Approved for Payment</span>';
                     } else {
                         //service date expired but no driver assigned

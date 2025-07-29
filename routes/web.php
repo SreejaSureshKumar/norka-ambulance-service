@@ -46,6 +46,7 @@ Route::middleware(['auth', 'NoCache'])->group(function () {
         Route::post('/beneficiary/application-validation', [App\Http\Controllers\BeneficiaryController::class, 'applicationValidation'])->name('beneficiary.validate-application');
         Route::get('/beneficiary/application-details/{app_id}', [App\Http\Controllers\BeneficiaryController::class, 'applicationDetails'])->name('beneficiary.application-details');
         Route::post('/beneficiary/date-field-validation', [App\Http\Controllers\BeneficiaryController::class, 'datefieldValidation'])->name('beneficiary.date-field-validation');
+         Route::post('/beneficiary/cancel-service', [App\Http\Controllers\BeneficiaryController::class, 'cancelService'])->name('beneficiary.cancel-service');
     });
 
 

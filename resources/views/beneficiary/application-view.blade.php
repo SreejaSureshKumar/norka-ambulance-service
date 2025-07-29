@@ -312,8 +312,8 @@
         </div>
 @php
     $user = Auth::user();
-    $isAgencyItself = $application->agency_id == $user->id;
-    $isApplicant=$application->created_by== $user->id;
+    $isAgencyItself = $application->agency_id == $user->id &&!empty($application->driverDetails);
+    $isApplicant = $application->created_by == $user->id && !empty($application->driverDetails);
     $isOfficialOrNodal = in_array($user->user_type, [$official, $nodal_officer]);
 @endphp
        @if(!empty($application->agencyUser) && ($isAgencyItself || $isOfficialOrNodal ||$isApplicant))

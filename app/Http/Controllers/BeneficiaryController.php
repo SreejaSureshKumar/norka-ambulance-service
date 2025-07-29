@@ -75,7 +75,8 @@ class BeneficiaryController extends Controller
                     'passport_no',
                     'country',
                     'application_status as status',
-                    'created_at'
+                    'created_at',
+                    'arriving_date_time'
                 ]);
 
             // Apply search filter to both queries
@@ -148,17 +149,16 @@ class BeneficiaryController extends Controller
             $data = $applications->map(function ($app) {
                 $id = encrypt($app->id);
 
-                if ($app->status == 1 || $app->status == 2 || $app->status == 3 || $app->status == 4) {
+                if ($app->status == 0) {
+                    $label = 'Apply';
+                    $url = $app->application_type == 2 ? route('beneficiary.service-application-form', ['resume' => 1, 'id' => encrypt($app->id)]) : '';
+                } else {
                     $url = $app->application_type == 1
                         ? URL::signedRoute('beneficiary.application-show', ['app_id' => $id])
                         : URL::signedRoute('beneficiary.application-details', ['app_id' => $id]);
 
                     $label = 'View';
-                } elseif ($app->status == 0) {
-                    $label = 'Apply';
-                    $url = $app->application_type == 2 ? route('beneficiary.service-application-form', ['resume' => 1, 'id' => encrypt($app->id)]) : '';
                 }
-
 
                 $downloadUrl =  URL::signedRoute('application.generate-application-pdf', ['app_id' => $id]);
 
@@ -222,6 +222,7 @@ class BeneficiaryController extends Controller
             1 => '<span class="badge bg-primary text-dark">Submitted</span>',
             3 => '<span class="badge bg-danger text-dark">Rejected</span>',
             4 => '<span class="badge bg-success text-dark">Service Completed</span>',
+            6 => '<span class="badge bg-danger text-dark">Cancelled</span>',
             default => '<span class="badge bg-warning text-dark">Pending</span>',
         };
     }
@@ -230,15 +231,45 @@ class BeneficiaryController extends Controller
     {
 
         $buttons = '<div class="d-flex gap-2">';
-        $buttons .= '<a class="btn btn-primary  view_but" href="' . $url . '" target="_blank"><div class="preview-icon-wrap"> ' . $label . '</div></a>';
+       
 
-        if ($app->status == 2 && $app->type == 1) {
+        if ($app->status == 2 && $app->application_type == 1) {
             $buttons .=
                 '<a href="' . $downloadUrl . '" class="btn btn-success document-modal-control popup" data-download="" title="Download">
                         <div class="preview-icon-wrap"><i class="ti ti-file-download"></i></div>
                      </a>';
         }
 
+        if ($app->application_type == 2) {
+            if (($app->status == 1 || $app->status == 2)) {
+              
+                $showCancel = false;
+               
+                if (!empty($app->arriving_date_time)) {
+                    $arriving = \Carbon\Carbon::parse($app->arriving_date_time);
+                    $now = \Carbon\Carbon::now();
+
+                    if ($arriving->isFuture()) {
+
+                        $showCancel = true;
+                    } elseif ($now->toDateString() === $arriving->toDateString()) {
+                       
+                        if ($now->lt($arriving->copy()->subHours(3))) {
+                         
+                            $showCancel = true;
+                        }
+                    }
+                  
+                }
+                if ($showCancel) {
+                    $id = encrypt($app->id);
+                    $buttons .= '<button type="button" class="btn btn-danger confirm-cancel"
+                data-id="' . $id . '" >
+                <em class="icon ni ni-check-circle"></em>Cancel</button>';
+                }
+            }
+        }
+         $buttons .= '<a class="btn btn-primary  view_but" href="' . $url . '" target="_blank"><div class="preview-icon-wrap"> ' . $label . '</div></a>';
         return $buttons . '</div>';
     }
     public function applicationForm(Request $request): View
@@ -473,9 +504,9 @@ class BeneficiaryController extends Controller
             // File Upload
             'application_attachment' => 'Attachment',
             'application_attachment.0' => 'Attachment',
-            'application_attachment.*' =>'Attachment'
+            'application_attachment.*' => 'Attachment'
         ]);
-        // Combine date and time
+
         $departureDatetime = Carbon::parse($request->departure_date . ' ' . $request->departure_time);
         $arrivalDatetime = Carbon::parse($request->arriving_date . ' ' . $request->arriving_time);
 
@@ -520,7 +551,9 @@ class BeneficiaryController extends Controller
         $data = [
             "deceased_person_name" => $request->deceased_person_name,
             "passport_no" => $request->passport_no,
-            "country"=>$request->country,
+            "country" => $request->country,
+            "state" => $request->state,
+            "district" => $request->district,
 
             "contact_abroad_name" => $request->contact_abroad_name,
             "contact_abroad_phone" => $request->contact_abroad_phone,
@@ -547,7 +580,7 @@ class BeneficiaryController extends Controller
         if ($request->filled('alt_contact_abroad_phone')) {
             $data = array_merge($data, [
                 'alt_mobile_country_code' => $request->alt_mobile_country_code,
-                'alt_mobile_iso_code' =>$request->alt_mobile_country_code
+                'alt_mobile_iso_code' => $request->alt_mobile_country_code
 
             ]);
         }
@@ -784,6 +817,30 @@ class BeneficiaryController extends Controller
         return response()->json([
             'districts' => $districts
         ]);
+    }
+    public function cancelService(Request $request)
+    {
+
+        $user = Auth::user();
+        $app_id = $request->input('application_id');
+        $id = Crypt::decrypt($app_id);
+
+        $application = ServiceApplication::where('id', $id)
+            ->where('created_by', $user->id)
+            ->whereIn('application_status', [1, 2])
+            ->first();
+
+        if ($application) {
+            //set status to 6 denoting cancelled
+            $saved = $application->update(['application_status' => 6]);
+            if ($saved) {
+                return response()->json(['message' => 'Application cancelled successfully!', 'status' => 'true'], 200);
+            } else {
+                return response()->json(['message' => 'Faile. Please try again.', 'status' => 'false'], 500);
+            }
+        } else {
+            return response()->json(['message' => 'Application not found or cannot be cancelled.', 'status' => 'false'], 404);
+        }
     }
 }
 
