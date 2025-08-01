@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CaptchaController;
+use Illuminate\Support\Facades\Auth;
 
 Route::get('/', [App\Http\Controllers\GenericController::class, 'index']);
 Route::get('/welcome', function () {

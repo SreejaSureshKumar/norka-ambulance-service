@@ -18,6 +18,7 @@ class ComponentPermission extends Model
         'component_id',
         'usertype_id',
         'permission_status',
+        'permission_order'
       
 
     ];
